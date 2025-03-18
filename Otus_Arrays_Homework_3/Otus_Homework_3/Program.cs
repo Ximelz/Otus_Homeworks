@@ -250,6 +250,7 @@ namespace Otus_Homework_2
             }
         }
 
+
         /// <summary>
         /// Метод удаления задачи.
         /// </summary>
