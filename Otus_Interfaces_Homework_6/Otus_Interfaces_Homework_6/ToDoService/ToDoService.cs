@@ -35,8 +35,8 @@ namespace Otus_Interfaces_Homework_6
             tasks = new List<ToDoItem> ();
             tasksCount = 0;
         }
-        private List<ToDoItem> tasks;               //Список всех задач.
-        private int tasksCount { get; set; }        //Количество задач.
+        public List<ToDoItem> tasks { get; private set; }  //Список всех задач.
+        public int tasksCount { get; private set; }        //Количество задач.
 
         /// <summary>
         /// Получение списка всех активных задач пользователя.
@@ -48,20 +48,11 @@ namespace Otus_Interfaces_Homework_6
             List<ToDoItem> resultTasks = new List<ToDoItem>();
 
             foreach (var task in tasks)
-                if (task.State == ToDoItemState.Active)
-                    resultTasks.Add(task);
+                if (userId == task.User.UserId)
+                    if (task.State == ToDoItemState.Active)
+                        resultTasks.Add(task);
 
             return resultTasks;
-        }
-
-        /// <summary>
-        /// Получение списка всех добавленных задач пользователя.
-        /// </summary>
-        /// <param name="userId">id пользователя.</param>
-        /// <returns>Список всех задач.</returns>
-        public IReadOnlyList<ToDoItem> GetAllByUserID(Guid userId)
-        {
-            return tasks;
         }
 
         /// <summary>
@@ -104,15 +95,6 @@ namespace Otus_Interfaces_Homework_6
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Получение количества сохраненных задач.
-        /// </summary>
-        /// <returns>Количество задач.</returns>
-        public int GetTasksCount()
-        {
-            return tasksCount;
         }
     }
 }

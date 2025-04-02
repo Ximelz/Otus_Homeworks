@@ -82,7 +82,7 @@ namespace Otus_Interfaces_Homework_6
                 try
                 {
                     ConsoleBotClient client = new ConsoleBotClient();
-                    client.StartReceiving(new UpdateHandler(new UserService()));
+                    client.StartReceiving(new UpdateHandler(new UserService(), new ToDoService()));
                 }
                 catch (Exception ex)
                 {

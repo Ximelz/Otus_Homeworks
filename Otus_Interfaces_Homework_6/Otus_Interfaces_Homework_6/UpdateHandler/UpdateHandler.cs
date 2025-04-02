@@ -1,8 +1,11 @@
 ﻿using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
+using Otus_Interfaces_Homework_6;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -83,14 +86,11 @@ namespace Otus_Interfaces_Homework_6
     /// </summary>
     public class UpdateHandler : IUpdateHandler
     {
-        public UpdateHandler(IUserService userService)
+        public UpdateHandler(IUserService userService, IToDoService iToDoService)
         {
             this.userService = userService;
+            this.iToDoService = iToDoService;
             currentCommands = new string[] { "/start", "/info", "/help" };
-            toDoService = new ToDoService();
-            removeCommandActive = false;
-            completeCommandActive = false;
-            startFlag = false;
         }
         public const string helpInfo = "Для работы с ботом нужно ввести команду. В программе существуют следующие команды:\n\r" +
                                        "/info - получите информацию о версии и дате создания и изменения программы.\n\r" +
@@ -98,21 +98,24 @@ namespace Otus_Interfaces_Homework_6
                                        "/start - команда для авторизации пользователя в боте. После авторизации становятся доступны следующие команды:\n\r" +
                                        "/showtasks - команда показывает все активные задачи.\n\r" +
                                        "/showalltasks - команда показывает все имеющиеся задачи.\n\r" +
+                                       "/maxtasks - команда для указания максимального количества задач. Может быть только в диапазоне от 1 до 100." +
+                                                          "Доступна после команды \"/start\" и перестает быть доступной после ввода максимального количества задач и максимально имени задачи." +
+                                       "/maxnametask - команда для указания максимального имени задачи. Может быть только в диапазоне от 1 до 100." +
+                                                          "Доступна после команды \"/start\" и перестает быть доступной после ввода максимального количества задач и максимально имени задачи." +
                                        "/addtask {name} - команда для добавления задачи. В качестве аргумента {name} передается имя задачи.\n\r" +
-                                       "/removetask {id} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\". " +
-                                                          "Команда становится доступной после ввода команды \"/showalltasks\". После ввода любой команды данная команда удаляется из списка доступных команд до следующего ввожда \"/showalltasks\".\n\r" +
-                                       "/completetask {id} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\". " +
-                                                          "Команда становится доступной после ввода команды \"/showtasks\". После ввода любой команды данная команда удаляется из списка доступных команд до следующего ввожда \"/showtasks\".\n\r" +
+                                       "/removetask {id} {stateFlag} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\". " +
+                                                          "Аргумент {stateFlag} определяет из какого списка берется номер задачи для удаления. {stateFlag} может иметь только 2 значения: \"all\" и \"active\".\n\r" +
+                                       "/completetask {id} {stateFlag} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\"." +
+                                                          "Аргумент {stateFlag} определяет из какого списка берется номер задачи для изменения. {stateFlag} может иметь только 2 значения: \"all\" и \"active\".\n\r" +
                                        "Для окончания работы с ботом нужно нажать комбинацию клавиш Ctrl + C.";
-        public const string version = "Версия программы 0.4, дата создания 20.02.2025, дата изменения 30.03.2025";
+        public const string version = "Версия программы 0.5, дата создания 20.02.2025, дата изменения 02.04.2025";
 
-        private string[] currentCommands;           //Список доступных команд.
-        private ConsoleUser user;                   //Текущий пользователь.
-        private IUserService userService;           //Интерфейс для регистрации пользователя.
-        private IToDoService toDoService;           //Интерфейс для взаимодействия с задачами.
-        private bool removeCommandActive;           //Флаг доступности команды удаления задачи.
-        private bool completeCommandActive;         //Флаг доступности команды выполнения задачи.
-        private bool startFlag;                     //Флаг авторизации пользователя для старта бота.
+        private string[] currentCommands;                     //Список доступных команд.
+        private ConsoleUser user;                             //Текущий пользователь.
+        private readonly IUserService userService;            //Интерфейс для регистрации пользователя.
+        private readonly IToDoService iToDoService;           //Интерфейс для взаимодействия с задачами.
+        private int maxTasks;                                 //Максимальное количество задач.
+        private int maxLengthNameTask;
 
         /// <summary>
         /// Метод обработки обновления задач.
@@ -123,142 +126,210 @@ namespace Otus_Interfaces_Homework_6
         {
             try
             {
-                string[] messageInArray = update.Message.Text.Split(' ');
-
-                switch (messageInArray[0])
-                {
-                    case ("/start"):
-                        botClient.SendMessage(update.Message.Chat, StartCommand(update.Message.From) + "\r\n");
-                        break;
-                    case ("/help"):
-                        botClient.SendMessage(update.Message.Chat, helpInfo + "\r\n");
-                        removeCommandActive = false;
-                        completeCommandActive = false;
-                        break;
-                    case ("/info"):
-                        botClient.SendMessage(update.Message.Chat, version + "\r\n");
-                        removeCommandActive = false;
-                        completeCommandActive = false;
-                        break;
-                    case ("/showalltasks"):
-                        string showAllTaskResult;
-
-                        if (!startFlag)
-                            showAllTaskResult = "Вы не авторизированный в программе! Используйте команду \"/start\"";
-                        else
-                            showAllTaskResult = ShowTasks(false) + "\r\n";
-
-                        botClient.SendMessage(update.Message.Chat, showAllTaskResult);
-                        break;
-                    case ("/showtasks"):
-                        string showTaskResult;
-
-                        if (!startFlag)
-                            showTaskResult = "Вы не авторизированный в программе! Используйте команду \"/start\"";
-                        else
-                            showTaskResult = ShowTasks(true) + "\r\n";
-
-                        botClient.SendMessage(update.Message.Chat, showTaskResult);
-                        break;
-                    case ("/addtask"):
-                        string addTaskResult;
-
-                        if (!startFlag)
-                            addTaskResult = "Вы не авторизированный в программе! Используйте команду \"/start\"";
-                        else if (messageInArray.Length <= 1)
-                            addTaskResult = "Вы не ввели аргументы к команде \"/addtask\"!\r\n";
-                        else
-                        {
-                            messageInArray = StringArrayHandler(messageInArray);
-                            addTaskResult = AddTask(messageInArray[1]) + "\r\n";
-                        }
-
-                        botClient.SendMessage(update.Message.Chat, addTaskResult);
-                        break;
-                    case ("/removetask"):
-                        string removeTaskResult;
-
-                        if (!startFlag)
-                            removeTaskResult = "Вы не авторизированный в программе! Используйте команду \"/start\"";
-                        else if (messageInArray.Length <= 1)
-                            removeTaskResult = "Вы не ввели аргументы к команде \"/removetask\"!\r\n";
-                        else
-                        {
-                            messageInArray = StringArrayHandler(messageInArray);
-                            removeTaskResult = RemoveTask(messageInArray[1]) + "\r\n";
-                        }
-
-                        botClient.SendMessage(update.Message.Chat, removeTaskResult);
-                        break;
-                    case ("/completetask"):
-                        string completeTaskResult;
-
-                        if (!startFlag)
-                            completeTaskResult = "Вы не авторизированный в программе! Используйте команду \"/start\"";
-                        else if (messageInArray.Length <= 1)
-                            completeTaskResult = "Вы не ввели аргументы к команде \"/completetask\"!\r\n";
-                        else
-                        {
-                            messageInArray = StringArrayHandler(messageInArray);
-                            completeTaskResult = CompleteTask(messageInArray[1]) + "\r\n";
-                        }
-
-                        botClient.SendMessage(update.Message.Chat, completeTaskResult);
-                        completeCommandActive = false;
-                        break;
-                    default:
-                        botClient.SendMessage(update.Message.Chat, "Неверно введена команда\r\n");
-                        removeCommandActive = false;
-                        completeCommandActive = false;
-                        break;
-                }
-                botClient.SendMessage(update.Message.Chat, "Список доступных команд:");
-                foreach (string command in currentCommands)
-                {
-                    botClient.SendMessage(update.Message.Chat, command);
-                }
-                botClient.SendMessage(update.Message.Chat, "Введите команду:");
+                List<string> messageInList = StringArrayHandler(update.Message.Text);
+                botClient.SendMessage(update.Message.Chat, HeandlerCommands(messageInList, update.Message.From));
             }
             catch (TaskCountLimitException ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadKey();
             }
             catch (TaskLengthLimitException ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadKey();
             }
             catch (ArgumentException ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadKey();
             }
             catch (DuplicateTaskException ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadKey();
+            }
+            catch (AuthUserException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArgsException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (CommandException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (IndexOutRange ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                botClient.SendMessage(update.Message.Chat, BotsCommandString(currentCommands));
             }
         }
 
         /// <summary>
-        /// Обработка массива для объединения разбитого по ячейкам аргумента в 1 строку.
+        /// Обработка аргументов введенной строки.
         /// </summary>
-        /// <param name="inputArray">Входной массив.</param>
-        /// <returns>Обработанный массив из 2 элементов.</returns>
-        private string[] StringArrayHandler(string[] inputArray)
+        /// <param name="message">Введенная строка..</param>
+        /// <returns>Обработанный массив команды с аргументами.</returns>
+        private List<string> StringArrayHandler(string message)
         {
-            string[] tempArray = new string[2];
-            int inputArrayLength = inputArray.Length;
+            List<string> inputList = DeleteNullItemsArray(new List<string>(message.Split(' ')));
 
-            tempArray[0] = inputArray[0];
+            if (!currentCommands.Contains(inputList[0]))
+                throw new CommandException("Введена неверная команда!");
 
-            for(int i = 1; i < inputArrayLength; i++)
-                tempArray[1] += inputArray[i] + " ";
+            if (inputList[0] == "/addtask")
+                if (inputList.Count > 1)
+                    return ConcatArgsInArray(inputList);
+                else
+                    throw new ArgsException($"Введено неверное количество аргументов для команды {inputList[0]}.");
 
-            tempArray[1] = tempArray[1].Trim();
+            if (inputList[0] == "/maxtasks" || inputList[0] == "/maxnametask")
+                {
+                    if (inputList.Count != 2)
+                        throw new ArgsException($"Введено неверное количество аргументов для команды {inputList[0]}. Их должно быть 2!");
+                    return inputList;
+                }
+
+            if (inputList[0] == "/removetask" || inputList[0] == "/completetask")
+            {
+                if (inputList.Count != 3)
+                    throw new ArgsException($"Введено неверное количество аргументов для команды {inputList[0]}. Их должно быть 3!");
+                return inputList;
+            }
+
+            if (inputList.Count == 1)
+                return inputList;
+                        
+            throw new ArgsException($"Введено неверное количество аргументов для команды {inputList[0]}.");
+        }
+
+        /// <summary>
+        /// Удаление пустых элементов списка.
+        /// </summary>
+        /// <param name="inputList">Входной список.</param>
+        /// <returns>Отформатированный список.</returns>
+        private List<string> DeleteNullItemsArray(List<string> inputList)
+        {
+            List<string> tempList = new List<string>();
+
+            foreach (string item in inputList)
+                if (ValidateString(item))
+                    tempList.Add(item);
+
+            return tempList;
+        }
+
+        /// <summary>
+        /// Проверка строки на пустоту или null.
+        /// </summary>
+        /// <param name="item">Входная строка.</param>
+        /// <returns>true если строка не пустая, false если строка null, пустая или состоит из пробелов.</returns>
+        private bool ValidateString(string item)
+        {
+            if (item == null)
+                return false;
+
+            if (item.Trim() == "")
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Объединение всех элементов списка начиная со 2 элемента.
+        /// </summary>
+        /// <param name="inputList">Входной список.</param>
+        /// <returns>Объединенный список из 2-х элементов.</returns>
+        private List<string> ConcatArgsInArray(List<string> inputList)
+        {
+            List<string> tempArray = new List<string>();
+            int inputArrayLength = inputList.Count;
+            var tempsb = new StringBuilder("");
+
+            tempArray.Add(inputList[0]);
+
+            for (int i = 1; i < inputArrayLength; i++)
+                tempsb.Append(inputList[i] + " ");
+
+            tempArray.Add(tempsb.ToString().Trim());
 
             return tempArray;
+        }
+
+        /// <summary>
+        /// Логика обработки и ограничений по использованию команд.
+        /// </summary>
+        /// <param name="inputList">Входной массив, состоящий из команды и аргументов.</param>
+        /// <param name="telegramUsere">Пользователь из telegram.</param>
+        /// <returns>Результат выполнения команды.</returns>
+        private string HeandlerCommands(List<string> inputList, User telegramUser)
+        {
+            //Доп условие на проверку наличия команды в списке доступных команд нужно для того, чтобы во время выполнения программы не использовал недоступные команды.
+            if (inputList[0] == "/start" && currentCommands.Contains("/start"))
+                return StartCommand(telegramUser) + "\r\n";
+
+            if (inputList[0] == "/help")
+                return helpInfo + "\r\n";
+
+            if (inputList[0] == "/info")
+                return version + "\r\n";
+
+
+            //Проверка старта программы за счет получение информации об авторизации пользователя. 
+            if (!CheckAuthUser(telegramUser))
+            {
+                currentCommands = new string[] { "/start", "/info", "/help" };
+                throw new AuthUserException("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
+            }
+
+
+            if (inputList[0] == "/maxtasks" && currentCommands.Contains("/maxtasks"))
+                return SetMaxTasks(inputList[1]) + "\r\n";
+
+            if (inputList[0] == "/maxnametask" && currentCommands.Contains("/maxnametask"))
+                return SetMaxLengthNameTasks(inputList[1]) + "\r\n";
+
+
+            //Прежде чем работать с задачами нужно ввести максимальное их количество.
+            if (maxTasks == 0)
+                throw new ArgumentException("Вы не ввели максимальное количество задач!");
+
+            //Прежде чем работать с задачами нужно ввести максимальную длину имени задачи.
+            if (maxLengthNameTask == 0)
+                throw new ArgumentException("Вы не ввели максимальную длину задачи!");
+
+
+            if (inputList[0] == "/addtask" && currentCommands.Contains("/addtask"))
+                return AddTask(inputList[1]) + "\r\n";
+
+            if (inputList[0] == "/showalltasks" && currentCommands.Contains("/showalltasks"))
+                return ShowTasks(false) + "\r\n";
+
+            if (inputList[0] == "/showtasks" && currentCommands.Contains("/showtasks"))
+                return ShowTasks(true) + "\r\n";
+
+            if (inputList[0] == "/removetask" && currentCommands.Contains("/removetask"))
+                return RemoveTask(inputList) + "\r\n";
+
+            if (inputList[0] == "/completetask" && currentCommands.Contains("/completetask"))
+                return CompleteTask(inputList) + "\r\n";
+
+            throw new CommandException("Введена неверная команда!");
+        }
+
+        /// <summary>
+        /// Проверка на авторизацию поьзователя.
+        /// </summary>
+        /// <param name="telegramUser">Пользователь telegram.</param>
+        /// <returns>true если авторизирован, false если нет.</returns>
+        private bool CheckAuthUser(User telegramUser)
+        {
+            if (userService.GetUser(telegramUser.Id) == user)
+                return true;
+            
+            return false;
         }
 
         /// <summary>
@@ -266,47 +337,27 @@ namespace Otus_Interfaces_Homework_6
         /// </summary>
         /// <param name="taskName">Имя задачи.</param>
         /// <returns>Результат добавление задачи.</returns>
-        public string AddTask(string taskName)
+        private string AddTask(string taskName)
         {
-            if (taskName == "" || taskName == null)
-                return "Вы не ввели имя задачи!";
+            //Проверка на случай если команда прошла мимо всех ограничений.
+            if (MaxTasksCheck())
+                throw new TaskCountLimitException(maxTasks);
 
-            ToDoItem newTask;
-            newTask = toDoService.Add(user, taskName);
-            currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/info", "/help" };
+            if (taskName.Length > maxLengthNameTask)
+                throw new TaskLengthLimitException(taskName.Length, maxLengthNameTask);
 
-            removeCommandActive = false;
-            completeCommandActive = false;
+            if (!DublicateCheck(taskName))
+                throw new DuplicateTaskException(taskName);
 
-            return $"Задача {newTask.Name} добавлена!";
-        }
+            ToDoItem newItem = iToDoService.Add(user, taskName);
 
-        /// <summary>
-        /// Удаление задачи.
-        /// </summary>
-        /// <param name="removeNumber">Номер задачи на удаление.</param>
-        /// <returns>Результат удаления задачи.</returns>
-        public string RemoveTask(string removeNumber)
-        {
-            if (removeCommandActive)
-                return "Команда \"/removetask\" доступна только после ввода команды \"/showalltasks\"";
+            //Если достигнуто максимальное количество задач, то команда /addtask удаляется из доступных команд.
+            if (MaxTasksCheck())
+                currentCommands = new string[] { "/showtasks", "/showalltasks", "/removetask", "/completetask", "/info", "/help" };
+            else
+                currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/info", "/help" };
 
-            IReadOnlyList<ToDoItem> toDoItems = new List<ToDoItem>();
-            toDoItems = toDoService.GetAllByUserID(user.UserId);
-
-            if (!int.TryParse(removeNumber, out int i))
-                return "Введено не число!";
-
-            if (i > toDoService.GetTasksCount())
-                return "Введен неверный номер задачи!";
-
-            toDoService.Delete(toDoItems[i - 1].Id);
-
-            if (toDoService.GetTasksCount() == 0)
-                currentCommands = new string[] { "/addtask", "/info", "/help" };
-
-            removeCommandActive = false;
-            return "Задача удалена!";
+            return $"Задача {newItem.Name} добавлена!";
         }
 
         /// <summary>
@@ -317,10 +368,11 @@ namespace Otus_Interfaces_Homework_6
         private string StartCommand(User telegramUser)
         {
             user = userService.RegisterUser(telegramUser.Id, telegramUser.Username);
+
             if (user == null)
-                return "Текущий пользователь не смог авторизоваться!";
-            currentCommands = new string[] { "/addtask", "/info", "/help" };
-            startFlag = true;
+                throw new AuthUserException("Текущий пользователь не смог авторизоваться!");
+
+            currentCommands = new string[] { "/maxnametask", "/maxtasks", "/info", "/help" };
             return "Пользователь авторизовался!";
         }
 
@@ -331,91 +383,221 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Список задач.</returns>
         private string ShowTasks(bool activeStateFlag)
         {
-            removeCommandActive = false;
-            completeCommandActive = false;
+            ToDoService toDoService = ParseToDoService(iToDoService);
 
-            IReadOnlyList<ToDoItem> toDoItems = new List<ToDoItem>();
-            string result = "";
+            IReadOnlyList<ToDoItem> toDoItems;
 
             if (activeStateFlag)
                 toDoItems = toDoService.GetActiveByUserID(user.UserId);
             else
-                toDoItems = toDoService.GetAllByUserID(user.UserId);
+                toDoItems = toDoService.tasks;
 
-            int itemsCount = toDoItems.Count;
+            return ToDoListInString(toDoItems, activeStateFlag);
+        }
 
-            if (activeStateFlag)
-            {
-                for (int i = 0; i < itemsCount; i++)
-                    result += $"{i + 1}. {toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n";
+        /// <summary>
+        /// Удаление задачи.
+        /// </summary>
+        /// <param name="inputList">Массив с командой и аргументами.</param>
+        /// <returns>Результат удаления задачи.</returns>
+        private string RemoveTask(List<string> inputList)
+        {
+            ToDoService toDoService = ParseToDoService(iToDoService);
+            IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2]);
 
-                removeCommandActive = true;
-                currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/completetask", "/info", "/help" };
-            }
+            int tasksCount = tasks.Count;
+            int parseInputArg = ParseInt(inputList[1]);
+
+            if (tasksCount < parseInputArg)
+                throw new IndexOutRange($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
+
+            toDoService.Delete(tasks[parseInputArg - 1].Id);
+
+            if (toDoService.tasksCount == 0)
+                currentCommands = new string[] { "/addtask", "/info", "/help" };
             else
-            {
-                for (int i = 0; i < itemsCount; i++)
-                    result += $"{i + 1}. ({toDoItems[i].State}) {toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n";
+                currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/info", "/help" };
 
-                completeCommandActive = true;
-                currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/info", "/help" };
-            }
-            
-
-            return result;
+                return "Задача удалена!";
         }
 
         /// <summary>
         /// Отметка о выполнении задачи.
         /// </summary>
-        /// <param name="removeNumber">Номер выполненной задачи.</param>
+        /// <param name="inputList">Массив с командой и аргументами.</param>
         /// <returns>Результат отметки выполения задачи.</returns>
-        private string CompleteTask(string removeNumber)
+        private string CompleteTask(List<string> inputList)
         {
-            if (completeCommandActive)
-                return "Команда \"/completetask\" доступна только после ввода команды \"/showtasks\"";
+            ToDoService toDoService = ParseToDoService(iToDoService);
+            IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2]);
 
-            IReadOnlyList<ToDoItem> toDoItems = new List<ToDoItem>();
-            toDoItems = toDoService.GetAllByUserID(user.UserId);
 
-            if (!int.TryParse(removeNumber, out int i))
-                return "Введено не число!";
+            int tasksCount = tasks.Count;
+            int parseInputArg = ParseInt(inputList[1]);
 
-            if (i > toDoService.GetTasksCount())
-                return "Введен неверный номер задачи!";
+            if (tasksCount < parseInputArg)
+                throw new IndexOutRange($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
 
-            currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/info", "/help" };
+            toDoService.MarkCompleted(tasks[parseInputArg - 1].Id);
+            tasks[parseInputArg - 1].StateChangedAt = DateTime.Now;
 
-            toDoService.MarkCompleted(toDoItems[i - 1].Id);
-            completeCommandActive = false;
             return "Задача отмечена выполненной!";
         }
-    }
-    class TaskCountLimitException : Exception
-    {
-        /// <summary>
-        /// Исключение при добавлении задачи, выходящей за пределы максимально допустимого количества задач.
-        /// </summary>
-        /// <param name="taskCountLimit">Максимальное количество задач.</param>
-        public TaskCountLimitException(int taskCountLimit) : base($"Превышено максимальное количество задач равное \"{taskCountLimit}\"") { }
-    }
 
-    class TaskLengthLimitException : Exception
-    {
         /// <summary>
-        /// Исключение при вводе слишком длинного описания задачи.
+        /// Метод для преобразования строки в число из указанного диапазона.
         /// </summary>
-        /// <param name="taskLength">Длина описания текущей задачи.</param>
-        /// <param name="taskLengthLimit">Максимальная длина описания задачи.</param>
-        public TaskLengthLimitException(int taskLength, int taskLengthLimit) : base($"Длина задачи \"{taskLength}\" превышает максимально допустимое значение \"{taskLengthLimit}\"") { }
-    }
+        /// <param name="str">Входящая строка.</param>
+        /// <param name="min">Нижняя граница диапазона.</param>
+        /// <param name="max">Верхняя граница диапазона.</param>
+        /// <returns>Преобразованное число из введенного диапазона.</returns>
+        private int ParseAndValidateInt(string? str, int min, int max)
+        {
+            int parseInt;
+            bool parseFlag = int.TryParse(str, out parseInt);
+            if (parseFlag)
+                if (parseInt <= max && parseInt >= min)
+                    return parseInt;
+                else
+                    throw new ArgumentException($"Вы ввели \"{parseInt}\", число выходит за пределы указанного диапазона [{min}:{max}]!");
+            throw new ArgumentException($"Вы ввели \"{str}\", это не число!");
+        }
 
-    class DuplicateTaskException : Exception
-    {
         /// <summary>
-        /// Исключение при вводе дубля задачи.
+        /// Преобразование строки в число.
         /// </summary>
-        /// <param name="task">Введенная задача.</param>
-        public DuplicateTaskException(string task) : base($"Задача \"{task}\" уже существует!") { }
+        /// <param name="str">Входная строка.</param>
+        /// <returns>Преобразованное число.</returns>
+        private int ParseInt(string str)
+        {
+            if(int.TryParse(str, out int parseInt))
+                return parseInt;
+
+            throw new ArgumentException($"Вы ввели \"{str}\", это не число!");
+        }
+
+        /// <summary>
+        /// Формирование строки из массива для подготовки к выводу на экран списка доступных команд.
+        /// </summary>
+        /// <param name="inputArray">Входной массив.</param>
+        /// <returns>Строка со списком команд.</returns>
+        private string BotsCommandString(string[] inputArray)
+        {
+            string resultString = "Список доступных команд:\r\n";
+            foreach (string command in inputArray)
+                resultString += command + "\r\n";
+            resultString += "Введите команду:";
+            return resultString.TrimEnd();
+        }
+
+        /// <summary>
+        /// Преобразование массива задач в строку для последующего вывода в консоль.
+        /// </summary>
+        /// <param name="toDoItems">Список задач.</param>
+        /// <param name="activeStateFlag">true для вывода активных задач, false для вывода всех задач.</param>
+        /// <returns>Сформированная строка.</returns>
+        private string ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, bool activeStateFlag)
+        {
+            StringBuilder sbResult = new StringBuilder("");
+            string tempString;
+            int itemsCount = toDoItems.Count;
+
+            for (int i = 0; i < itemsCount; i++)
+            {
+                tempString = activeStateFlag ? "" : $"({toDoItems[i].State}) ";
+                sbResult.Append($"{i + 1}. {tempString}{toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n");
+            }
+
+            return sbResult.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Установка максимального количества задач.
+        /// </summary>
+        /// <param name="maxTasksStr">Введенное максимальное количество задач в виде строки.</param>
+        /// <returns>Результат установки ограничения максимального количества задач.</returns>
+        private string SetMaxTasks(string maxTasksStr)
+        {
+            maxTasks = ParseAndValidateInt(maxTasksStr, 1, 100);
+
+            if (maxLengthNameTask > 0)
+                currentCommands = new string[] { "/addtask", "/info", "/help" };
+
+            return $"Максимальное количество задач теперь {maxTasks}.";
+        }
+
+        /// <summary>
+        /// Установка максимальной длины задачи.
+        /// </summary>
+        /// <param name="maxLenghtNameTasksStr">Введенная максимальная длина задачи в виде строки.</param>
+        /// <returns>Результат установки ограничения максимальной длины задачи.</returns>
+        private string SetMaxLengthNameTasks(string maxLenghtNameTasksStr)
+        {
+            maxLengthNameTask = ParseAndValidateInt(maxLenghtNameTasksStr, 1, 100);
+
+            if (maxTasks > 0)
+                currentCommands = new string[] { "/addtask", "/info", "/help" };
+
+            return $"Максимальная длина имени задачи теперь {maxLengthNameTask}.";
+        }
+
+        /// <summary>
+        /// Проверка на дубль задачи.
+        /// </summary>
+        /// <param name="name">Имя новой задачи.</param>
+        /// <returns>true если такой задачи нет, false если найден дубль.</returns>
+        private bool DublicateCheck(string name)
+        {
+            ToDoService toDoService = ParseToDoService(iToDoService);
+
+            IReadOnlyList<ToDoItem> tasks = toDoService.tasks;
+
+            foreach (ToDoItem toDoItem in tasks)
+                if (toDoItem.Name == name)
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Проверка на превышение количества задач.
+        /// </summary>
+        /// <returns>true если количество задач достигло максимума, false если нет.</returns>
+        private bool MaxTasksCheck()
+        {
+            ToDoService toDoService = ParseToDoService(iToDoService);
+            return toDoService.tasksCount >= maxTasks;
+        }
+
+        /// <summary>
+        /// Получение списка задач в зависимости от введенного аргумента.
+        /// </summary>
+        /// <param name="toDoService">Объект для работы с задачами.</param>
+        /// <param name="modeArg">Введенный аргумент.</param>
+        /// <returns>Список задач.</returns>
+        /// <exception cref="ArgsException">Ошибка если неверно введен аргумент.</exception>
+        private IReadOnlyList<ToDoItem> GetToDoItemsList(ToDoService toDoService, string modeArg)
+        {
+            if (modeArg.Trim() == "all")
+                return toDoService.tasks;
+            else if (modeArg.Trim() == "active")
+                return toDoService.GetActiveByUserID(user.UserId);
+            else
+                throw new ArgsException($"Введен неверный 3 ({modeArg}) агрумент!");
+        }
+
+        /// <summary>
+        /// Приведение IToDoService к ToDoService.
+        /// </summary>
+        /// <param name="ToDoService">Объект интерфейса.</param>
+        /// <returns>Класс, реализующий IToDoService.</returns>
+        /// <exception cref="Exception">Ошибка при приобразовании.</exception>
+        private ToDoService ParseToDoService(IToDoService ToDoService)
+        {
+            if (!(ToDoService is ToDoService))
+                throw new Exception("Не удалось привести интерфейс \"IToDoService\" к \"ToDoService\"");
+
+            return ToDoService as ToDoService;
+        }
     }
 }

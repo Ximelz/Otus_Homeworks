@@ -22,10 +22,12 @@ namespace Otus_Interfaces_Homework_6
     /// </summary>
     public class ConsoleUser
     {
-        public ConsoleUser()
+        public ConsoleUser(long TelegramUserId, string TelegramUserName)
         {
             UserId = Guid.NewGuid();
             RegisteredAt = DateTime.Now;
+            this.TelegramUserId = TelegramUserId;
+            this.TelegramUserName = TelegramUserName;
         }
         public Guid UserId { get; init; }                   //id пользователя. Получает значение при инициализации, после чего не может быть изменен.
         public long TelegramUserId { get; init; }           //id текущего пользователя в telegram. Получает значение при инициализации, после чего не может быть изменен.

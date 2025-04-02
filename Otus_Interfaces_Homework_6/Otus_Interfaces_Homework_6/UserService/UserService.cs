@@ -32,7 +32,7 @@ namespace Otus_Interfaces_Homework_6
         {
             consoleUsers = new List<ConsoleUser>();
         }
-        private List<ConsoleUser> consoleUsers;     //Список зарегистрированных пользователей.
+        private readonly List<ConsoleUser> consoleUsers;     //Список зарегистрированных пользователей.
 
         /// <summary>
         /// Регистрация нового пользователя.
@@ -42,13 +42,13 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Объект нового пользователя.</returns>
         public ConsoleUser RegisterUser(long telegramUserId, string telegramUserName)
         {
-            ConsoleUser user = new ConsoleUser();
+            ConsoleUser user = new ConsoleUser(telegramUserId, telegramUserName);
             consoleUsers.Add(user);
             return user;
         }
 
         /// <summary>
-        /// Получения уже зарегистрированного пользователя.
+        /// Получения уже авторизированного пользователя.
         /// </summary>
         /// <param name="telegramUserId">id пользователя из telegram</param>
         /// <returns>Объект пользователя.</returns>
@@ -59,7 +59,7 @@ namespace Otus_Interfaces_Homework_6
                 if (user.TelegramUserId == telegramUserId)
                     return user;
 
-            throw new Exception("Такого пользовтеля нет!");
+            throw new CommandException("Пользователь не авторизован!");
         }
     }
 }
