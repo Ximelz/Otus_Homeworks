@@ -42,7 +42,7 @@ namespace Otus_Interfaces_Homework_6
             this.User = User;
         }
         public Guid Id { get; init; }                           //Сгенерированный id задачи. Значение вычисляется 1 раз при создании объекта.
-        public ConsoleUser User { get; init; }                  //Пользователь, создавший задачу. Значение присваивается 1 раз при создании объекта.
+        public ConsoleUser User { get; init; }                         //Пользователь, создавший задачу. Значение присваивается 1 раз при создании объекта.
         public string Name { get; init; }                       //Наименование задачи. Значение присваивается 1 раз при создании объекта.
         public DateTime CreatedAt { get; init; }                //Дата создания задачи. Значение вычисляется 1 раз при создании объекта.
         public ToDoItemState State { get; set; }                //Свойство, при котором меняется статус задачи и дата его изменения.

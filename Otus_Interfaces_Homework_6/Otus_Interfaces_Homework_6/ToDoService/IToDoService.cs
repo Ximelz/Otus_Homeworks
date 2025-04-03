@@ -28,7 +28,7 @@ namespace Otus_Interfaces_Homework_6
     public interface IToDoService
     {
         IReadOnlyList<ToDoItem> GetActiveByUserID(Guid userId);     //Метод получения всех активных задач пользователя.
-        ToDoItem Add(ConsoleUser user, string name);                //Метод добавления новой задачи.
+        ToDoItem Add(ConsoleUser user, string name);                       //Метод добавления новой задачи.
         void MarkCompleted(Guid id);                                //Метод отметки задачи как выполненненой.
         void Delete(Guid id);                                       //Метод удаления задачи.
     }

@@ -30,13 +30,15 @@ namespace Otus_Interfaces_Homework_6
     /// </summary>
     public class ToDoService : IToDoService
     {
-        public ToDoService()
+        public ToDoService(int maxTasks, int maxLengthNameTask)
         {
             tasks = new List<ToDoItem> ();
-            tasksCount = 0;
+            this.maxTasks = maxTasks;
+            this.maxLengthNameTask = maxLengthNameTask;
         }
-        public List<ToDoItem> tasks { get; private set; }  //Список всех задач.
-        public int tasksCount { get; private set; }        //Количество задач.
+        public readonly List<ToDoItem> tasks; //Список всех задач.
+        private readonly int maxTasks;
+        private readonly int maxLengthNameTask;
 
         /// <summary>
         /// Получение списка всех активных задач пользователя.
@@ -63,10 +65,18 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Добавленная задача.</returns>
         public ToDoItem Add(ConsoleUser user, string name)
         {
+            if (tasks.Count >= maxTasks)
+                throw new UserException($"Превышено максимальное количество задач равное \"{maxTasks}\"");
+
+            if (name.Length > maxLengthNameTask)
+                throw new UserException($"Длина задачи \"{name.Length}\" превышает максимально допустимое значение \"{maxLengthNameTask}\"");
+
+            if (!DublicateCheck(name))
+                throw new UserException($"Задача \"{name}\" уже существует!");
+
             ToDoItem newItem = new ToDoItem(name, user);
             tasks.Add(newItem);
-            tasksCount++;
-            return newItem;
+            return newItem; 
         }
 
         /// <summary>
@@ -77,7 +87,10 @@ namespace Otus_Interfaces_Homework_6
         {
             foreach (var task in tasks)
                 if (task.Id == id)
+                {
                     task.State = ToDoItemState.Completed;
+                    task.StateChangedAt = DateTime.Now;
+                }
         }
 
         /// <summary>
@@ -86,15 +99,38 @@ namespace Otus_Interfaces_Homework_6
         /// <param name="id">id задачи на удаление.</param>
         public void Delete(Guid id)
         {
+            int tasksCount = tasks.Count;
             for (int i = 0; i < tasksCount; i++)
             {
                 if (tasks[i].Id == id)
                 {
                     tasks.RemoveAt(i);
-                    tasksCount--;
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Проверка на дубль задачи.
+        /// </summary>
+        /// <param name="name">Имя новой задачи.</param>
+        /// <returns>true если такой задачи нет, false если найден дубль.</returns>
+        private bool DublicateCheck(string name)
+        {
+            foreach (ToDoItem toDoItem in tasks)
+                if (toDoItem.Name == name)
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Проверка на превышение количества задач.
+        /// </summary>
+        /// <returns>true если количество задач достигло максимума, false если нет.</returns>
+        private bool MaxTasksCheck()
+        {
+            return tasks.Count >= maxTasks;
         }
     }
 }

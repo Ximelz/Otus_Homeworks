@@ -59,7 +59,7 @@ namespace Otus_Interfaces_Homework_6
                 if (user.TelegramUserId == telegramUserId)
                     return user;
 
-            throw new CommandException("Пользователь не авторизован!");
+            return null;
         }
     }
 }
