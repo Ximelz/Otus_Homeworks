@@ -36,7 +36,7 @@ namespace Otus_Interfaces_Homework_6
             this.maxTasks = maxTasks;
             this.maxLengthNameTask = maxLengthNameTask;
         }
-        public readonly List<ToDoItem> tasks; //Список всех задач.
+        private readonly List<ToDoItem> tasks; //Список всех задач.
         private readonly int maxTasks;
         private readonly int maxLengthNameTask;
 
@@ -53,6 +53,22 @@ namespace Otus_Interfaces_Homework_6
                 if (userId == task.User.UserId)
                     if (task.State == ToDoItemState.Active)
                         resultTasks.Add(task);
+
+            return resultTasks;
+        }
+
+        //// <summary>
+        /// Получение списка всех задач пользователя.
+        /// </summary>
+        /// <param name="userId">id пользователя.</param>
+        /// <returns>Список задач указанного пользователя.</returns>
+        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        {
+            List<ToDoItem> resultTasks = new List<ToDoItem>();
+
+            foreach (var task in tasks)
+                if (userId == task.User.UserId)
+                    resultTasks.Add(task);
 
             return resultTasks;
         }
@@ -122,15 +138,6 @@ namespace Otus_Interfaces_Homework_6
                     return false;
 
             return true;
-        }
-
-        /// <summary>
-        /// Проверка на превышение количества задач.
-        /// </summary>
-        /// <returns>true если количество задач достигло максимума, false если нет.</returns>
-        private bool MaxTasksCheck()
-        {
-            return tasks.Count >= maxTasks;
         }
     }
 }

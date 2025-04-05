@@ -89,7 +89,7 @@ namespace Otus_Interfaces_Homework_6
         public UpdateHandler(IUserService userService, IToDoService iToDoService)
         {
             this.userService = userService;
-            this.iToDoService = iToDoService;
+            this.toDoService = iToDoService;
             currentCommands = new string[] { "/start", "/info", "/help" };
         }
         public const string helpInfo = "Для работы с ботом нужно ввести команду. В программе существуют следующие команды:\n\r" +
@@ -108,7 +108,7 @@ namespace Otus_Interfaces_Homework_6
 
         private string[] currentCommands;                     //Список доступных команд.
         private readonly IUserService userService;            //Интерфейс для регистрации пользователя.
-        private readonly IToDoService iToDoService;           //Интерфейс для взаимодействия с задачами.
+        private readonly IToDoService toDoService;            //Интерфейс для взаимодействия с задачами.
 
         /// <summary>
         /// Метод обработки обновления задач.
@@ -282,7 +282,7 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Результат добавление задачи.</returns>
         private string AddTask(string taskName, ConsoleUser user)
         {
-            ToDoItem newItem = iToDoService.Add(user, taskName);
+            ToDoItem newItem = toDoService.Add(user, taskName);
             currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/info", "/help" };
             return $"Задача {newItem.Name} добавлена!";
         }
@@ -310,14 +310,12 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Список задач.</returns>
         private string ShowTasks(bool activeStateFlag, ConsoleUser user)
         {
-            ToDoService toDoService = ParseToDoService(iToDoService);
-
             IReadOnlyList<ToDoItem> toDoItems;
 
             if (activeStateFlag)
                 toDoItems = toDoService.GetActiveByUserID(user.UserId);
             else
-                toDoItems = toDoService.tasks;
+                toDoItems = toDoService.GetAllByUserId(user.UserId);
 
             return ToDoListInString(toDoItems, activeStateFlag);
         }
@@ -329,7 +327,6 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Результат удаления задачи.</returns>
         private string RemoveTask(List<string> inputList, ConsoleUser user)
         {
-            ToDoService toDoService = ParseToDoService(iToDoService);
             IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2], user);
 
             int tasksCount = tasks.Count;
@@ -340,7 +337,7 @@ namespace Otus_Interfaces_Homework_6
 
             toDoService.Delete(tasks[parseInputArg - 1].Id);
 
-            if (toDoService.tasks.Count == 0)
+            if (toDoService.GetAllByUserId(user.UserId).Count == 0)
                 currentCommands = new string[] { "/addtask", "/info", "/help" };
             else
                 currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/info", "/help" };
@@ -355,9 +352,7 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Результат отметки выполения задачи.</returns>
         private string CompleteTask(List<string> inputList, ConsoleUser user)
         {
-            ToDoService toDoService = ParseToDoService(iToDoService);
             IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2], user);
-
 
             int tasksCount = tasks.Count;
             int parseInputArg = ParseInt(inputList[1]);
@@ -425,28 +420,14 @@ namespace Otus_Interfaces_Homework_6
         /// <param name="modeArg">Введенный аргумент.</param>
         /// <returns>Список задач.</returns>
         /// <exception cref="ArgsException">Ошибка если неверно введен аргумент.</exception>
-        private IReadOnlyList<ToDoItem> GetToDoItemsList(ToDoService toDoService, string modeArg, ConsoleUser user)
+        private IReadOnlyList<ToDoItem> GetToDoItemsList(IToDoService toDoService, string modeArg, ConsoleUser user)
         {
             if (modeArg.Trim() == "all")
-                return toDoService.tasks;
+                return toDoService.GetAllByUserId(user.UserId);
             else if (modeArg.Trim() == "active")
                 return toDoService.GetActiveByUserID(user.UserId);
             else
                 throw new UserException($"Введен неверный 3 ({modeArg}) агрумент!");
-        }
-
-        /// <summary>
-        /// Приведение IToDoService к ToDoService.
-        /// </summary>
-        /// <param name="ToDoService">Объект интерфейса.</param>
-        /// <returns>Класс, реализующий IToDoService.</returns>
-        /// <exception cref="Exception">Ошибка при приобразовании.</exception>
-        private ToDoService ParseToDoService(IToDoService ToDoService)
-        {
-            if (!(ToDoService is ToDoService))
-                throw new Exception("Не удалось привести интерфейс \"IToDoService\" к \"ToDoService\"");
-
-            return ToDoService as ToDoService;
         }
     }
 }
