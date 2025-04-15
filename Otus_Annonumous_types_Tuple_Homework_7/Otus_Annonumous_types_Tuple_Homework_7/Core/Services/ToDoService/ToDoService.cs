@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Otus_Annonumous_types_Tuple_Homework_7;
+using Otus_Annonumous_types_Tuple_Homework_7.Core.Exceptions;
 
 /*
  * 7. Добавление класса сервиса ToDoService
@@ -21,6 +23,13 @@ using System.Threading.Tasks;
  *       7.3 Добавить использование IToDoService в UpdateHandler. Получать IToDoService нужно через конструктор
  *       7.4 Изменить формат обработки команды /addtask. Нужно сразу передавать имя задачи в команде. Пример: /addtask Новая задача
  *       7.5 Изменить формат обработки команды /removetask. Нужно сразу передавать номер задачи в команде. Пример: /removetask 2
+ *
+ * Лямбды. Добавление команды /find
+ * Добавить метод IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate); в интерфейс IToDoRepository. Метод должен возвращать все задачи пользователя, которые удовлетворяют предикату.
+ * Добавить метод IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix); в интерфейс IToDoService. Метод должен возвращать все задачи пользователя, которые начинаются на namePrefix. Для этого нужно использовать метод IToDoRepository.Find
+ * Добавить обработку новой команды /find.
+ * Пример команды: /find Имя
+ * Вывод в консоль должен быть как в /showtask
  */
 
 namespace Otus_Interfaces_Homework_6
@@ -30,31 +39,25 @@ namespace Otus_Interfaces_Homework_6
     /// </summary>
     public class ToDoService : IToDoService
     {
-        public ToDoService(int maxTasks, int maxLengthNameTask)
+        public ToDoService(int maxTasks, int maxLengthNameTask, IToDoRepository toDoRep)
         {
-            tasks = new List<ToDoItem> ();
+            this.toDoRep = toDoRep;
             this.maxTasks = maxTasks;
             this.maxLengthNameTask = maxLengthNameTask;
         }
-        private readonly List<ToDoItem> tasks; //Список всех задач.
+
         private readonly int maxTasks;
         private readonly int maxLengthNameTask;
+        private readonly IToDoRepository toDoRep;
 
         /// <summary>
         /// Получение списка всех активных задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>
         /// <returns>Список активных задач.</returns>
-        public IReadOnlyList<ToDoItem> GetActiveByUserID(Guid userId)
+        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
         {
-            List<ToDoItem> resultTasks = new List<ToDoItem>();
-
-            foreach (var task in tasks)
-                if (userId == task.User.UserId)
-                    if (task.State == ToDoItemState.Active)
-                        resultTasks.Add(task);
-            
-            return resultTasks;
+            return toDoRep.GetActiveByUserId(userId);
         }
 
         //// <summary>
@@ -64,13 +67,7 @@ namespace Otus_Interfaces_Homework_6
         /// <returns>Список задач указанного пользователя.</returns>
         public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
         {
-            List<ToDoItem> resultTasks = new List<ToDoItem>();
-
-            foreach (var task in tasks)
-                if (userId == task.User.UserId)
-                    resultTasks.Add(task);
-
-            return resultTasks;
+            return toDoRep.GetAllByUserId(userId);
         }
 
         /// <summary>
@@ -79,19 +76,19 @@ namespace Otus_Interfaces_Homework_6
         /// <param name="user">Пользователь, добавивший задачу.</param>
         /// <param name="name">Имя задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        public ToDoItem Add(ConsoleUser user, string name)
+        public ToDoItem Add(ToDoUser user, string name)
         {
-            if (tasks.Count >= maxTasks)
-                throw new UserException($"Превышено максимальное количество задач равное \"{maxTasks}\"");
+            if (toDoRep.CountActive(user.UserId) >= maxTasks)
+                throw new TaskCountLimitException(maxTasks);
 
             if (name.Length > maxLengthNameTask)
-                throw new UserException($"Длина задачи \"{name.Length}\" превышает максимально допустимое значение \"{maxLengthNameTask}\"");
+                throw new TaskLengthLimitException(name.Length, maxLengthNameTask);
 
-            if (!DublicateCheck(name))
-                throw new UserException($"Задача \"{name}\" уже существует!");
+            if (!DublicateCheck(name, user))
+                throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);
-            tasks.Add(newItem);
+            toDoRep.Add(newItem);
             return newItem; 
         }
 
@@ -99,14 +96,20 @@ namespace Otus_Interfaces_Homework_6
         /// Отметка выполнения задачи.
         /// </summary>
         /// <param name="id">id выполненной задачи.</param>
-        public void MarkCompleted(Guid id)
+        /// <param name="user">Пользователь, который выполнил задачу.</param>
+        public void MarkCompleted(Guid id, ToDoUser user)
         {
-            foreach (var task in tasks)
-                if (task.Id == id)
-                {
-                    task.State = ToDoItemState.Completed;
-                    task.StateChangedAt = DateTime.Now;
-                }
+            IReadOnlyList<ToDoItem> tasks = GetAllByUserId(user.UserId).Where(x => x.Id == id).ToList();
+
+            if (tasks.Count > 1)
+                throw new ArgumentException($"В базе несколько задач имеют id \"{id}\"");
+
+            if (tasks.Count < 1)
+                throw new ArgumentNullException($"Задачи с таким id \"{id}\" нет в базе.");
+
+            tasks[0].State = ToDoItemState.Completed;
+            tasks[0].StateChangedAt = DateTime.Now;
+            toDoRep.Update(tasks[0]);
         }
 
         /// <summary>
@@ -115,29 +118,29 @@ namespace Otus_Interfaces_Homework_6
         /// <param name="id">id задачи на удаление.</param>
         public void Delete(Guid id)
         {
-            int tasksCount = tasks.Count;
-            for (int i = 0; i < tasksCount; i++)
-            {
-                if (tasks[i].Id == id)
-                {
-                    tasks.RemoveAt(i);
-                    break;
-                }
-            }
+            toDoRep.Delete(id);
+        }
+
+        /// <summary>
+        /// Поиск задач с указанным префиксом.
+        /// </summary>
+        /// <param name="user">Пользователь, чьи задачи ищем.</param>
+        /// <param name="namePrefix">Префикс задач.</param>
+        /// <returns>Список задач с префиксом.</returns>
+        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
+        {
+            return toDoRep.Find(user.UserId, x => x.Name.Substring(0, namePrefix.Length) == namePrefix);
         }
 
         /// <summary>
         /// Проверка на дубль задачи.
         /// </summary>
         /// <param name="name">Имя новой задачи.</param>
+        /// <param name="user">Пользователь, который пытается добавить задачу.</param>
         /// <returns>true если такой задачи нет, false если найден дубль.</returns>
-        private bool DublicateCheck(string name)
+        private bool DublicateCheck(string name, ToDoUser user)
         {
-            foreach (ToDoItem toDoItem in tasks)
-                if (toDoItem.Name == name)
-                    return false;
-
-            return true;
+            return toDoRep.ExistsByName(user.UserId, name);
         }
     }
 }
