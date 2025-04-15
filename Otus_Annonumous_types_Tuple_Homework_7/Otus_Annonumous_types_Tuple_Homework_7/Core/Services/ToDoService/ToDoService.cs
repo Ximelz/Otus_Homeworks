@@ -105,7 +105,7 @@ namespace Otus_Interfaces_Homework_6
                 throw new ArgumentException($"В базе несколько задач имеют id \"{id}\"");
 
             if (tasks.Count < 1)
-                throw new ArgumentNullException($"Задачи с таким id \"{id}\" нет в базе.");
+                throw new ArgumentException($"Задачи с таким id \"{id}\" нет в базе.");
 
             tasks[0].State = ToDoItemState.Completed;
             tasks[0].StateChangedAt = DateTime.Now;

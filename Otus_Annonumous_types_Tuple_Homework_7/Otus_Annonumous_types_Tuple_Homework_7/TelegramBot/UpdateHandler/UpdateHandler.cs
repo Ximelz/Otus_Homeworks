@@ -126,14 +126,6 @@ namespace Otus_Interfaces_Homework_6
                 List<string> messageInList = StringArrayHandler(update.Message.Text);
                 botClient.SendMessage(update.Message.Chat, HeandlerCommands(messageInList, update.Message.From));
             }
-            catch (ArgumentNullException ex)
-            {
-                botClient.SendMessage(update.Message.Chat, ex.Message);
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                botClient.SendMessage(update.Message.Chat, ex.Message);
-            }
             catch (ArgumentException ex)
             {
                 botClient.SendMessage(update.Message.Chat, ex.Message);
@@ -264,7 +256,7 @@ namespace Otus_Interfaces_Homework_6
             if (user == null)
             {
                 currentCommands = new string[] { "/start", "/info", "/help" };
-                throw new ArgumentNullException("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
+                throw new ArgumentException("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
             }
 
             if (inputList[0] == "/addtask")
@@ -327,7 +319,7 @@ namespace Otus_Interfaces_Homework_6
             ToDoUser user = userService.RegisterUser(telegramUser.Id, telegramUser.Username);
 
             if (user == null)
-                throw new ArgumentNullException("Текущий пользователь не смог авторизоваться!");
+                throw new ArgumentException("Текущий пользователь не смог авторизоваться!");
 
             currentCommands = new string[] { "/addtask", "/info", "/help" };
             return "Пользователь авторизовался!";
@@ -363,7 +355,7 @@ namespace Otus_Interfaces_Homework_6
             int parseInputArg = ParseInt(inputList[1]);
 
             if (tasksCount < parseInputArg)
-                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
+                throw new ArgumentException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
 
             toDoService.Delete(tasks[parseInputArg - 1].Id);
 
@@ -372,7 +364,7 @@ namespace Otus_Interfaces_Homework_6
             else
                 currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/find", "/info", "/help", "/report" };
 
-                return "Задача удалена!";
+            return "Задача удалена!";
         }
 
         /// <summary>
@@ -388,7 +380,7 @@ namespace Otus_Interfaces_Homework_6
             int parseInputArg = ParseInt(inputList[1]);
 
             if (tasksCount < parseInputArg)
-                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
+                throw new ArgumentException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
 
             toDoService.MarkCompleted(tasks[parseInputArg - 1].Id, user);
 
@@ -418,7 +410,8 @@ namespace Otus_Interfaces_Homework_6
         {
             IReadOnlyList<ToDoItem> toDoItems = toDoService.Find(user, inputArg);
 
-            return ToDoListInString(toDoItems);
+            //Так как данный список был получен на основании полного списка задач пользователя, можно использовать метод ToDoListInString для вывода задач с информацией о статусе задач.
+            return ToDoListInString(toDoItems, false);
         }
 
         /// <summary>
@@ -470,23 +463,6 @@ namespace Otus_Interfaces_Homework_6
         }
 
         /// <summary>
-        /// Преобразование массива задач в строку для последующего вывода в консоль.
-        /// </summary>
-        /// <param name="toDoItems">Список задач.</param>
-        /// <returns>Сформированная строка.</returns>
-        private string ToDoListInString(IReadOnlyList<ToDoItem> toDoItems)
-        {
-            StringBuilder sbResult = new StringBuilder("");
-            string tempString;
-            int itemsCount = toDoItems.Count;
-
-            for (int i = 0; i < itemsCount; i++)
-                sbResult.Append($"{i + 1}. {toDoItems[i].State} {toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n");
-
-            return sbResult.ToString().Trim();
-        }
-
-        /// <summary>
         /// Получение списка задач в зависимости от введенного аргумента.
         /// </summary>
         /// <param name="toDoService">Объект для работы с задачами.</param>
@@ -497,10 +473,11 @@ namespace Otus_Interfaces_Homework_6
         {
             if (modeArg.Trim() == "all")
                 return toDoService.GetAllByUserId(user.UserId);
-            else if (modeArg.Trim() == "active")
+
+            if (modeArg.Trim() == "active")
                 return toDoService.GetActiveByUserId(user.UserId);
-            else
-                throw new ArgumentException($"Введен неверный 3 ({modeArg}) агрумент!");
+            
+            throw new ArgumentException($"Введен неверный 3 ({modeArg}) аргумент!");
         }
     }
 }
