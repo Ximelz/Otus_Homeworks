@@ -1,38 +1,10 @@
-﻿using Otus_Interfaces_Homework_6;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-/*
- * Добавление репозитория IToDoRepository
- * Добавить интерфейс IToDoRepository
- * interface IToDoRepository
- * {
- *     IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
- *     //Возвращает ToDoItem для UserId со статусом Active
- *     IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
- *     void Add(ToDoItem item);
- *     void Update(ToDoItem item);
- *     void Delete(Guid id);
- *     //Проверяет есть ли задача с таким именем у пользователя
- *     bool ExistsByName(Guid userId, string name);
- *     //Возвращает количество активных задач у пользователя
- *     int CountActive(Guid userId);
- * }
- * Создать класс InMemoryToDoRepository, который реализует интерфейс IToDoRepository. В качестве хранилища использовать List
- * Добавить использование IToDoRepository в ToDoService. Получать IToDoRepository нужно через конструктор
- *
- * Лямбды. Добавление команды /find
- * Добавить метод IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate); в интерфейс IToDoRepository. Метод должен возвращать все задачи пользователя, которые удовлетворяют предикату.
- * Добавить метод IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix); в интерфейс IToDoService. Метод должен возвращать все задачи пользователя, которые начинаются на namePrefix. Для этого нужно использовать метод IToDoRepository.Find
- * Добавить обработку новой команды /find.
- * Пример команды: /find Имя
- * Вывод в консоль должен быть как в /showtask
- */
-
-namespace Otus_Annonumous_types_Tuple_Homework_7
+namespace Otus_Async_Homework_8
 {
     public class InMemoryToDoRepository : IToDoRepository
     {
@@ -47,9 +19,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Метод получения всех задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список всех задач.</returns>
-        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             return tasks.Where(x => x.User.UserId == userId).ToList();
         }
 
@@ -57,9 +33,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Метод получения всех активных задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список задач.</returns>
-        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             return tasks.Where(x => x.User.UserId == userId && x.State == ToDoItemState.Active).ToList();
         }
 
@@ -67,8 +47,12 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Метод добавления задачи в список задач.
         /// </summary>
         /// <param name="item">Задача.</param>
-        public void Add(ToDoItem item)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task Add(ToDoItem item, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             tasks.Add(item);
         }
 
@@ -76,8 +60,12 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Обновление задачи.
         /// </summary>
         /// <param name="item">Задача.</param>
-        public void Update(ToDoItem item)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task Update(ToDoItem item, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int index = tasks.FindIndex(x => x.Id == item.Id);
             tasks[index] = item;
         }
@@ -86,9 +74,14 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Удаление задачи.
         /// </summary>
         /// <param name="id">Id задачи.</param>
-        public void Delete(Guid id)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task Delete(Guid id, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int index = tasks.FindIndex(x => x.Id == id);
+
             tasks.RemoveAt(index);
         }
 
@@ -97,9 +90,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
         /// <param name="name">Имя задачи.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>true если задача есть у текущего пользователя, false если нет.</returns>
-        public bool ExistsByName(Guid userId, string name)
+        public async Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int items = tasks.Where(x => x.User.UserId == userId && x.Name == name).ToList().Count();
 
             if (items == 0)
@@ -112,9 +109,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Метод получения количества активных задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Количество задач.</returns>
-        public int CountActive(Guid userId)
+        public async Task<int> CountActive(Guid userId, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             return tasks.Where(x => x.User.UserId == userId).ToList().Count;
         }
 
@@ -123,9 +124,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// </summary>
         /// <param name="userId">id пользователя</param>
         /// <param name="predicate">Параметр поиска.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Найденный список.</returns>
-        public IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate)
+        public async Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             return tasks.Where(x => x.User.UserId == userId).Where(predicate).ToList();
         }
     }

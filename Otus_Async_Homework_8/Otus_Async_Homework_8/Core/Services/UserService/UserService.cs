@@ -4,25 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Otus_Annonumous_types_Tuple_Homework_7;
 
-/*
- * 4. Добавление класса сервиса UserService
- *       4.1 Добавить интерфейс IUserService
- *       
- *           interface IUserService
- *           {
- *              User RegisterUser(long telegramUserId, string telegramUserName);
- *              User? GetUser(long telegramUserId);
- *           }
- *           
- *       4.2 Создать класс UserService, который реализует интерфейс IUserService. Заполнять telegramUserId и telegramUserName нужно из значений Update.Message.From
- *       4.3 Добавить использование IUserService в UpdateHandler. Получать IUserService нужно через конструктор
- *       4.4 При команде /start нужно вызвать метод IUserService.RegisterUser.
- *       4.5 Если пользователь не зарегистрирован, то ему доступны только команды /help /info
- */
-
-namespace Otus_Interfaces_Homework_6
+namespace Otus_Async_Homework_8
 {
     /// <summary>
     /// Класс для взаимодействия с пользователями.
@@ -41,22 +24,33 @@ namespace Otus_Interfaces_Homework_6
         /// </summary>
         /// <param name="telegramUserId">id пользователя из telegram</param>
         /// <param name="telegramUserName">Имя пользователя из telegram</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Объект нового пользователя.</returns>
-        public ToDoUser RegisterUser(long telegramUserId, string telegramUserName)
+        public async Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken ct)
         {
-            ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
-            userRep.Add(user);
-            return user;
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return await Task<ToDoUser>.Run(() =>
+            {
+                ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
+                userRep.Add(user, ct);
+                return user;
+            });
         }
 
         /// <summary>
         /// Получения уже авторизированного пользователя.
         /// </summary>
         /// <param name="telegramUserId">id пользователя из telegram</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Объект пользователя.</returns>
-        public ToDoUser? GetUser(long telegramUserId)
+        public async Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken ct)
         {
-            ToDoUser user = userRep.GetUserByTelegramUserId(telegramUserId);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            ToDoUser user =  await userRep.GetUserByTelegramUserId(telegramUserId, ct);
             if (user != null)
                 return user;
 

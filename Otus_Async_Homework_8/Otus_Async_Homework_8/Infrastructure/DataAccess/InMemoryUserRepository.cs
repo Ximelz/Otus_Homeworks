@@ -5,22 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot.Types;
-using Otus_Interfaces_Homework_6;
 
-/*
- * Добавление репозитория IUserRepository
- * Добавить интерфейс IUserRepository
- * interface IUserRepository
- * {
- *     ToDoUser? GetUser(Guid userId);
- *     ToDoUser? GetUserByTelegramUserId(long telegramUserId);
- *     void Add(ToDoUser user);
- * }
- * Создать класс InMemoryUserRepository, который реализует интерфейс IUserRepository. В качестве хранилища использовать List
- * Добавить использование IUserRepository в UserService. Получать IUserRepository нужно через конструктор
- */
-
-namespace Otus_Annonumous_types_Tuple_Homework_7
+namespace Otus_Async_Homework_8
 {
     /// <summary>
     /// Класс хранения пользователей.
@@ -38,9 +24,13 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Получение пользователя по guid id.
         /// </summary>
         /// <param name="userId">Guid id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public ToDoUser? GetUser(Guid userId)
+        public async Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+            
             foreach (var user in users)
                 if (user.UserId == userId)
                     return user;
@@ -52,13 +42,16 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Получение пользователя по telegram id.
         /// </summary>
         /// <param name="userId">Telegram id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public ToDoUser? GetUserByTelegramUserId(long telegramUserId)
+        public async Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             foreach (var user in users)
                 if (user.TelegramUserId == telegramUserId)
                     return user;
-
             return null;
         }
 
@@ -66,8 +59,12 @@ namespace Otus_Annonumous_types_Tuple_Homework_7
         /// Добавление пользователя в репозиторий.
         /// </summary>
         /// <param name="user">Объект пользователя.</param>
-        public void Add(ToDoUser user)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task Add(ToDoUser user, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             users.Add(user);
         }
     }

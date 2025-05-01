@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Otus_Interfaces_Homework_6;
 
-/*
- * Добавление репозитория IUserRepository
- * Добавить интерфейс IUserRepository
- * interface IUserRepository
- * {
- *     ToDoUser? GetUser(Guid userId);
- *     ToDoUser? GetUserByTelegramUserId(long telegramUserId);
- *     void Add(ToDoUser user);
- * }
- * Создать класс InMemoryUserRepository, который реализует интерфейс IUserRepository. В качестве хранилища использовать List
- * Добавить использование IUserRepository в UserService. Получать IUserRepository нужно через конструктор
- */
-
-namespace Otus_Annonumous_types_Tuple_Homework_7
+namespace Otus_Async_Homework_8
 {
     public interface IUserRepository
     {
-        ToDoUser? GetUser(Guid userId);                             //Метод получения пользователя по guid id.
-        ToDoUser? GetUserByTelegramUserId(long telegramUserId);     //Метод получения пользователя по telegram id/
-        void Add(ToDoUser user);                                    //Метод добавления пользователя.
+        /// <summary>
+        /// Метод получения пользователя по guid id.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="ct">Объект отмены задачи.</param>
+        /// <returns></returns>
+        Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct);
+
+        /// <summary>
+        /// Метод получения пользователя по telegram id
+        /// </summary>
+        /// <param name="telegramUserId"></param>
+        /// <param name="ct">Объект отмены задачи.</param>
+        /// <returns></returns>
+        Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct);
+
+        /// <summary>
+        /// Метод добавления пользователя.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="ct">Объект отмены задачи.</param>
+        /// <returns></returns>
+        Task Add(ToDoUser user, CancellationToken ct);
     }
 }
