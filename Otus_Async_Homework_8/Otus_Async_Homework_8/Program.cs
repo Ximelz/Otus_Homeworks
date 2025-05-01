@@ -20,8 +20,10 @@ namespace Otus_Async_Homework_8
                     IToDoRepository toDoRepository = new InMemoryToDoRepository();
                     IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                     IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
+                    CancellationTokenSource ct = new CancellationTokenSource();
 
-                    client.StartReceiving(updateHandler);
+                    client.StartReceiving(updateHandler, ct.Token);
+                    ct.Dispose();
 
                     break;
                 }
@@ -83,7 +85,8 @@ namespace Otus_Async_Homework_8
         /// <returns>Преобразованное число из введенного диапазона.</returns>
         private static int ParseAndValidateInt(string? str, uint min, uint max)
         {
-            bool parseFlag = int.TryParse(str, out int parseInt);
+            int parseInt;
+            bool parseFlag = int.TryParse(str, out parseInt);
             if (parseFlag)
                 if (parseInt <= max && parseInt >= min)
                     return parseInt;

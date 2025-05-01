@@ -12,43 +12,49 @@ namespace Otus_Async_Homework_8
         /// Метод получения всех активных задач пользователя.
         /// </summary>
         /// <param name="userId">ID пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список активных задач пользователя.</returns>
-        IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
+        Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct);
 
         /// <summary>
         /// Метод получения всех задач пользователя.
         /// </summary>
         /// <param name="userId">ID пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список задач пользователя.</returns>
-        IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
+        Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct);
 
         /// <summary>
         /// Метод добавления новой задачи.
         /// </summary>
         /// <param name="user">Пользователь, который добавляет задачу.</param>
         /// <param name="name">Наименование задачи.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        ToDoItem Add(ToDoUser user, string name);
+        Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct);
 
         /// <summary>
         /// Метод отметки задачи как выполненной.
         /// </summary>
         /// <param name="id">ID задачи.</param>
         /// <param name="user">Пользователь, который выполнил задачу.</param>
-        void MarkCompleted(Guid id, ToDoUser user);
+        /// <param name="ct">Объект отмены задачи.</param>
+        Task MarkCompleted(Guid id, ToDoUser user, CancellationToken ct);
 
         /// <summary>
         /// Метод удаления задачи.
         /// </summary>
         /// <param name="id">ID задачи.</param>
-        void Delete(Guid id);
+        /// <param name="ct">Объект отмены задачи.</param>
+        Task Delete(Guid id, CancellationToken ct);
 
         /// <summary>
         /// Метод поиска задач пользователя с указанным префиксом.
         /// </summary>
         /// <param name="user">Пользователь, который ищет свои задачи.</param>
         /// <param name="namePrefix">Префикс наименования задачи, по которому ищутся задачи.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Найденные задачи.</returns>
-        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
+        Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct);
     }
 }
