@@ -3,36 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Otus_Annonumous_types_Tuple_Homework_7;
-using Otus_Annonumous_types_Tuple_Homework_7.Core.Exceptions;
 
-/*
- * 7. Добавление класса сервиса ToDoService
- *       7.1 Добавить интерфейс IToDoService
- *           
- *           public interface IToDoService
- *           {
- *              //Возвращает ToDoItem для UserId со статусом Active
- *              IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
- *              ToDoItem Add(User user, string name);
- *              void MarkCompleted(Guid id);
- *              void Delete(Guid id);
- *           }
- *           
- *       7.2 Создать класс ToDoService, который реализует интерфейс IToDoService. Перенести в него логику обработки команд
- *       7.3 Добавить использование IToDoService в UpdateHandler. Получать IToDoService нужно через конструктор
- *       7.4 Изменить формат обработки команды /addtask. Нужно сразу передавать имя задачи в команде. Пример: /addtask Новая задача
- *       7.5 Изменить формат обработки команды /removetask. Нужно сразу передавать номер задачи в команде. Пример: /removetask 2
- *
- * Лямбды. Добавление команды /find
- * Добавить метод IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate); в интерфейс IToDoRepository. Метод должен возвращать все задачи пользователя, которые удовлетворяют предикату.
- * Добавить метод IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix); в интерфейс IToDoService. Метод должен возвращать все задачи пользователя, которые начинаются на namePrefix. Для этого нужно использовать метод IToDoRepository.Find
- * Добавить обработку новой команды /find.
- * Пример команды: /find Имя
- * Вывод в консоль должен быть как в /showtask
- */
-
-namespace Otus_Interfaces_Homework_6
+namespace Otus_Async_Homework_8
 {
     /// <summary>
     /// Класс для взаимодействия с задачами.
@@ -60,7 +32,7 @@ namespace Otus_Interfaces_Homework_6
             return toDoRep.GetActiveByUserId(userId);
         }
 
-        //// <summary>
+        /// <summary>
         /// Получение списка всех задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>

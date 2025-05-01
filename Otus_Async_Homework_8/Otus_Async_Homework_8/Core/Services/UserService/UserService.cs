@@ -4,25 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Otus_Annonumous_types_Tuple_Homework_7;
 
-/*
- * 4. Добавление класса сервиса UserService
- *       4.1 Добавить интерфейс IUserService
- *       
- *           interface IUserService
- *           {
- *              User RegisterUser(long telegramUserId, string telegramUserName);
- *              User? GetUser(long telegramUserId);
- *           }
- *           
- *       4.2 Создать класс UserService, который реализует интерфейс IUserService. Заполнять telegramUserId и telegramUserName нужно из значений Update.Message.From
- *       4.3 Добавить использование IUserService в UpdateHandler. Получать IUserService нужно через конструктор
- *       4.4 При команде /start нужно вызвать метод IUserService.RegisterUser.
- *       4.5 Если пользователь не зарегистрирован, то ему доступны только команды /help /info
- */
-
-namespace Otus_Interfaces_Homework_6
+namespace Otus_Async_Homework_8
 {
     /// <summary>
     /// Класс для взаимодействия с пользователями.

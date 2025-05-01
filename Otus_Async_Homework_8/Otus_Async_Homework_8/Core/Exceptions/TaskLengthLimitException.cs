@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Otus_Annonumous_types_Tuple_Homework_7.Core.Exceptions
+namespace Otus_Async_Homework_8
 {
     class TaskLengthLimitException : Exception
     {

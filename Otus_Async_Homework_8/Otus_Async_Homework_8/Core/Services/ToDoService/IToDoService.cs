@@ -4,41 +4,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-/*
- * 7. Добавление класса сервиса ToDoService
- *       7.1 Добавить интерфейс IToDoService
- *           
- *           public interface IToDoService
- *           {
- *              //Возвращает ToDoItem для UserId со статусом Active
- *              IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
- *              ToDoItem Add(User user, string name);
- *              void MarkCompleted(Guid id);
- *              void Delete(Guid id);
- *           }
- *           
- *       7.2 Создать класс ToDoService, который реализует интерфейс IToDoService. Перенести в него логику обработки команд
- *       7.3 Добавить использование IToDoService в UpdateHandler. Получать IToDoService нужно через конструктор
- *       7.4 Изменить формат обработки команды /addtask. Нужно сразу передавать имя задачи в команде. Пример: /addtask Новая задача
- *       7.5 Изменить формат обработки команды /removetask. Нужно сразу передавать номер задачи в команде. Пример: /removetask 2
- *
- * Лямбды. Добавление команды /find
- * Добавить метод IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate); в интерфейс IToDoRepository. Метод должен возвращать все задачи пользователя, которые удовлетворяют предикату.
- * Добавить метод IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix); в интерфейс IToDoService. Метод должен возвращать все задачи пользователя, которые начинаются на namePrefix. Для этого нужно использовать метод IToDoRepository.Find
- * Добавить обработку новой команды /find.
- * Пример команды: /find Имя
- * Вывод в консоль должен быть как в /showtask
- */
-
-namespace Otus_Interfaces_Homework_6
+namespace Otus_Async_Homework_8
 {
     public interface IToDoService
     {
-        IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);             //Метод получения всех активных задач пользователя.
-        IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);                //Метод получения всех задач пользователя.
-        ToDoItem Add(ToDoUser user, string name);                           //Метод добавления новой задачи.
-        void MarkCompleted(Guid id, ToDoUser user);                         //Метод отметки задачи как выполненной.
-        void Delete(Guid id);                                               //Метод удаления задачи.
-        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);     //Метод поиска задач пользователя с указанным префиксом.
+        /// <summary>
+        /// Метод получения всех активных задач пользователя.
+        /// </summary>
+        /// <param name="userId">ID пользователя.</param>
+        /// <returns>Список активных задач пользователя.</returns>
+        IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
+
+        /// <summary>
+        /// Метод получения всех задач пользователя.
+        /// </summary>
+        /// <param name="userId">ID пользователя.</param>
+        /// <returns>Список задач пользователя.</returns>
+        IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
+
+        /// <summary>
+        /// Метод добавления новой задачи.
+        /// </summary>
+        /// <param name="user">Пользователь, который добавляет задачу.</param>
+        /// <param name="name">Наименование задачи.</param>
+        /// <returns>Добавленная задача.</returns>
+        ToDoItem Add(ToDoUser user, string name);
+
+        /// <summary>
+        /// Метод отметки задачи как выполненной.
+        /// </summary>
+        /// <param name="id">ID задачи.</param>
+        /// <param name="user">Пользователь, который выполнил задачу.</param>
+        void MarkCompleted(Guid id, ToDoUser user);
+
+        /// <summary>
+        /// Метод удаления задачи.
+        /// </summary>
+        /// <param name="id">ID задачи.</param>
+        void Delete(Guid id);
+
+        /// <summary>
+        /// Метод поиска задач пользователя с указанным префиксом.
+        /// </summary>
+        /// <param name="user">Пользователь, который ищет свои задачи.</param>
+        /// <param name="namePrefix">Префикс наименования задачи, по которому ищутся задачи.</param>
+        /// <returns>Найденные задачи.</returns>
+        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
     }
 }

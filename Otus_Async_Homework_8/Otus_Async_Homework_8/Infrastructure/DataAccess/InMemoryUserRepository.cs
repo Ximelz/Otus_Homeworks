@@ -5,22 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot.Types;
-using Otus_Interfaces_Homework_6;
 
-/*
- * Добавление репозитория IUserRepository
- * Добавить интерфейс IUserRepository
- * interface IUserRepository
- * {
- *     ToDoUser? GetUser(Guid userId);
- *     ToDoUser? GetUserByTelegramUserId(long telegramUserId);
- *     void Add(ToDoUser user);
- * }
- * Создать класс InMemoryUserRepository, который реализует интерфейс IUserRepository. В качестве хранилища использовать List
- * Добавить использование IUserRepository в UserService. Получать IUserRepository нужно через конструктор
- */
-
-namespace Otus_Annonumous_types_Tuple_Homework_7
+namespace Otus_Async_Homework_8
 {
     /// <summary>
     /// Класс хранения пользователей.
