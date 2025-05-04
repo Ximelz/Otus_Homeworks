@@ -63,16 +63,16 @@ namespace Otus_Async_Homework_8
                 ct.ThrowIfCancellationRequested();
 
             if (await toDoRep.CountActive(user.UserId, ct) >= maxTasks)
-                throw new Exception($"Превышено максимальное количество задач равное \"{maxTasks}\"");
+                throw new TaskCountLimitException(maxTasks);
 
             if (name.Length > maxLengthNameTask)
-                throw new Exception($"Длина задачи \"{name.Length}\" превышает максимально допустимое значение \"{maxLengthNameTask}\"");
+                throw new TaskLengthLimitException(name.Length, maxLengthNameTask);
 
-            if (!DublicateCheck(name, user, ct))
-                throw new Exception($"Задача \"{name}\" уже существует!");
+            if (!(await toDoRep.ExistsByName(user.UserId, name, ct)))
+                throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);
-            toDoRep.Add(newItem, ct);
+            await toDoRep.Add(newItem, ct);
             return newItem; 
         }
 
@@ -87,16 +87,11 @@ namespace Otus_Async_Homework_8
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            IReadOnlyList<ToDoItem> tasks = GetAllByUserId(user.UserId, ct).Result.Where(x => x.Id == id).ToList();
-            if (tasks.Count > 1)
-                throw new Exception($"В базе несколько задач имеют id \"{id}\"");
+            ToDoItem task = (await GetAllByUserId(user.UserId, ct)).Single(x => x.Id == id);
 
-            if (tasks.Count < 1)
-                throw new Exception($"Задачи с таким id \"{id}\" нет в базе.");
-
-            tasks[0].State = ToDoItemState.Completed;
-            tasks[0].StateChangedAt = DateTime.Now;
-            await toDoRep.Update(tasks[0], ct);
+            task.State = ToDoItemState.Completed;
+            task.StateChangedAt = DateTime.Now;
+            await toDoRep.Update(task, ct);
         }
 
         /// <summary>
@@ -109,7 +104,7 @@ namespace Otus_Async_Homework_8
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            toDoRep.Delete(id, ct);
+            await toDoRep.Delete(id, ct);
         }
 
         /// <summary>
@@ -124,22 +119,7 @@ namespace Otus_Async_Homework_8
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            return await toDoRep.Find(user.UserId, x => x.Name.Substring(0, namePrefix.Length) == namePrefix, ct);
-        }
-
-        /// <summary>
-        /// Проверка на дубль задачи.
-        /// </summary>
-        /// <param name="name">Имя новой задачи.</param>
-        /// <param name="user">Пользователь, который пытается добавить задачу.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        /// <returns>true если такой задачи нет, false если найден дубль.</returns>
-        private bool DublicateCheck(string name, ToDoUser user, CancellationToken ct)
-        {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
-
-            return toDoRep.ExistsByName(user.UserId, name, ct).Result;
+            return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
         }
     }
 }

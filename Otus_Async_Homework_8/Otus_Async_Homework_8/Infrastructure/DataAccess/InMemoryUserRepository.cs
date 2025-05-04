@@ -26,14 +26,14 @@ namespace Otus_Async_Homework_8
         /// <param name="userId">Guid id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public async Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
+        public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
             
             foreach (var user in users)
                 if (user.UserId == userId)
-                    return user;
+                    return Task.FromResult(user);
 
             return null;
         }
@@ -44,14 +44,15 @@ namespace Otus_Async_Homework_8
         /// <param name="userId">Telegram id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public async Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
+        public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
             foreach (var user in users)
                 if (user.TelegramUserId == telegramUserId)
-                    return user;
+                    return Task.FromResult(user);
+
             return null;
         }
 
@@ -60,12 +61,14 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="user">Объект пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public async Task Add(ToDoUser user, CancellationToken ct)
+        public Task Add(ToDoUser user, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
             users.Add(user);
+
+            return Task.CompletedTask;
         }
     }
 }

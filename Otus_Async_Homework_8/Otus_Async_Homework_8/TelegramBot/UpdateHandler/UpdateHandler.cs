@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,14 +20,6 @@ namespace Otus_Async_Homework_8
             this.userService = userService;
             this.toDoService = iToDoService;
             currentCommands = new string[] { "/start", "/info", "/help" };
-            OnHandleUpdateStarted += DisplayEventMessage;
-            OnHandleUpdateCompleted += DisplayEventMessage;
-        }
-
-        ~UpdateHandler()
-        {
-            OnHandleUpdateStarted -= DisplayEventMessage;
-            OnHandleUpdateCompleted -= DisplayEventMessage;
         }
 
         public const string helpInfo = "Для работы с ботом нужно ввести команду. В программе существуют следующие команды:\n\r" +
@@ -43,20 +36,15 @@ namespace Otus_Async_Homework_8
                                        "/report - команда для отображение статистики по задачам текущего пользователя.\n\r" +
                                        "/find {str} - команда для поиска задачи с префиксом {str} текущего пользователя.\n\r" +
                                        "Для окончания работы с ботом нужно нажать комбинацию клавиш Ctrl + C.";
-        public const string version = "Версия программы 0.7, дата создания 20.02.2025, дата изменения 30.04.2025";
+        public const string version = "Версия программы 0.7, дата создания 20.02.2025, дата изменения 04.05.2025";
 
         private string[] currentCommands;                                   //Список доступных команд.
         private readonly IUserService userService;                          //Интерфейс для регистрации пользователя.
         private readonly IToDoService toDoService;                          //Интерфейс для взаимодействия с задачами.
-        private delegate void MessageEventHandler(string message);          //Делегат для событий.
-        private event MessageEventHandler? OnHandleUpdateStarted;           //Событие начала обработки введенного сообщения.
-        private event MessageEventHandler? OnHandleUpdateCompleted;         //Событие конца обработки введенного сообщения.
+        public delegate void MessageEventHandler(string message);           //Делегат для событий.
+        public event MessageEventHandler? OnHandleUpdateStarted;            //Событие начала обработки введенного сообщения.
+        public event MessageEventHandler? OnHandleUpdateCompleted;          //Событие конца обработки введенного сообщения.
 
-        /// <summary>
-        /// Метод для вывода события в консоль.
-        /// </summary>
-        /// <param name="message">Сообщение события.</param>
-        private void DisplayEventMessage(string message) => Console.WriteLine(message);
 
         /// <summary>
         /// Метод обработки обновления задач.
@@ -70,16 +58,16 @@ namespace Otus_Async_Homework_8
             
             try
             {
-                OnHandleUpdateStarted?.Invoke($"\r\nНачалась обработка сообщения {update.Message.Text}\r\n");
+                OnHandleUpdateStarted?.Invoke(update.Message.Text);
 
-                List<string> messageInList = StringArrayHandler(update.Message.Text);
-                botClient.SendMessage(update.Message.Chat, HeandlerCommands(messageInList, update.Message.From, ct), ct);
+                List<string> messageInList = await StringArrayHandler(update.Message.Text);
+                await botClient.SendMessage(update.Message.Chat, await HandleCommand(messageInList, update.Message.From, ct), ct);
 
-                OnHandleUpdateCompleted?.Invoke($"Закончилась обработка сообщения {update.Message.Text}\r\n");
+                OnHandleUpdateCompleted?.Invoke(update.Message.Text);
             }
             finally
             {
-                botClient.SendMessage(update.Message.Chat, BotsCommandString(currentCommands), ct);
+                await botClient.SendMessage(update.Message.Chat, await BotsCommandString(currentCommands), ct);
             }
 
         }
@@ -90,12 +78,13 @@ namespace Otus_Async_Homework_8
         /// <param name="botClient">Клиент телеграмм бота.</param>
         /// <param name="exception">Исключение.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ct)
+        public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            Console.WriteLine(exception.Message);
+            Console.WriteLine(exception.ToString());
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -103,30 +92,30 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="message">Введенная строка.</param>
         /// <returns>Обработанный массив команды с аргументами.</returns>
-        private List<string> StringArrayHandler(string message)
+        private async Task<List<string>> StringArrayHandler(string message)
         {
-            List<string> inputList = DeleteNullItemsArray(new List<string>(message.Split(' ')));
+            List<string> inputList = await DeleteNullItemsArray(new List<string>(message.Split(' ')));
 
             if (!currentCommands.Contains(inputList[0]))
-                throw new Exception("Введена неверная команда!");
+                throw new NotSupportedException("Введена неверная команда!");
 
             if (inputList[0] == "/addtask" || inputList[0] == "/find")
                 if (inputList.Count > 1)
-                    return ConcatArgsInArray(inputList);
+                    return await ConcatArgsInArray(inputList);
                 else
-                    throw new Exception($"Введено неверное количество аргументов для команды {inputList[0]}.");
+                    throw new ArgumentException($"Введено неверное количество аргументов для команды {inputList[0]}.");
 
             if (inputList[0] == "/removetask" || inputList[0] == "/completetask")
             {
                 if (inputList.Count != 3)
-                    throw new Exception($"Введено неверное количество аргументов для команды {inputList[0]}. Их должно быть 3!");
+                    throw new ArgumentException($"Введено неверное количество аргументов для команды {inputList[0]}. Их должно быть 3!");
                 return inputList;
             }
 
             if (inputList.Count == 1)
                 return inputList;
                         
-            throw new Exception($"Введено неверное количество аргументов для команды {inputList[0]}.");
+            throw new ArgumentException($"Введено неверное количество аргументов для команды {inputList[0]}.");
         }
 
         /// <summary>
@@ -134,12 +123,12 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="inputList">Входной список.</param>
         /// <returns>Отформатированный список.</returns>
-        private List<string> DeleteNullItemsArray(List<string> inputList)
+        private async Task<List<string>> DeleteNullItemsArray(List<string> inputList)
         {
             List<string> tempList = new List<string>();
 
             foreach (string item in inputList)
-                if (ValidateString(item))
+                if (await ValidateString(item))
                     tempList.Add(item);
 
             return tempList;
@@ -150,15 +139,15 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="item">Входная строка.</param>
         /// <returns>true если строка не пустая, false если строка null, пустая или состоит из пробелов.</returns>
-        private bool ValidateString(string item)
+        private Task<bool> ValidateString(string item)
         {
             if (item == null)
-                return false;
+                return Task.FromResult(false);
 
             if (item.Trim() == "")
-                return false;
+                return Task.FromResult(false);
 
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -166,7 +155,7 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="inputList">Входной список.</param>
         /// <returns>Объединенный список из 2-х элементов.</returns>
-        private List<string> ConcatArgsInArray(List<string> inputList)
+        private Task<List<string>> ConcatArgsInArray(List<string> inputList)
         {
             List<string> tempArray = new List<string>();
             int inputArrayLength = inputList.Count;
@@ -179,7 +168,7 @@ namespace Otus_Async_Homework_8
 
             tempArray.Add(tempsb.ToString().Trim());
 
-            return tempArray;
+            return Task.FromResult(tempArray);
         }
 
         /// <summary>
@@ -188,11 +177,14 @@ namespace Otus_Async_Homework_8
         /// <param name="inputList">Входной массив, состоящий из команды и аргументов.</param>
         /// <param name="telegramUsere">Пользователь из telegram.</param>
         /// <returns>Результат выполнения команды.</returns>
-        private string HeandlerCommands(List<string> inputList, User telegramUser, CancellationToken ct)
+        private async Task<string> HandleCommand(List<string> inputList, User telegramUser, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             //Доп условие на проверку наличия команды в списке доступных команд нужно для того, чтобы во время выполнения программы не использовал недоступные команды.
             if (inputList[0] == "/start" && currentCommands.Contains("/start"))
-                return StartCommand(telegramUser, ct) + "\r\n";
+                return await StartCommand(telegramUser, ct) + "\r\n";
 
             if (inputList[0] == "/help")
                 return helpInfo + "\r\n";
@@ -200,7 +192,7 @@ namespace Otus_Async_Homework_8
             if (inputList[0] == "/info")
                 return version + "\r\n";
 
-            ToDoUser user = CheckAuthUser(telegramUser, ct);
+            ToDoUser? user = await CheckAuthUser(telegramUser, ct);
 
             //Проверка старта программы за счет получение информации об авторизации пользователя. 
             if (user == null)
@@ -210,37 +202,37 @@ namespace Otus_Async_Homework_8
             }
 
             if (inputList[0] == "/addtask")
-                return AddTask(inputList[1], user, ct) + "\r\n";
+                return await AddTask(inputList[1], user, ct) + "\r\n";
 
             if (inputList[0] == "/find")
-                return FindTasks(inputList[1], user, ct) + "\r\n";
+                return await FindTasks(inputList[1], user, ct) + "\r\n";
 
             if (inputList[0] == "/showalltasks" && currentCommands.Contains("/showalltasks"))
-                return ShowTasks(false, user, ct) + "\r\n";
+                return await ShowTasks(false, user, ct) + "\r\n";
 
             if (inputList[0] == "/showtasks" && currentCommands.Contains("/showtasks"))
-                return ShowTasks(true, user, ct) + "\r\n";
+                return await ShowTasks(true, user, ct) + "\r\n";
 
             if (inputList[0] == "/removetask" && currentCommands.Contains("/removetask"))
-                return RemoveTask(inputList, user, ct) + "\r\n";
+                return await RemoveTask(inputList, user, ct) + "\r\n";
 
             if (inputList[0] == "/completetask" && currentCommands.Contains("/completetask"))
-                return CompleteTask(inputList, user, ct) + "\r\n";
+                return await CompleteTask(inputList, user, ct) + "\r\n";
 
             if (inputList[0] == "/report" && currentCommands.Contains("/report"))
-                return ReportUserTasks(user, ct) + "\r\n";
+                return await ReportUserTasks(user, ct) + "\r\n";
 
-            throw new Exception("Введена неверная команда!");
+            throw new NotSupportedException("Введена неверная команда!");
         }
 
         /// <summary>
-        /// Проверка на авторизацию поьзователя.
+        /// Проверка на авторизацию пользователя.
         /// </summary>
         /// <param name="telegramUser">Пользователь telegram.</param>
         /// <returns>Возвращает объект ConsoleUser если авторизирован, null если нет.</returns>
-        private ToDoUser CheckAuthUser(User telegramUser, CancellationToken ct)
+        private async Task<ToDoUser?> CheckAuthUser(User telegramUser, CancellationToken ct)
         {
-            ToDoUser user = userService.GetUser(telegramUser.Id, ct).Result;
+            ToDoUser? user = await userService.GetUser(telegramUser.Id, ct);
             if (user != null)
                 return user;
             
@@ -252,9 +244,9 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="taskName">Имя задачи.</param>
         /// <returns>Результат добавление задачи.</returns>
-        private string AddTask(string taskName, ToDoUser user, CancellationToken ct)
+        private async Task<string> AddTask(string taskName, ToDoUser user, CancellationToken ct)
         {
-            ToDoItem newItem = toDoService.Add(user, taskName, ct).Result;
+            ToDoItem newItem = await toDoService.Add(user, taskName, ct);
             currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/find", "/info", "/help", "/report"};
             return $"Задача {newItem.Name} добавлена!";
         }
@@ -264,12 +256,12 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="telegramUser">Пользователь из telegram.</param>
         /// <returns>Результат авторизации пользователя</returns>
-        private string StartCommand(User telegramUser, CancellationToken ct)
+        private async Task<string> StartCommand(User telegramUser, CancellationToken ct)
         {
-            ToDoUser user = userService.RegisterUser(telegramUser.Id, telegramUser.Username, ct).Result;
+            ToDoUser user = await userService.RegisterUser(telegramUser.Id, telegramUser.Username, ct);
 
             if (user == null)
-                throw new Exception("Текущий пользователь не смог авторизоваться!");
+                throw new AuthenticationException("Текущий пользователь не смог авторизоваться!");
 
             currentCommands = new string[] { "/addtask", "/info", "/help" };
             return "Пользователь авторизовался!";
@@ -280,16 +272,16 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="activeStateFlag">true для вывода активных задач, false для вывода всех задач.</param>
         /// <returns>Список задач.</returns>
-        private string ShowTasks(bool activeStateFlag, ToDoUser user, CancellationToken ct)
+        private async Task<string> ShowTasks(bool activeStateFlag, ToDoUser user, CancellationToken ct)
         {
             IReadOnlyList<ToDoItem> toDoItems;
 
             if (activeStateFlag)
-                toDoItems = toDoService.GetActiveByUserId(user.UserId, ct).Result;
+                toDoItems = await toDoService.GetActiveByUserId(user.UserId, ct);
             else
-                toDoItems = toDoService.GetAllByUserId(user.UserId, ct).Result;
+                toDoItems = await toDoService.GetAllByUserId(user.UserId, ct);
 
-            return ToDoListInString(toDoItems, activeStateFlag);
+            return await ToDoListInString(toDoItems, activeStateFlag);
         }
 
         /// <summary>
@@ -297,19 +289,19 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="inputList">Массив с командой и аргументами.</param>
         /// <returns>Результат удаления задачи.</returns>
-        private string RemoveTask(List<string> inputList, ToDoUser user, CancellationToken ct)
+        private async Task<string> RemoveTask(List<string> inputList, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2], user, ct);
+            IReadOnlyList<ToDoItem> tasks = await GetToDoItemsList(toDoService, inputList[2], user, ct);
 
             int tasksCount = tasks.Count;
-            int parseInputArg = ParseInt(inputList[1]);
+            int parseInputArg = await ParseInt(inputList[1]);
 
             if (tasksCount < parseInputArg)
-                throw new Exception($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
+                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
 
-            toDoService.Delete(tasks[parseInputArg - 1].Id, ct);
+            await toDoService.Delete(tasks[parseInputArg - 1].Id, ct);
 
-            if (toDoService.GetAllByUserId(user.UserId, ct).Result.Count == 0)
+            if ((await toDoService.GetAllByUserId(user.UserId, ct)).Count == 0)
                 currentCommands = new string[] { "/addtask", "/info", "/help" };
             else
                 currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/find", "/info", "/help", "/report" };
@@ -321,18 +313,18 @@ namespace Otus_Async_Homework_8
         /// Отметка о выполнении задачи.
         /// </summary>
         /// <param name="inputList">Массив с командой и аргументами.</param>
-        /// <returns>Результат отметки выполения задачи.</returns>
-        private string CompleteTask(List<string> inputList, ToDoUser user, CancellationToken ct)
+        /// <returns>Результат отметки выполнения задачи.</returns>
+        private async Task<string> CompleteTask(List<string> inputList, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = GetToDoItemsList(toDoService, inputList[2], user, ct);
+            IReadOnlyList<ToDoItem> tasks = await GetToDoItemsList(toDoService, inputList[2], user, ct);
 
             int tasksCount = tasks.Count;
-            int parseInputArg = ParseInt(inputList[1]);
+            int parseInputArg = await ParseInt(inputList[1]);
 
             if (tasksCount < parseInputArg)
-                throw new Exception($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
+                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
 
-            toDoService.MarkCompleted(tasks[parseInputArg - 1].Id, user, ct);
+            await toDoService.MarkCompleted(tasks[parseInputArg - 1].Id, user, ct);
 
             return "Задача отмечена выполненной!";
         }
@@ -342,10 +334,10 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="user">Пользователь, чьи задачи ищем.</param>
         /// <returns>Статистика задач пользователя.</returns>
-        private string ReportUserTasks(ToDoUser user, CancellationToken ct)
+        private async Task<string> ReportUserTasks(ToDoUser user, CancellationToken ct)
         {
             IToDoReportService reportService = new ToDoReportService(toDoService);
-            var (total, completed, active, generatedAt) = reportService.GetUserStats(user.UserId, ct).Result;
+            var (total, completed, active, generatedAt) = await reportService.GetUserStats(user.UserId, ct);
 
             return $"Статистика по задачам на {generatedAt}. Всего: {total}; Завершено: {completed}; Активных: {active}";
         }
@@ -356,12 +348,12 @@ namespace Otus_Async_Homework_8
         /// <param name="inputList">Команда с аргументом.</param>
         /// <param name="user">Пользователь, чьи задачи ищем.</param>
         /// <returns>Список задач.</returns>
-        private string FindTasks(string inputArg, ToDoUser user, CancellationToken ct)
+        private async Task<string> FindTasks(string inputArg, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> toDoItems = toDoService.Find(user, inputArg, ct).Result;
+            IReadOnlyList<ToDoItem> toDoItems = await toDoService.Find(user, inputArg, ct);
 
             //Так как данный список был получен на основании полного списка задач пользователя, можно использовать метод ToDoListInString для вывода задач с информацией о статусе задач.
-            return ToDoListInString(toDoItems, false);
+            return await ToDoListInString(toDoItems, false);
         }
 
         /// <summary>
@@ -369,12 +361,12 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="str">Входная строка.</param>
         /// <returns>Преобразованное число.</returns>
-        private int ParseInt(string str)
+        private Task<int> ParseInt(string str)
         {
             if(int.TryParse(str, out int parseInt))
-                return parseInt;
+                return Task.FromResult(parseInt);
 
-            throw new Exception($"Вы ввели \"{str}\", это не число!");
+            throw new ArgumentException($"Вы ввели \"{str}\", это не число!");
         }
 
         /// <summary>
@@ -382,13 +374,14 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="inputArray">Входной массив.</param>
         /// <returns>Строка со списком команд.</returns>
-        private string BotsCommandString(string[] inputArray)
+        private Task<string> BotsCommandString(string[] inputArray)
         {
             string resultString = "Список доступных команд:\r\n";
             foreach (string command in inputArray)
                 resultString += command + "\r\n";
             resultString += "Введите команду:";
-            return resultString.TrimEnd();
+
+            return Task.FromResult(resultString.TrimEnd());
         }
 
         /// <summary>
@@ -397,7 +390,7 @@ namespace Otus_Async_Homework_8
         /// <param name="toDoItems">Список задач.</param>
         /// <param name="activeStateFlag">true для вывода активных задач, false для вывода всех задач.</param>
         /// <returns>Сформированная строка.</returns>
-        private string ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, bool activeStateFlag)
+        private Task<string> ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, bool activeStateFlag)
         {
             StringBuilder sbResult = new StringBuilder("");
             string tempString;
@@ -409,7 +402,7 @@ namespace Otus_Async_Homework_8
                 sbResult.Append($"{i + 1}. {tempString}{toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n");
             }
 
-            return sbResult.ToString().Trim();
+            return Task.FromResult(sbResult.ToString().Trim());
         }
 
         /// <summary>
@@ -419,15 +412,15 @@ namespace Otus_Async_Homework_8
         /// <param name="modeArg">Введенный аргумент.</param>
         /// <returns>Список задач.</returns>
         /// <exception cref="ArgsException">Ошибка если неверно введен аргумент.</exception>
-        private IReadOnlyList<ToDoItem> GetToDoItemsList(IToDoService toDoService, string modeArg, ToDoUser user, CancellationToken ct)
+        private async Task<IReadOnlyList<ToDoItem>> GetToDoItemsList(IToDoService toDoService, string modeArg, ToDoUser user, CancellationToken ct)
         {
             if (modeArg.Trim() == "all")
-                return toDoService.GetAllByUserId(user.UserId, ct).Result;
+                return await toDoService.GetAllByUserId(user.UserId, ct);
 
             if (modeArg.Trim() == "active")
-                return toDoService.GetActiveByUserId(user.UserId, ct).Result;
+                return await toDoService.GetActiveByUserId(user.UserId, ct);
             
-            throw new Exception($"Введен неверный 3 ({modeArg}) аргумент!");
+            throw new ArgumentException($"Введен неверный 3 ({modeArg}) аргумент!");
         }
     }
 }

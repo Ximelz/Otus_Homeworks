@@ -31,12 +31,9 @@ namespace Otus_Async_Homework_8
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            return await Task<ToDoUser>.Run(() =>
-            {
-                ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
-                userRep.Add(user, ct);
-                return user;
-            });
+            ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
+            await userRep.Add(user, ct);
+            return user;
         }
 
         /// <summary>
@@ -50,7 +47,7 @@ namespace Otus_Async_Homework_8
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            ToDoUser user =  await userRep.GetUserByTelegramUserId(telegramUserId, ct);
+            ToDoUser? user =  await userRep.GetUserByTelegramUserId(telegramUserId, ct);
             if (user != null)
                 return user;
 
