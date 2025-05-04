@@ -23,13 +23,12 @@ namespace Otus_Async_Homework_8
                     IToDoRepository toDoRepository = new InMemoryToDoRepository();
                     IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                     IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
-                    CancellationTokenSource ct = new CancellationTokenSource();
                     void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
                     void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
 
                     try
                     {
-                        using (ct = new CancellationTokenSource())
+                        using (CancellationTokenSource ct = new CancellationTokenSource())
                         {
                             ((UpdateHandler)updateHandler).OnHandleUpdateStarted += DisplayStartEventMessage;
                             ((UpdateHandler)updateHandler).OnHandleUpdateCompleted += DisplayCompleteEventMessage;
