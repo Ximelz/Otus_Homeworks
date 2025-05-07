@@ -24,11 +24,15 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="telegramUserId">id пользователя из telegram</param>
         /// <param name="telegramUserName">Имя пользователя из telegram</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Объект нового пользователя.</returns>
-        public ToDoUser RegisterUser(long telegramUserId, string telegramUserName)
+        public async Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
-            userRep.Add(user);
+            await userRep.Add(user, ct);
             return user;
         }
 
@@ -36,10 +40,14 @@ namespace Otus_Async_Homework_8
         /// Получения уже авторизированного пользователя.
         /// </summary>
         /// <param name="telegramUserId">id пользователя из telegram</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Объект пользователя.</returns>
-        public ToDoUser? GetUser(long telegramUserId)
+        public async Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken ct)
         {
-            ToDoUser user = userRep.GetUserByTelegramUserId(telegramUserId);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            ToDoUser? user =  await userRep.GetUserByTelegramUserId(telegramUserId, ct);
             if (user != null)
                 return user;
 

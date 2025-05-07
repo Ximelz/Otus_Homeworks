@@ -19,49 +19,76 @@ namespace Otus_Async_Homework_8
         /// Метод получения всех задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список всех задач.</returns>
-        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        public Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            return tasks.Where(x => x.User.UserId == userId).ToList();
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId).ToList());
         }
 
         /// <summary>
         /// Метод получения всех активных задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список задач.</returns>
-        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
+        public Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            return tasks.Where(x => x.User.UserId == userId && x.State == ToDoItemState.Active).ToList();
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId && x.State == ToDoItemState.Active).ToList());
         }
 
         /// <summary>
         /// Метод добавления задачи в список задач.
         /// </summary>
         /// <param name="item">Задача.</param>
-        public void Add(ToDoItem item)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public Task Add(ToDoItem item, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             tasks.Add(item);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Обновление задачи.
         /// </summary>
         /// <param name="item">Задача.</param>
-        public void Update(ToDoItem item)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public Task Update(ToDoItem item, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int index = tasks.FindIndex(x => x.Id == item.Id);
             tasks[index] = item;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Удаление задачи.
         /// </summary>
         /// <param name="id">Id задачи.</param>
-        public void Delete(Guid id)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public Task Delete(Guid id, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int index = tasks.FindIndex(x => x.Id == id);
+
             tasks.RemoveAt(index);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -69,25 +96,33 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
         /// <param name="name">Имя задачи.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>true если задача есть у текущего пользователя, false если нет.</returns>
-        public bool ExistsByName(Guid userId, string name)
+        public Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             int items = tasks.Where(x => x.User.UserId == userId && x.Name == name).ToList().Count();
 
             if (items == 0)
-                return true;
+                return Task.FromResult(true);
 
-            return false;
+            return Task.FromResult(false);
         }
 
         /// <summary>
         /// Метод получения количества активных задач пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Количество задач.</returns>
-        public int CountActive(Guid userId)
+        public Task<int> CountActive(Guid userId, CancellationToken ct)
         {
-            return tasks.Where(x => x.User.UserId == userId).ToList().Count;
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return Task.FromResult(tasks.Where(x => x.User.UserId == userId).ToList().Count);
         }
 
         /// <summary>
@@ -95,10 +130,14 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="userId">id пользователя</param>
         /// <param name="predicate">Параметр поиска.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Найденный список.</returns>
-        public IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate)
+        public Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct)
         {
-            return tasks.Where(x => x.User.UserId == userId).Where(predicate).ToList();
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId).Where(predicate).ToList());
         }
     }
 }

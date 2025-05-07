@@ -12,7 +12,8 @@ namespace Otus_Async_Homework_8
         /// Получение информации о задачах пользователя.
         /// </summary>
         /// <param name="userId">ID пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Все задачи, выполненные задачи, активные задачи, время обращения к методу.</returns>
-        (int total, int completed, int active, DateTime generatedAt) GetUserStats(Guid userId);
+        Task<(int total, int completed, int active, DateTime generatedAt)> GetUserStats(Guid userId, CancellationToken ct);
     }
 }

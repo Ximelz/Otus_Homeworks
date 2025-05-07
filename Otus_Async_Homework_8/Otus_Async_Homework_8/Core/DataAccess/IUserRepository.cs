@@ -12,20 +12,23 @@ namespace Otus_Async_Homework_8
         /// Метод получения пользователя по guid id.
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        ToDoUser? GetUser(Guid userId);
+        Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct);
 
         /// <summary>
         /// Метод получения пользователя по telegram id
         /// </summary>
         /// <param name="telegramUserId"></param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        ToDoUser? GetUserByTelegramUserId(long telegramUserId);
+        Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct);
 
         /// <summary>
         /// Метод добавления пользователя.
         /// </summary>
         /// <param name="user"></param>
-        void Add(ToDoUser user);
+        /// <param name="ct">Объект отмены задачи.</param>
+        Task Add(ToDoUser user, CancellationToken ct);
     }
 }

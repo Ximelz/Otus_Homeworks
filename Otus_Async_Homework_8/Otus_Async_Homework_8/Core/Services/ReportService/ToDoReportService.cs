@@ -19,10 +19,11 @@ namespace Otus_Async_Homework_8
         /// Метод получения информации о задачах пользователя.
         /// </summary>
         /// <param name="userId">Id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Все задачи, выполненные задачи, активные задачи, время обращения к методу.</returns>
-        public (int total, int completed, int active, DateTime generatedAt) GetUserStats(Guid userId)
+        public async Task<(int total, int completed, int active, DateTime generatedAt)> GetUserStats(Guid userId, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = toDoSer.GetAllByUserId(userId);
+            IReadOnlyList<ToDoItem> tasks = await toDoSer.GetAllByUserId(userId, ct);
             int totalTasks = tasks.Count;
             int activeTasks = tasks.Where(x => x.State == ToDoItemState.Active).ToList().Count();
 

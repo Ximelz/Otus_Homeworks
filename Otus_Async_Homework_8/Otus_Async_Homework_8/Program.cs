@@ -1,5 +1,6 @@
 ﻿using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
+using System.Threading;
 
 namespace Otus_Async_Homework_8
 {
@@ -7,8 +8,10 @@ namespace Otus_Async_Homework_8
     {
         static void Main(string[] args)
         {
+
             while (true)
             {
+
                 try
                 {
                     int maxTasks = SetMaxTasks();
@@ -20,8 +23,28 @@ namespace Otus_Async_Homework_8
                     IToDoRepository toDoRepository = new InMemoryToDoRepository();
                     IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                     IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
+                    void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
+                    void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
 
-                    client.StartReceiving(updateHandler);
+                    try
+                    {
+                        using (CancellationTokenSource ct = new CancellationTokenSource())
+                        {
+                            ((UpdateHandler)updateHandler).OnHandleUpdateStarted += DisplayStartEventMessage;
+                            ((UpdateHandler)updateHandler).OnHandleUpdateCompleted += DisplayCompleteEventMessage;
+
+                            client.StartReceiving(updateHandler, ct.Token);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        ((UpdateHandler)updateHandler).OnHandleUpdateStarted -= DisplayStartEventMessage;
+                        ((UpdateHandler)updateHandler).OnHandleUpdateCompleted -= DisplayCompleteEventMessage;
+                    }
 
                     break;
                 }
@@ -35,8 +58,8 @@ namespace Otus_Async_Homework_8
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message, ex.StackTrace, ex.InnerException);
-                    Console.ReadKey();
+                    Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message,
+                        ex.StackTrace, ex.InnerException);
                 }
             }
         }
@@ -51,7 +74,7 @@ namespace Otus_Async_Homework_8
         private static int SetMaxTasks()
         {
             Console.WriteLine("Введите максимально допустимое количество задач, минимум 1, максимум 100:");
-            string inputString = Console.ReadLine();
+            string? inputString = Console.ReadLine();
             ValidateString(inputString);
             int maxTasks = ParseAndValidateInt(inputString, 1, 100);
             Console.WriteLine($"Максимальное количество задач теперь {maxTasks}.");
@@ -66,7 +89,7 @@ namespace Otus_Async_Homework_8
         private static int SetMaxLengthNameTasks()
         {
             Console.WriteLine("Введите максимально допустимую длину задачи, минимум 1, максимум 100:");
-            string inputString = Console.ReadLine();
+            string? inputString = Console.ReadLine();
             ValidateString(inputString);
             int maxLengthNameTask = ParseAndValidateInt(inputString, 1, 100);
             Console.WriteLine($"Максимальная длина имени задачи теперь {maxLengthNameTask}.");
@@ -83,7 +106,8 @@ namespace Otus_Async_Homework_8
         /// <returns>Преобразованное число из введенного диапазона.</returns>
         private static int ParseAndValidateInt(string? str, uint min, uint max)
         {
-            bool parseFlag = int.TryParse(str, out int parseInt);
+            int parseInt;
+            bool parseFlag = int.TryParse(str, out parseInt);
             if (parseFlag)
                 if (parseInt <= max && parseInt >= min)
                     return parseInt;

@@ -26,20 +26,28 @@ namespace Otus_Async_Homework_8
         /// Получение списка всех активных задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список активных задач.</returns>
-        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            return toDoRep.GetActiveByUserId(userId);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return await toDoRep.GetActiveByUserId(userId, ct);
         }
 
-        /// <summary>
+        //// <summary>
         /// Получение списка всех задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список задач указанного пользователя.</returns>
-        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            return toDoRep.GetAllByUserId(userId);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return await toDoRep.GetAllByUserId(userId, ct);
         }
 
         /// <summary>
@@ -47,20 +55,24 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="user">Пользователь, добавивший задачу.</param>
         /// <param name="name">Имя задачи.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        public ToDoItem Add(ToDoUser user, string name)
+        public async Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct)
         {
-            if (toDoRep.CountActive(user.UserId) >= maxTasks)
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            if (await toDoRep.CountActive(user.UserId, ct) >= maxTasks)
                 throw new TaskCountLimitException(maxTasks);
 
             if (name.Length > maxLengthNameTask)
                 throw new TaskLengthLimitException(name.Length, maxLengthNameTask);
 
-            if (!DublicateCheck(name, user))
+            if (!(await toDoRep.ExistsByName(user.UserId, name, ct)))
                 throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);
-            toDoRep.Add(newItem);
+            await toDoRep.Add(newItem, ct);
             return newItem; 
         }
 
@@ -69,28 +81,30 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="id">id выполненной задачи.</param>
         /// <param name="user">Пользователь, который выполнил задачу.</param>
-        public void MarkCompleted(Guid id, ToDoUser user)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task MarkCompleted(Guid id, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = GetAllByUserId(user.UserId).Where(x => x.Id == id).ToList();
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
 
-            if (tasks.Count > 1)
-                throw new ArgumentException($"В базе несколько задач имеют id \"{id}\"");
+            ToDoItem task = (await GetAllByUserId(user.UserId, ct)).Single(x => x.Id == id);
 
-            if (tasks.Count < 1)
-                throw new ArgumentException($"Задачи с таким id \"{id}\" нет в базе.");
-
-            tasks[0].State = ToDoItemState.Completed;
-            tasks[0].StateChangedAt = DateTime.Now;
-            toDoRep.Update(tasks[0]);
+            task.State = ToDoItemState.Completed;
+            task.StateChangedAt = DateTime.Now;
+            await toDoRep.Update(task, ct);
         }
 
         /// <summary>
         /// Удаление задачи.
         /// </summary>
         /// <param name="id">id задачи на удаление.</param>
-        public void Delete(Guid id)
+        /// <param name="ct">Объект отмены задачи.</param>
+        public async Task Delete(Guid id, CancellationToken ct)
         {
-            toDoRep.Delete(id);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            await toDoRep.Delete(id, ct);
         }
 
         /// <summary>
@@ -98,21 +112,14 @@ namespace Otus_Async_Homework_8
         /// </summary>
         /// <param name="user">Пользователь, чьи задачи ищем.</param>
         /// <param name="namePrefix">Префикс задач.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список задач с префиксом.</returns>
-        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
+        public async Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct)
         {
-            return toDoRep.Find(user.UserId, x => x.Name.Substring(0, namePrefix.Length) == namePrefix);
-        }
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
 
-        /// <summary>
-        /// Проверка на дубль задачи.
-        /// </summary>
-        /// <param name="name">Имя новой задачи.</param>
-        /// <param name="user">Пользователь, который пытается добавить задачу.</param>
-        /// <returns>true если такой задачи нет, false если найден дубль.</returns>
-        private bool DublicateCheck(string name, ToDoUser user)
-        {
-            return toDoRep.ExistsByName(user.UserId, name);
+            return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
         }
     }
 }
