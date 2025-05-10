@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace Otus_Telegram_API_Homework_9
         /// <param name="userId">Guid id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
+        public Task<ToDoUser?>? GetUser(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -34,7 +35,7 @@ namespace Otus_Telegram_API_Homework_9
                 if (user.UserId == userId)
                     return Task.FromResult(user);
 
-            return null;
+            throw new AuthenticationException("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace Otus_Telegram_API_Homework_9
         /// <param name="userId">Telegram id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
+        public Task<ToDoUser> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -52,7 +53,7 @@ namespace Otus_Telegram_API_Homework_9
                 if (user.TelegramUserId == telegramUserId)
                     return Task.FromResult(user);
 
-            return null;
+            throw new AuthenticationException("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
         }
 
         /// <summary>

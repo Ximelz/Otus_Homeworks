@@ -1,64 +1,85 @@
-﻿using System.Threading;
+﻿using System.Runtime.CompilerServices;
+using System.Threading;
+using Telegram.Bot;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Otus_Telegram_API_Homework_9
 {
     public class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-
-            while (true)
+            try
             {
+                int maxTasks = SetMaxTasks();
+                int maxLengthNameTask = SetMaxLengthNameTasks();
+
+                string _botKey = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN", EnvironmentVariableTarget.User);
+                var bot = new TelegramBotClient(_botKey);
+
+                IUserRepository userRepository = new InMemoryUserRepository();
+                IUserService userService = new UserService(userRepository);
+                IToDoRepository toDoRepository = new InMemoryToDoRepository();
+                IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
+                IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
+                void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
+                void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
+
+                var receiverOptions = new ReceiverOptions
+                {
+                    AllowedUpdates = [UpdateType.Message],
+                    DropPendingUpdates = true
+                };
 
                 try
                 {
-                    int maxTasks = SetMaxTasks();
-                    int maxLengthNameTask = SetMaxLengthNameTasks();
-
-                    ConsoleBotClient client = new ConsoleBotClient();
-                    IUserRepository userRepository = new InMemoryUserRepository();
-                    IUserService userService = new UserService(userRepository);
-                    IToDoRepository toDoRepository = new InMemoryToDoRepository();
-                    IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
-                    IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
-                    void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
-                    void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
-
-                    try
+                    using (CancellationTokenSource ct = new CancellationTokenSource())
                     {
-                        using (CancellationTokenSource ct = new CancellationTokenSource())
+                        var me = await bot.GetMe();
+
+                        ((UpdateHandler)updateHandler).OnHandleUpdateStarted += DisplayStartEventMessage;
+                        ((UpdateHandler)updateHandler).OnHandleUpdateCompleted += DisplayCompleteEventMessage;
+
+                        bot.StartReceiving(updateHandler, receiverOptions, ct.Token);
+
+                        Console.WriteLine("Нажмите английскую \"A\" или русскую \"Ф\" для остановки бота.");
+                        var inputKey = Console.ReadKey();
+
+                        if (inputKey.Key == ConsoleKey.A)
                         {
-                            ((UpdateHandler)updateHandler).OnHandleUpdateStarted += DisplayStartEventMessage;
-                            ((UpdateHandler)updateHandler).OnHandleUpdateCompleted += DisplayCompleteEventMessage;
-
-                            client.StartReceiving(updateHandler, ct.Token);
+                            ct.Cancel();
+                            throw new Exception($"\r\n{me.FirstName} остановлен!");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        ((UpdateHandler)updateHandler).OnHandleUpdateStarted -= DisplayStartEventMessage;
-                        ((UpdateHandler)updateHandler).OnHandleUpdateCompleted -= DisplayCompleteEventMessage;
-                    }
+                        else
+                            Console.WriteLine($"\r\n{me.FirstName} запущен!");
 
-                    break;
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
+                        await Task.Delay(-1);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message,
-                        ex.StackTrace, ex.InnerException);
+                    Console.WriteLine(ex.Message);
                 }
+                finally
+                {
+                    ((UpdateHandler)updateHandler).OnHandleUpdateStarted -= DisplayStartEventMessage;
+                    ((UpdateHandler)updateHandler).OnHandleUpdateCompleted -= DisplayCompleteEventMessage;
+                }
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message,
+                    ex.StackTrace, ex.InnerException);
             }
         }
 

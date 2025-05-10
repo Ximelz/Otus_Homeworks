@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-   </ItemGroup>
+    <PackageReference Include="Telegram.Bot" Version="22.5.1" />
+  </ItemGroup>
 
 </Project>

@@ -1,10 +1,17 @@
-﻿using System;
+﻿using Otus_Telegram_API_Homework_9.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Telegram.Bot;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Otus_Telegram_API_Homework_9
 {
@@ -17,7 +24,13 @@ namespace Otus_Telegram_API_Homework_9
         {
             this.userService = userService;
             this.toDoService = iToDoService;
-            currentCommands = new string[] { "/start", "/info", "/help" };
+            currentCommands = new List<BotCommand>
+            {
+                new BotCommand("/start", "Авторизация и запуск бота."),
+                new BotCommand("/info", "Информация о версии бота."),
+                new BotCommand("/help", "Информация о работе с ботом.")
+            };
+            keyboard = new ReplyKeyboardMarkup(new[] { new KeyboardButton("/start")});
         }
 
         public const string helpInfo = "Для работы с ботом нужно ввести команду. В программе существуют следующие команды:\n\r" +
@@ -27,18 +40,17 @@ namespace Otus_Telegram_API_Homework_9
                                        "/showtasks - команда показывает все активные задачи.\n\r" +
                                        "/showalltasks - команда показывает все имеющиеся задачи.\n\r" +
                                        "/addtask {name} - команда для добавления задачи. В качестве аргумента {name} передается имя задачи.\n\r" +
-                                       "/removetask {id} {stateFlag} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\". " +
-                                       "Аргумент {stateFlag} определяет из какого списка берется номер задачи для удаления. {stateFlag} может иметь только 2 значения: \"all\" и \"active\".\n\r" +
-                                       "/completetask {id} {stateFlag} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается номер задачи, полученный командой \"/showtasks\"." +
-                                       "Аргумент {stateFlag} определяет из какого списка берется номер задачи для изменения. {stateFlag} может иметь только 2 значения: \"all\" и \"active\".\n\r" +
+                                       "/removetask {id} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается id задачи." +
+                                       "/completetask {id} - команда, котороая отмечает выбранную задачу выполненной. В качестве аргумента {id} передается id задачи." +
                                        "/report - команда для отображение статистики по задачам текущего пользователя.\n\r" +
                                        "/find {str} - команда для поиска задачи с префиксом {str} текущего пользователя.\n\r" +
-                                       "Для окончания работы с ботом нужно нажать комбинацию клавиш Ctrl + C.";
-        public const string version = "Версия программы 0.7, дата создания 20.02.2025, дата изменения 04.05.2025";
+                                       "Для окончания работы с ботом нужно нажать ангийскую клавишу \"A\" в консоле.";
+        public const string version = "Версия программы 0.8, дата создания 20.02.2025, дата изменения 10.05.2025";
 
-        private string[] currentCommands;                                   //Список доступных команд.
+        private readonly List<BotCommand> currentCommands;                  //Список доступных команд.
         private readonly IUserService userService;                          //Интерфейс для регистрации пользователя.
         private readonly IToDoService toDoService;                          //Интерфейс для взаимодействия с задачами.
+        private ReplyMarkup keyboard;                                       //Reply клавиатура телеграмм бота.
         public delegate void MessageEventHandler(string message);           //Делегат для событий.
         public event MessageEventHandler? OnHandleUpdateStarted;            //Событие начала обработки введенного сообщения.
         public event MessageEventHandler? OnHandleUpdateCompleted;          //Событие конца обработки введенного сообщения.
@@ -53,21 +65,61 @@ namespace Otus_Telegram_API_Homework_9
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
-            
+
             try
             {
                 OnHandleUpdateStarted?.Invoke(update.Message.Text);
 
-                List<string> messageInList = await StringArrayHandler(update.Message.Text);
-                await botClient.SendMessage(update.Message.Chat, await HandleCommand(messageInList, update.Message.From, ct), ct);
+                List<string> messageInList = await StringArrayHandler(botClient, update, ct);
+                await botClient.SendMessage(update.Message.Chat, await HandleCommand(messageInList, update.Message.From, ct), parseMode: ParseMode.Html, replyMarkup: keyboard, cancellationToken: ct);
 
                 OnHandleUpdateCompleted?.Invoke(update.Message.Text);
             }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (NotSupportedException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (ArgumentException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (DuplicateTaskException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (TaskCountLimitException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (TaskLengthLimitException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (CompleteTaskException ex)
+            {
+                await botClient.SendMessage(update.Message.Chat, ex.Message, cancellationToken: ct);
+            }
+            catch (AuthenticationException ex)
+            {
+                keyboard = new ReplyKeyboardMarkup(new[] { new KeyboardButton("/start") });
+                currentCommands.Clear();
+                currentCommands.Add(new BotCommand("/start", "Авторизация и запуск бота."));
+                currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
+                currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+                await botClient.SendMessage(update.Message.Chat, ex.Message, replyMarkup: keyboard, cancellationToken: ct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             finally
             {
-                await botClient.SendMessage(update.Message.Chat, await BotsCommandString(currentCommands), ct);
+                await botClient.SetMyCommands(currentCommands, BotCommandScopeChat.Chat(update.Message.Chat.Id));
             }
-
         }
 
         /// <summary>
@@ -76,7 +128,7 @@ namespace Otus_Telegram_API_Homework_9
         /// <param name="botClient">Клиент телеграмм бота.</param>
         /// <param name="exception">Исключение.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ct)
+        public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -90,22 +142,29 @@ namespace Otus_Telegram_API_Homework_9
         /// </summary>
         /// <param name="message">Введенная строка.</param>
         /// <returns>Обработанный массив команды с аргументами.</returns>
-        private async Task<List<string>> StringArrayHandler(string message)
+        private async Task<List<string>> StringArrayHandler(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            List<string> inputList = await DeleteNullItemsArray(new List<string>(message.Split(' ')));
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
 
-            if (!currentCommands.Contains(inputList[0]))
+            string message = update.Message.Text;
+            
+            List<string> inputList = await DeleteNullItemsArray(new List<string>(message.Split(' ')), ct);
+
+            var commands = await botClient.GetMyCommands(BotCommandScopeChat.Chat(update.Message.Chat.Id));
+
+            if (commands.Where(x => "/" + x.Command == inputList[0]).FirstOrDefault() == null)
                 throw new NotSupportedException("Введена неверная команда!");
 
             if (inputList[0] == "/addtask" || inputList[0] == "/find")
                 if (inputList.Count > 1)
-                    return await ConcatArgsInArray(inputList);
+                    return await ConcatArgsInArray(inputList, ct);
                 else
                     throw new ArgumentException($"Введено неверное количество аргументов для команды {inputList[0]}.");
 
             if (inputList[0] == "/removetask" || inputList[0] == "/completetask")
             {
-                if (inputList.Count != 3)
+                if (inputList.Count != 2)
                     throw new ArgumentException($"Введено неверное количество аргументов для команды {inputList[0]}. Их должно быть 3!");
                 return inputList;
             }
@@ -121,12 +180,15 @@ namespace Otus_Telegram_API_Homework_9
         /// </summary>
         /// <param name="inputList">Входной список.</param>
         /// <returns>Отформатированный список.</returns>
-        private async Task<List<string>> DeleteNullItemsArray(List<string> inputList)
+        private async Task<List<string>> DeleteNullItemsArray(List<string> inputList, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             List<string> tempList = new List<string>();
 
             foreach (string item in inputList)
-                if (await ValidateString(item))
+                if (await ValidateString(item, ct))
                     tempList.Add(item);
 
             return tempList;
@@ -137,8 +199,11 @@ namespace Otus_Telegram_API_Homework_9
         /// </summary>
         /// <param name="item">Входная строка.</param>
         /// <returns>true если строка не пустая, false если строка null, пустая или состоит из пробелов.</returns>
-        private Task<bool> ValidateString(string item)
+        private Task<bool> ValidateString(string item, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             if (item == null)
                 return Task.FromResult(false);
 
@@ -153,8 +218,11 @@ namespace Otus_Telegram_API_Homework_9
         /// </summary>
         /// <param name="inputList">Входной список.</param>
         /// <returns>Объединенный список из 2-х элементов.</returns>
-        private Task<List<string>> ConcatArgsInArray(List<string> inputList)
+        private Task<List<string>> ConcatArgsInArray(List<string> inputList, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             List<string> tempArray = new List<string>();
             int inputArrayLength = inputList.Count;
             var tempsb = new StringBuilder("");
@@ -180,8 +248,7 @@ namespace Otus_Telegram_API_Homework_9
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            //Доп условие на проверку наличия команды в списке доступных команд нужно для того, чтобы во время выполнения программы не использовал недоступные команды.
-            if (inputList[0] == "/start" && currentCommands.Contains("/start"))
+            if (inputList[0] == "/start")
                 return await StartCommand(telegramUser, ct) + "\r\n";
 
             if (inputList[0] == "/help")
@@ -192,32 +259,25 @@ namespace Otus_Telegram_API_Homework_9
 
             ToDoUser? user = await CheckAuthUser(telegramUser, ct);
 
-            //Проверка старта программы за счет получение информации об авторизации пользователя. 
-            if (user == null)
-            {
-                currentCommands = new string[] { "/start", "/info", "/help" };
-                throw new Exception("Вы не авторизированны в программе! Используйте команду \"/start\" для авторизации.");
-            }
-
             if (inputList[0] == "/addtask")
                 return await AddTask(inputList[1], user, ct) + "\r\n";
 
             if (inputList[0] == "/find")
                 return await FindTasks(inputList[1], user, ct) + "\r\n";
 
-            if (inputList[0] == "/showalltasks" && currentCommands.Contains("/showalltasks"))
+            if (inputList[0] == "/showalltasks")
                 return await ShowTasks(false, user, ct) + "\r\n";
 
-            if (inputList[0] == "/showtasks" && currentCommands.Contains("/showtasks"))
+            if (inputList[0] == "/showtasks")
                 return await ShowTasks(true, user, ct) + "\r\n";
 
-            if (inputList[0] == "/removetask" && currentCommands.Contains("/removetask"))
+            if (inputList[0] == "/removetask")
                 return await RemoveTask(inputList, user, ct) + "\r\n";
 
-            if (inputList[0] == "/completetask" && currentCommands.Contains("/completetask"))
+            if (inputList[0] == "/completetask")
                 return await CompleteTask(inputList, user, ct) + "\r\n";
 
-            if (inputList[0] == "/report" && currentCommands.Contains("/report"))
+            if (inputList[0] == "/report")
                 return await ReportUserTasks(user, ct) + "\r\n";
 
             throw new NotSupportedException("Введена неверная команда!");
@@ -230,6 +290,9 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Возвращает объект ConsoleUser если авторизирован, null если нет.</returns>
         private async Task<ToDoUser?> CheckAuthUser(User telegramUser, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             ToDoUser? user = await userService.GetUser(telegramUser.Id, ct);
             if (user != null)
                 return user;
@@ -244,8 +307,29 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Результат добавление задачи.</returns>
         private async Task<string> AddTask(string taskName, ToDoUser user, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             ToDoItem newItem = await toDoService.Add(user, taskName, ct);
-            currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/find", "/info", "/help", "/report"};
+            currentCommands.Clear();
+            currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+            currentCommands.Add(new BotCommand("/showtasks", "Вывод выполненных задач пользователя."));
+            currentCommands.Add(new BotCommand("/showalltasks", "Вывод всех задач пользователя."));
+            currentCommands.Add(new BotCommand("/removetask", "Удаление задачи."));
+            currentCommands.Add(new BotCommand("/completetask", "Выполнить задачу."));
+            currentCommands.Add(new BotCommand("/find", "Поиск задач."));
+            currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
+            currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+            currentCommands.Add(new BotCommand("/report", "Вывод статистики пользователя."));
+
+            keyboard = new ReplyKeyboardMarkup(
+                new[]
+                {
+                    new KeyboardButton("/showtasks"),
+                    new KeyboardButton("/showalltasks"),
+                    new KeyboardButton("/report")
+                });
+
             return $"Задача {newItem.Name} добавлена!";
         }
 
@@ -256,12 +340,20 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Результат авторизации пользователя</returns>
         private async Task<string> StartCommand(User telegramUser, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             ToDoUser user = await userService.RegisterUser(telegramUser.Id, telegramUser.Username, ct);
+
+            keyboard = new ReplyKeyboardRemove();
 
             if (user == null)
                 throw new AuthenticationException("Текущий пользователь не смог авторизоваться!");
 
-            currentCommands = new string[] { "/addtask", "/info", "/help" };
+            currentCommands.Clear();
+            currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+            currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
+            currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
             return "Пользователь авторизовался!";
         }
 
@@ -272,6 +364,9 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Список задач.</returns>
         private async Task<string> ShowTasks(bool activeStateFlag, ToDoUser user, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             IReadOnlyList<ToDoItem> toDoItems;
 
             if (activeStateFlag)
@@ -279,7 +374,7 @@ namespace Otus_Telegram_API_Homework_9
             else
                 toDoItems = await toDoService.GetAllByUserId(user.UserId, ct);
 
-            return await ToDoListInString(toDoItems, activeStateFlag);
+            return await ToDoListInString(toDoItems, activeStateFlag, ct);
         }
 
         /// <summary>
@@ -289,20 +384,34 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Результат удаления задачи.</returns>
         private async Task<string> RemoveTask(List<string> inputList, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = await GetToDoItemsList(toDoService, inputList[2], user, ct);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
 
-            int tasksCount = tasks.Count;
-            int parseInputArg = await ParseInt(inputList[1]);
+            var parseInputArg = Guid.Parse(inputList[1]);
 
-            if (tasksCount < parseInputArg)
-                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
-
-            await toDoService.Delete(tasks[parseInputArg - 1].Id, ct);
+            await toDoService.Delete(parseInputArg, ct);
 
             if ((await toDoService.GetAllByUserId(user.UserId, ct)).Count == 0)
-                currentCommands = new string[] { "/addtask", "/info", "/help" };
+            {
+                currentCommands.Clear();
+                currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+                currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
+                currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+                keyboard = new ReplyKeyboardRemove();
+            }
             else
-                currentCommands = new string[] { "/showtasks", "/showalltasks", "/addtask", "/removetask", "/completetask", "/find", "/info", "/help", "/report" };
+            {
+                currentCommands.Clear();
+                currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+                currentCommands.Add(new BotCommand("/showtasks", "Вывод выполненных задач пользователя."));
+                currentCommands.Add(new BotCommand("/showalltasks", "Вывод всех задач пользователя."));
+                currentCommands.Add(new BotCommand("/removetask", "Удаление задачи."));
+                currentCommands.Add(new BotCommand("/completetask", "Выполнить задачу."));
+                currentCommands.Add(new BotCommand("/find", "Поиск задач."));
+                currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
+                currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+                currentCommands.Add(new BotCommand("/report", "Вывод статистики пользователя."));
+            }
 
             return "Задача удалена!";
         }
@@ -314,15 +423,12 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Результат отметки выполнения задачи.</returns>
         private async Task<string> CompleteTask(List<string> inputList, ToDoUser user, CancellationToken ct)
         {
-            IReadOnlyList<ToDoItem> tasks = await GetToDoItemsList(toDoService, inputList[2], user, ct);
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
 
-            int tasksCount = tasks.Count;
-            int parseInputArg = await ParseInt(inputList[1]);
+            var parseInputArg = Guid.Parse(inputList[1]);
 
-            if (tasksCount < parseInputArg)
-                throw new ArgumentOutOfRangeException($"Введенный номер задачи \"{inputList[1]}\" выходит за пределы количества из указанного списка задач \"{tasksCount}\"");
-
-            await toDoService.MarkCompleted(tasks[parseInputArg - 1].Id, user, ct);
+            await toDoService.MarkCompleted(parseInputArg, user, ct);
 
             return "Задача отмечена выполненной!";
         }
@@ -334,6 +440,9 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Статистика задач пользователя.</returns>
         private async Task<string> ReportUserTasks(ToDoUser user, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             IToDoReportService reportService = new ToDoReportService(toDoService);
             var (total, completed, active, generatedAt) = await reportService.GetUserStats(user.UserId, ct);
 
@@ -348,38 +457,13 @@ namespace Otus_Telegram_API_Homework_9
         /// <returns>Список задач.</returns>
         private async Task<string> FindTasks(string inputArg, ToDoUser user, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             IReadOnlyList<ToDoItem> toDoItems = await toDoService.Find(user, inputArg, ct);
 
             //Так как данный список был получен на основании полного списка задач пользователя, можно использовать метод ToDoListInString для вывода задач с информацией о статусе задач.
-            return await ToDoListInString(toDoItems, false);
-        }
-
-        /// <summary>
-        /// Преобразование строки в число.
-        /// </summary>
-        /// <param name="str">Входная строка.</param>
-        /// <returns>Преобразованное число.</returns>
-        private Task<int> ParseInt(string str)
-        {
-            if(int.TryParse(str, out int parseInt))
-                return Task.FromResult(parseInt);
-
-            throw new ArgumentException($"Вы ввели \"{str}\", это не число!");
-        }
-
-        /// <summary>
-        /// Формирование строки из массива для подготовки к выводу на экран списка доступных команд.
-        /// </summary>
-        /// <param name="inputArray">Входной массив.</param>
-        /// <returns>Строка со списком команд.</returns>
-        private Task<string> BotsCommandString(string[] inputArray)
-        {
-            string resultString = "Список доступных команд:\r\n";
-            foreach (string command in inputArray)
-                resultString += command + "\r\n";
-            resultString += "Введите команду:";
-
-            return Task.FromResult(resultString.TrimEnd());
+            return await ToDoListInString(toDoItems, false, ct);
         }
 
         /// <summary>
@@ -388,8 +472,11 @@ namespace Otus_Telegram_API_Homework_9
         /// <param name="toDoItems">Список задач.</param>
         /// <param name="activeStateFlag">true для вывода активных задач, false для вывода всех задач.</param>
         /// <returns>Сформированная строка.</returns>
-        private Task<string> ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, bool activeStateFlag)
+        private Task<string> ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, bool activeStateFlag, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
             StringBuilder sbResult = new StringBuilder("");
             string tempString;
             int itemsCount = toDoItems.Count;
@@ -397,28 +484,10 @@ namespace Otus_Telegram_API_Homework_9
             for (int i = 0; i < itemsCount; i++)
             {
                 tempString = activeStateFlag ? "" : $"({toDoItems[i].State}) ";
-                sbResult.Append($"{i + 1}. {tempString}{toDoItems[i].Name} - {toDoItems[i].CreatedAt} - {toDoItems[i].Id}\r\n");
+                sbResult.Append($"{i + 1}. {tempString}{toDoItems[i].Name} - {toDoItems[i].CreatedAt} - <code>{toDoItems[i].Id}</code>\r\n");
             }
 
             return Task.FromResult(sbResult.ToString().Trim());
-        }
-
-        /// <summary>
-        /// Получение списка задач в зависимости от введенного аргумента.
-        /// </summary>
-        /// <param name="toDoService">Объект для работы с задачами.</param>
-        /// <param name="modeArg">Введенный аргумент.</param>
-        /// <returns>Список задач.</returns>
-        /// <exception cref="ArgsException">Ошибка если неверно введен аргумент.</exception>
-        private async Task<IReadOnlyList<ToDoItem>> GetToDoItemsList(IToDoService toDoService, string modeArg, ToDoUser user, CancellationToken ct)
-        {
-            if (modeArg.Trim() == "all")
-                return await toDoService.GetAllByUserId(user.UserId, ct);
-
-            if (modeArg.Trim() == "active")
-                return await toDoService.GetActiveByUserId(user.UserId, ct);
-            
-            throw new ArgumentException($"Введен неверный 3 ({modeArg}) аргумент!");
         }
     }
 }

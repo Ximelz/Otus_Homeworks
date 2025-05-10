@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Otus_Telegram_API_Homework_9.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -88,6 +89,9 @@ namespace Otus_Telegram_API_Homework_9
                 ct.ThrowIfCancellationRequested();
 
             ToDoItem task = (await GetAllByUserId(user.UserId, ct)).Single(x => x.Id == id);
+
+            if (task.State == ToDoItemState.Completed)
+                throw new CompleteTaskException(id);
 
             task.State = ToDoItemState.Completed;
             task.StateChangedAt = DateTime.Now;
