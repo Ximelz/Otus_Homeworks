@@ -46,11 +46,7 @@ namespace Otus_Telegram_API_Homework_9
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            ToDoUser? user =  await userRep.GetUserByTelegramUserId(telegramUserId, ct);
-            if (user != null)
-                return user;
-
-            return null;
+            return await userRep.GetUserByTelegramUserId(telegramUserId, ct);
         }
     }
 }
