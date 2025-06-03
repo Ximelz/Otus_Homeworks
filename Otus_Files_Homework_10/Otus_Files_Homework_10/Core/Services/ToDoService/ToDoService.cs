@@ -36,7 +36,7 @@ namespace Otus_Files_Homework_10
             return await toDoRep.GetActiveByUserId(userId, ct);
         }
 
-        //// <summary>
+        /// <summary>
         /// Получение списка всех задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>
@@ -68,7 +68,7 @@ namespace Otus_Files_Homework_10
             if (name.Length > maxLengthNameTask)
                 throw new TaskLengthLimitException(name.Length, maxLengthNameTask);
 
-            if (!(await toDoRep.ExistsByName(user.UserId, name, ct)))
+            if (await toDoRep.ExistsByName(user.UserId, name, ct))
                 throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);
@@ -100,14 +100,15 @@ namespace Otus_Files_Homework_10
         /// <summary>
         /// Удаление задачи.
         /// </summary>
+        /// <param name="userId">id пользователя.</param>
         /// <param name="id">id задачи на удаление.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public async Task Delete(Guid id, CancellationToken ct)
+        public async Task Delete(Guid userId, Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await toDoRep.Delete(id, ct);
+            await toDoRep.Delete(userId, id, ct);
         }
 
         /// <summary>

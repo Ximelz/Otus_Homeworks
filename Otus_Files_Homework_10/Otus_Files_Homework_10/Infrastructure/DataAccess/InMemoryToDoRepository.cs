@@ -77,9 +77,10 @@ namespace Otus_Files_Homework_10
         /// <summary>
         /// Удаление задачи.
         /// </summary>
+        /// <param name="userId">Id пользователя.</param>
         /// <param name="id">Id задачи.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public Task Delete(Guid id, CancellationToken ct)
+        public Task Delete(Guid userId, Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
