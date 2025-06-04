@@ -29,9 +29,10 @@ namespace Otus_Scenario_Homework_11
         /// </summary>
         /// <param name="user">Пользователь, который добавляет задачу.</param>
         /// <param name="name">Наименование задачи.</param>
+        /// <param name="deadLine">Крайний срок выполнения задачи.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct);
+        Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct);
 
         /// <summary>
         /// Метод отметки задачи как выполненной.

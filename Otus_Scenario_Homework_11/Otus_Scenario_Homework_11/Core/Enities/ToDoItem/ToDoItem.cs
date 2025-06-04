@@ -30,5 +30,6 @@ namespace Otus_Scenario_Homework_11
         public DateTime CreatedAt { get; init; }                //Дата создания задачи. Значение вычисляется 1 раз при создании объекта.
         public ToDoItemState State { get; set; }                //Свойство, при котором меняется статус задачи и дата его изменения.
         public DateTime? StateChangedAt { get; set; }           //Дата изменения статуса задачи.
+        public DateTime? DeadLine { get; set; }                 //Крайняя дата выполнений задачи.
     }
 }

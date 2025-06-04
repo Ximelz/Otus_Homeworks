@@ -25,7 +25,15 @@ namespace Otus_Scenario_Homework_11
                 IUserService userService = new UserService(userRepository);
                 IToDoRepository toDoRepository = new FileToDoRepository(path);
                 IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
-                IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
+                IEnumerable<IScenario> scenarios = new List<IScenario>
+                {
+                    new AddTaskScenario(toDoService, userService),
+                    new FindTaskScenario(toDoService, userService),
+                    new CompleteTaskScenario(toDoService, userService),
+                    new RemoveTaskScenario(toDoService, userService)
+                };
+                IScenarioContextRepository contextRepository = new InMemoryScenarioContextRepository();
+                IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService, scenarios, contextRepository);
                 void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
                 void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
 
