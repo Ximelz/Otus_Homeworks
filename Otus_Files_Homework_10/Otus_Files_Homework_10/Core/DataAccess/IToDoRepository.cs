@@ -41,10 +41,9 @@ namespace Otus_Files_Homework_10
         /// <summary>
         /// Метод удаления задачи.
         /// </summary>
-        /// <param name="userId">ID пользователя.</param>
         /// <param name="id">ID задачи для удаления.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        Task Delete(Guid userId, Guid id, CancellationToken ct);
+        Task Delete(Guid id, CancellationToken ct);
 
         /// <summary>
         /// Метод проверки наличия у пользователя задачи.

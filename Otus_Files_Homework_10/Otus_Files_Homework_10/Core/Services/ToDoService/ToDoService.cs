@@ -100,15 +100,14 @@ namespace Otus_Files_Homework_10
         /// <summary>
         /// Удаление задачи.
         /// </summary>
-        /// <param name="userId">id пользователя.</param>
         /// <param name="id">id задачи на удаление.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        public async Task Delete(Guid userId, Guid id, CancellationToken ct)
+        public async Task Delete(Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await toDoRep.Delete(userId, id, ct);
+            await toDoRep.Delete(id, ct);
         }
 
         /// <summary>

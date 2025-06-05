@@ -54,19 +54,28 @@ namespace Otus_Files_Homework_10
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            return Task.FromResult(GetTasksByUserId(userId).Where(x => x.State == ToDoItemState.Active).ToList().Count);
+            return Task.FromResult(GetActiveByUserId(userId, ct).Result.Count);
         }
 
-        public Task Delete(Guid userId, Guid id, CancellationToken ct)
+        public Task Delete(Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
             
             Dictionary<Guid, List<Guid>> items = ReadIndexFile();
+            Guid userId = Guid.Empty;
 
-            if (!items.ContainsKey(userId))
+            foreach (var item in items)
+            {
+                if (item.Value.Contains(id))
+                {
+                    userId = item.Key;
+                    break;
+                }
+            }
+            if (userId == Guid.Empty)
                 throw new ArgumentException($"У пользователя {userId} еще нет задач!");
-
+            
             if (!items[userId].Remove(id))
                 throw new ArgumentException($"Задача \'{id}\' не найдена!");
 
@@ -116,8 +125,6 @@ namespace Otus_Files_Homework_10
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
-
-            item.State = ToDoItemState.Completed;
 
             var json = JsonSerializer.Serialize(item);
             File.WriteAllText($"{_path}\\{item.User.UserId}\\{item.Id}.json", json);

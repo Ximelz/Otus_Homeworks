@@ -409,7 +409,7 @@ namespace Otus_Files_Homework_10
 
             var parseInputArg = Guid.Parse(inputList[1]);
 
-            await toDoService.Delete(user.UserId, parseInputArg, ct);
+            await toDoService.Delete(parseInputArg, ct);
 
             if ((await toDoService.GetAllByUserId(user.UserId, ct)).Count == 0)
             {
