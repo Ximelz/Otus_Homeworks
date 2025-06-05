@@ -18,7 +18,7 @@ namespace Otus_Scenario_Homework_11
                 Directory.CreateDirectory(_path);
         }
         private readonly string _path;
-        public Task<ToDoUser> GetUser(Guid userId, CancellationToken ct)
+        public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -36,7 +36,7 @@ namespace Otus_Scenario_Homework_11
             return Task.FromResult(user);
         }
 
-        public Task<ToDoUser?>? GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
+        public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();

@@ -22,12 +22,6 @@ namespace Otus_Scenario_Homework_11
         private readonly int maxLengthNameTask;
         private readonly IToDoRepository toDoRep;
 
-        /// <summary>
-        /// Получение списка всех активных задач пользователя.
-        /// </summary>
-        /// <param name="userId">id пользователя.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        /// <returns>Список активных задач.</returns>
         public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -36,12 +30,6 @@ namespace Otus_Scenario_Homework_11
             return await toDoRep.GetActiveByUserId(userId, ct);
         }
 
-        /// <summary>
-        /// Получение списка всех задач пользователя.
-        /// </summary>
-        /// <param name="userId">id пользователя.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        /// <returns>Список задач указанного пользователя.</returns>
         public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -50,14 +38,7 @@ namespace Otus_Scenario_Homework_11
             return await toDoRep.GetAllByUserId(userId, ct);
         }
 
-        /// <summary>
-        /// Добавление задачи.
-        /// </summary>
-        /// <param name="user">Пользователь, добавивший задачу.</param>
-        /// <param name="name">Имя задачи.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        /// <returns>Добавленная задача.</returns>
-        public async Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct)
+        public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -72,16 +53,11 @@ namespace Otus_Scenario_Homework_11
                 throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);
+            newItem.DeadLine = deadLine;
             await toDoRep.Add(newItem, ct);
             return newItem; 
         }
 
-        /// <summary>
-        /// Отметка выполнения задачи.
-        /// </summary>
-        /// <param name="id">id выполненной задачи.</param>
-        /// <param name="user">Пользователь, который выполнил задачу.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
         public async Task MarkCompleted(Guid id, ToDoUser user, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -97,27 +73,14 @@ namespace Otus_Scenario_Homework_11
             await toDoRep.Update(task, ct);
         }
 
-        /// <summary>
-        /// Удаление задачи.
-        /// </summary>
-        /// <param name="userId">id пользователя.</param>
-        /// <param name="id">id задачи на удаление.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        public async Task Delete(Guid userId, Guid id, CancellationToken ct)
+        public async Task Delete(Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await toDoRep.Delete(userId, id, ct);
+            await toDoRep.Delete(id, ct);
         }
 
-        /// <summary>
-        /// Поиск задач с указанным префиксом.
-        /// </summary>
-        /// <param name="user">Пользователь, чьи задачи ищем.</param>
-        /// <param name="namePrefix">Префикс задач.</param>
-        /// <param name="ct">Объект отмены задачи.</param>
-        /// <returns>Список задач с префиксом.</returns>
         public async Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)

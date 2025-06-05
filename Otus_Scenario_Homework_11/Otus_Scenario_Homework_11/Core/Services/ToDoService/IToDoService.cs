@@ -29,9 +29,10 @@ namespace Otus_Scenario_Homework_11
         /// </summary>
         /// <param name="user">Пользователь, который добавляет задачу.</param>
         /// <param name="name">Наименование задачи.</param>
+        /// <param name="deadLine">Крайний срок выполнения задачи.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct);
+        Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct);
 
         /// <summary>
         /// Метод отметки задачи как выполненной.
@@ -44,10 +45,9 @@ namespace Otus_Scenario_Homework_11
         /// <summary>
         /// Метод удаления задачи.
         /// </summary>
-        /// <param name="userId">ID пользователя.</param>
         /// <param name="id">ID задачи.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        Task Delete(Guid userId, Guid id, CancellationToken ct);
+        Task Delete(Guid id, CancellationToken ct);
 
         /// <summary>
         /// Метод поиска задач пользователя с указанным префиксом.
