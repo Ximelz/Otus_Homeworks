@@ -32,10 +32,8 @@ namespace Otus_Scenario_Homework_11
             switch (context.CurrentStep)
             {
                 case null:
-                    context.UserId = update.Message.From.Id;
                     context.CurrentStep = "Name";
 
-                    await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.CancelContext), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                     await bot.SendMessage(update.Message.Chat, "Введите название задачи:",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.CancelContext), cancellationToken: ct);
 
@@ -44,7 +42,6 @@ namespace Otus_Scenario_Homework_11
                     context.Data.Add("Name", update.Message.Text);
                     context.CurrentStep = "Deadline";
 
-                    await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.CancelContext), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                     await bot.SendMessage(update.Message.Chat, "Введите крайнюю дату выполнения задачи:",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.CancelContext), cancellationToken: ct);
 
@@ -56,7 +53,6 @@ namespace Otus_Scenario_Homework_11
                         ToDoUser user = await iUserService.GetUser(context.UserId, ct);
                         ToDoItem item = await iToDoService.Add(user, context.Data["Name"].ToString(), deadline, ct);
 
-                        await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.Default), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                         await bot.SendMessage(update.Message.Chat, $"Задача {item.Name} добавлена!", 
                             replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
 

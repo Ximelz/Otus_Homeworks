@@ -32,10 +32,8 @@ namespace Otus_Scenario_Homework_11
             switch (context.CurrentStep)
             {
                 case null:
-                    context.UserId = update.Message.From.Id;
                     context.CurrentStep = "Prfix";
 
-                    await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.CancelContext), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                     await bot.SendMessage(update.Message.Chat, "Введите префикс для поиска:",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.CancelContext), cancellationToken: ct);
 

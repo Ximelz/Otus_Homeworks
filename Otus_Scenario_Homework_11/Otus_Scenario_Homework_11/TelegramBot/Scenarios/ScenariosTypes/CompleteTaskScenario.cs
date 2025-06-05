@@ -28,10 +28,8 @@ namespace Otus_Scenario_Homework_11
             switch (context.CurrentStep)
             {
                 case null:
-                    context.UserId = update.Message.From.Id;
                     context.CurrentStep = "TaskId";
 
-                    await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.CancelContext), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                     await bot.SendMessage(update.Message.Chat, "Введите Id задачи для выполнения:",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.CancelContext), cancellationToken: ct);
 

@@ -45,10 +45,9 @@ namespace Otus_Scenario_Homework_11
         /// <summary>
         /// Метод удаления задачи.
         /// </summary>
-        /// <param name="userId">ID пользователя.</param>
         /// <param name="id">ID задачи.</param>
         /// <param name="ct">Объект отмены задачи.</param>
-        Task Delete(Guid userId, Guid id, CancellationToken ct);
+        Task Delete(Guid id, CancellationToken ct);
 
         /// <summary>
         /// Метод поиска задач пользователя с указанным префиксом.

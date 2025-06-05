@@ -73,12 +73,12 @@ namespace Otus_Scenario_Homework_11
             await toDoRep.Update(task, ct);
         }
 
-        public async Task Delete(Guid userId, Guid id, CancellationToken ct)
+        public async Task Delete(Guid id, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await toDoRep.Delete(userId, id, ct);
+            await toDoRep.Delete(id, ct);
         }
 
         public async Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct)

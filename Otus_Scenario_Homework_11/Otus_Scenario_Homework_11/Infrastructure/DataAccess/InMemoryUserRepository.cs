@@ -26,7 +26,7 @@ namespace Otus_Scenario_Homework_11
         /// <param name="userId">Guid id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public Task<ToDoUser?>? GetUser(Guid userId, CancellationToken ct)
+        public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -44,7 +44,7 @@ namespace Otus_Scenario_Homework_11
         /// <param name="telegramUserId">Telegram id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        public Task<ToDoUser> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
+        public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();

@@ -11,16 +11,17 @@ namespace Otus_Scenario_Homework_11
     /// </summary>
     public class ScenarioContext
     {
-        public ScenarioContext(ScenarioType scenario)
+        public ScenarioContext(ScenarioType scenario, long UserId)
         {
             CurrentScenario = scenario;
             Data = new Dictionary<string, object>();
+            this.UserId = UserId;
         }
 
         /// <summary>
         /// Id telegram пользователя.
         /// </summary>
-        public long UserId { get; set; }
+        public long UserId { get; private set; }
 
         /// <summary>
         /// Текущий вид сценария.

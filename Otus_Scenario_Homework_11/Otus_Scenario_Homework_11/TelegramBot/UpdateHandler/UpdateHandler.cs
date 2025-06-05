@@ -72,8 +72,8 @@ namespace Otus_Scenario_Homework_11
             {
                 OnHandleUpdateStarted?.Invoke(update.Message.Text);
 
-                ScenarioContext context = await contextRepository.GetContext(update.Message.From.Id, ct);
-                if (context.CurrentScenario == ScenarioType.None)
+                ScenarioContext? context = await contextRepository.GetContext(update.Message.From.Id, ct);
+                if (context == null)
                 {
                     string message = await HandleCommand(update, botClient, ct);
                     if (message.Trim() != "")
@@ -239,7 +239,7 @@ namespace Otus_Scenario_Homework_11
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddTask), update, ct);
+            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddTask, update.Message.From.Id), update, ct);
 
             return "";
         }
@@ -303,7 +303,7 @@ namespace Otus_Scenario_Homework_11
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.RemoveTask), update, ct);
+            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.RemoveTask, update.Message.From.Id), update, ct);
 
             return "";
         }
@@ -318,7 +318,7 @@ namespace Otus_Scenario_Homework_11
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.CompleteTask), update, ct);
+            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.CompleteTask, update.Message.From.Id), update, ct);
 
             return "";
         }
@@ -350,7 +350,7 @@ namespace Otus_Scenario_Homework_11
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.FindTask), update, ct);
+            await ProcessScenario(botClient, new ScenarioContext(ScenarioType.FindTask, update.Message.From.Id), update, ct);
 
             return "";
         }

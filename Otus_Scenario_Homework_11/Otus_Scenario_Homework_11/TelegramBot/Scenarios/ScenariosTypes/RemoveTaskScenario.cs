@@ -28,10 +28,8 @@ namespace Otus_Scenario_Homework_11
             switch (context.CurrentStep)
             {
                 case null:
-                    context.UserId = update.Message.From.Id;
                     context.CurrentStep = "TaskId";
 
-                    await bot.SetMyCommands(KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.CancelContext), BotCommandScopeChat.Chat(update.Message.Chat.Id));
                     await bot.SendMessage(update.Message.Chat, "Введите Id задачи для удаления:",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.CancelContext), cancellationToken: ct);
 
@@ -42,7 +40,7 @@ namespace Otus_Scenario_Homework_11
 
                     if (Guid.TryParse(update.Message.Text, out Guid taskId))
                     {
-                        await toDoService.Delete(user.UserId, taskId, ct);
+                        await toDoService.Delete(taskId, ct);
 
                         EnumKeyboardsScenariosTypes keyboardType;
                         if (toDoService.GetAllByUserId(user.UserId, ct).Result.Count == 0)
