@@ -41,7 +41,7 @@ namespace Otus_Files_Homework_10
         /// <summary>
         /// Получение пользователя по telegram id.
         /// </summary>
-        /// <param name="userId">Telegram id пользователя.</param>
+        /// <param name="telegramUserId">Telegram id пользователя.</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
         public Task<ToDoUser> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)

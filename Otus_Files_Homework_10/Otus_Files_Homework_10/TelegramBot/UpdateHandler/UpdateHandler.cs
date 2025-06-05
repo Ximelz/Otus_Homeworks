@@ -350,9 +350,30 @@ namespace Otus_Files_Homework_10
                 throw new AuthenticationException("Текущий пользователь не смог авторизоваться!");
 
             currentCommands.Clear();
+
+            if (toDoService.GetAllByUserId(user.UserId, ct).Result.Count > 0)
+            {
+                currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+                currentCommands.Add(new BotCommand("/showtasks", "Вывод выполненных задач пользователя."));
+                currentCommands.Add(new BotCommand("/showalltasks", "Вывод всех задач пользователя."));
+                currentCommands.Add(new BotCommand("/removetask", "Удаление задачи."));
+                currentCommands.Add(new BotCommand("/completetask", "Выполнить задачу."));
+                currentCommands.Add(new BotCommand("/find", "Поиск задач."));
+                currentCommands.Add(new BotCommand("/report", "Вывод статистики пользователя."));
+
+                keyboard = new ReplyKeyboardMarkup(
+                    new[]
+                    {
+                        new KeyboardButton("/showtasks"),
+                        new KeyboardButton("/showalltasks"),
+                        new KeyboardButton("/report")
+                    });
+            }
+
             currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
             currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
             currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+            
             return "Пользователь авторизовался!";
         }
 
@@ -479,6 +500,9 @@ namespace Otus_Files_Homework_10
             StringBuilder sbResult = new StringBuilder("");
             string tempString;
             int itemsCount = toDoItems.Count;
+
+            if (itemsCount == 0)
+                return Task.FromResult(sbResult.Append("Задачи, удовлетворяющие условию поиску, не найдены!").ToString());
 
             for (int i = 0; i < itemsCount; i++)
             {

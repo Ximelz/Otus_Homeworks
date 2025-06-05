@@ -19,9 +19,11 @@ namespace Otus_Files_Homework_10
                 string _botKey = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN", EnvironmentVariableTarget.User);
                 var bot = new TelegramBotClient(_botKey);
 
-                IUserRepository userRepository = new InMemoryUserRepository();
+                string path = "E:\\Otus homeworks 10\\ToDoItems";
+
+                IUserRepository userRepository = new FileUsersRepository(path);
                 IUserService userService = new UserService(userRepository);
-                IToDoRepository toDoRepository = new InMemoryToDoRepository();
+                IToDoRepository toDoRepository = new FileToDoRepository(path);
                 IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                 IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService);
                 void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");

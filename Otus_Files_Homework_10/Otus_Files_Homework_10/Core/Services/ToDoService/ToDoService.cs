@@ -36,7 +36,7 @@ namespace Otus_Files_Homework_10
             return await toDoRep.GetActiveByUserId(userId, ct);
         }
 
-        //// <summary>
+        /// <summary>
         /// Получение списка всех задач пользователя.
         /// </summary>
         /// <param name="userId">id пользователя.</param>
@@ -68,7 +68,7 @@ namespace Otus_Files_Homework_10
             if (name.Length > maxLengthNameTask)
                 throw new TaskLengthLimitException(name.Length, maxLengthNameTask);
 
-            if (!(await toDoRep.ExistsByName(user.UserId, name, ct)))
+            if (await toDoRep.ExistsByName(user.UserId, name, ct))
                 throw new DuplicateTaskException(name);
 
             ToDoItem newItem = new ToDoItem(name, user);

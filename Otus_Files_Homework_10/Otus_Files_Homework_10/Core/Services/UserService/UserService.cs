@@ -30,8 +30,14 @@ namespace Otus_Files_Homework_10
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            ToDoUser user = new ToDoUser(telegramUserId, telegramUserName);
-            await userRep.Add(user, ct);
+            ToDoUser user = await userRep.GetUserByTelegramUserId(telegramUserId, ct);
+
+            if (user == null)
+            {
+                user = new ToDoUser(telegramUserId, telegramUserName);
+                await userRep.Add(user, ct);
+            }
+
             return user;
         }
 
