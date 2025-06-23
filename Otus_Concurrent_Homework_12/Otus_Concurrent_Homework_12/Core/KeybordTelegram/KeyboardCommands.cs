@@ -31,8 +31,7 @@ namespace Otus_Concurrent_Homework_12
 
             if (type == EnumKeyboardsScenariosTypes.Default || type == EnumKeyboardsScenariosTypes.MaxTasks)
             {
-                currentCommands.Add(new BotCommand("/showtasks", "Вывод выполненных задач пользователя."));
-                currentCommands.Add(new BotCommand("/showalltasks", "Вывод всех задач пользователя."));
+                currentCommands.Add(new BotCommand("/show", "Вывод задач пользователя."));
                 currentCommands.Add(new BotCommand("/removetask", "Удаление задачи."));
                 currentCommands.Add(new BotCommand("/completetask", "Выполнить задачу."));
                 currentCommands.Add(new BotCommand("/find", "Поиск задач."));
@@ -62,8 +61,8 @@ namespace Otus_Concurrent_Homework_12
             return new ReplyKeyboardMarkup(
                 new[]
                 {
-                    new KeyboardButton("/showtasks"),
-                    new KeyboardButton("/showalltasks"),
+                    new KeyboardButton("/addtask"),
+                    new KeyboardButton("/show"),
                     new KeyboardButton("/report")
                 });
         }

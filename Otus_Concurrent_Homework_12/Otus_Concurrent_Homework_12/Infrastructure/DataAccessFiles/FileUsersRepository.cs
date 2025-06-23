@@ -54,7 +54,7 @@ namespace Otus_Concurrent_Homework_12
                     return Task.FromResult(user);
             }
 
-            return null;
+            return Task.FromResult((ToDoUser)null);
         }
 
         public Task Add(ToDoUser user, CancellationToken ct)

@@ -38,7 +38,7 @@ namespace Otus_Concurrent_Homework_12
             return await toDoRep.GetAllByUserId(userId, ct);
         }
 
-        public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct)
+        public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, ToDoList? list, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -54,6 +54,7 @@ namespace Otus_Concurrent_Homework_12
 
             ToDoItem newItem = new ToDoItem(name, user);
             newItem.DeadLine = deadLine;
+            newItem.List = list;
             await toDoRep.Add(newItem, ct);
             return newItem; 
         }
@@ -87,6 +88,19 @@ namespace Otus_Concurrent_Homework_12
                 ct.ThrowIfCancellationRequested();
 
             return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
+        }
+
+        public Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            Func<ToDoItem, bool> predicate;
+
+            if (listId == null)
+                return Task.FromResult((IReadOnlyList<ToDoItem>)toDoRep.GetActiveByUserId(userId, ct).Result.Where(x => x.List == null).ToList());
+            else
+                return Task.FromResult((IReadOnlyList<ToDoItem>)toDoRep.GetActiveByUserId(userId, ct).Result.Where(x => x.List != null).Where(y => y.List.Id == (Guid)listId).ToList());
         }
     }
 }

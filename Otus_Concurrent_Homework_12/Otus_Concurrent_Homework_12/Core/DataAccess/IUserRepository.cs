@@ -22,7 +22,7 @@ namespace Otus_Concurrent_Homework_12
         /// <param name="telegramUserId"></param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
-        Task<ToDoUser> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct);
+        Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct);
 
         /// <summary>
         /// Метод добавления пользователя.

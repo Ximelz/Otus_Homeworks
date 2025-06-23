@@ -30,7 +30,7 @@ namespace Otus_Concurrent_Homework_12
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            ToDoUser user = await userRep.GetUserByTelegramUserId(telegramUserId, ct);
+            ToDoUser? user = await userRep.GetUserByTelegramUserId(telegramUserId, ct);
 
             if (user == null)
             {
