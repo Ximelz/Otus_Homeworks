@@ -33,7 +33,7 @@ namespace Otus_Concurrent_Homework_12
             ToDoList? list = JsonSerializer.Deserialize<ToDoList>(File.ReadAllText(listFile));
 
             if (list == null)
-                throw new FileLoadException($"Ошибка с чтением файла хранения данных пользователя\"{id}\"! Файл расположен по следующему пути: {listFile}.");
+                throw new FileLoadException($"Ошибка с чтением файла хранения данных пользователя\"{id}\"! Файл расположен по следующему пути {listFile}.");
 
             return Task.FromResult(list);
         }
