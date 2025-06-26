@@ -101,10 +101,10 @@ namespace Otus_Concurrent_Homework_12
             if (listId == null)
                 resultList = activeTasks.Where(x => x.List == null).ToList();
             else
-            {
-                resultList = activeTasks.Where(x => x.List != null).ToList();
-                resultList = resultList.Where(y => y.List.Id == (Guid)listId).ToList();
-            }
+                resultList = activeTasks
+                             .Where(x => x.List != null)
+                             .Where(y => y.List.Id == (Guid)listId)
+                             .ToList();
 
             return resultList;
         }
