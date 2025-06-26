@@ -31,5 +31,6 @@ namespace Otus_Concurrent_Homework_12
         public ToDoItemState State { get; set; }                //Свойство, при котором меняется статус задачи и дата его изменения.
         public DateTime? StateChangedAt { get; set; }           //Дата изменения статуса задачи.
         public DateTime? DeadLine { get; set; }                 //Крайняя дата выполнений задачи.
+        public ToDoList? List { get; set; }                     //Принадлежность задачи определенному списку.
     }
 }

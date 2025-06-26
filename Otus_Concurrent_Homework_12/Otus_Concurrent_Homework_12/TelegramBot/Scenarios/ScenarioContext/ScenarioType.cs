@@ -15,6 +15,8 @@ namespace Otus_Concurrent_Homework_12
         AddTask,
         RemoveTask,
         CompleteTask,
-        FindTask
+        FindTask,
+        AddList,
+        DeleteList
     }
 }

@@ -19,27 +19,31 @@ namespace Otus_Concurrent_Homework_12
                 string _botKey = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN", EnvironmentVariableTarget.User);
                 var bot = new TelegramBotClient(_botKey);
 
-                string path = "E:\\Otus homeworks 10\\ToDoItems";
+                string path = "E:\\Otus homeworks\\ToDoItems";
 
                 IUserRepository userRepository = new FileUsersRepository(path);
                 IUserService userService = new UserService(userRepository);
                 IToDoRepository toDoRepository = new FileToDoRepository(path);
+                IToDoListRepository toDoListRepository = new FileToDoListRepository(path);
                 IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
+                IToDoListService toDoListService = new ToDoListService(toDoListRepository);
                 IEnumerable<IScenario> scenarios = new List<IScenario>
                 {
-                    new AddTaskScenario(toDoService, userService),
+                    new AddTaskScenario(toDoService, userService, toDoListService),
                     new FindTaskScenario(toDoService, userService),
                     new CompleteTaskScenario(toDoService, userService),
-                    new RemoveTaskScenario(toDoService, userService)
+                    new RemoveTaskScenario(toDoService, userService),
+                    new AddListScenario(userService, toDoListService),
+                    new DeleteListScenario(userService, toDoListService, toDoService)
                 };
                 IScenarioContextRepository contextRepository = new InMemoryScenarioContextRepository();
-                IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService, scenarios, contextRepository);
+                IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService, scenarios, contextRepository, toDoListService);
                 void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
                 void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
 
                 var receiverOptions = new ReceiverOptions
                 {
-                    AllowedUpdates = [UpdateType.Message],
+                    AllowedUpdates = Array.Empty<UpdateType>(),
                     DropPendingUpdates = true
                 };
 

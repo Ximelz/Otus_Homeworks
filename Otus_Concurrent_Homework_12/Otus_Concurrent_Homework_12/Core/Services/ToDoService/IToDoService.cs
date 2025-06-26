@@ -30,9 +30,10 @@ namespace Otus_Concurrent_Homework_12
         /// <param name="user">Пользователь, который добавляет задачу.</param>
         /// <param name="name">Наименование задачи.</param>
         /// <param name="deadLine">Крайний срок выполнения задачи.</param>
+        /// <param name="list">Список, которому принадлежит задача..</param>
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Добавленная задача.</returns>
-        Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct);
+        Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, ToDoList? list, CancellationToken ct);
 
         /// <summary>
         /// Метод отметки задачи как выполненной.
@@ -57,5 +58,14 @@ namespace Otus_Concurrent_Homework_12
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Найденные задачи.</returns>
         Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct);
+
+        /// <summary>
+        /// Метод получения всех задач из списка пользователя.
+        /// </summary>
+        /// <param name="userId">Id пользователя.</param>
+        /// <param name="listId">Id списка.</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Список задач из списка.</returns>
+        Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct);
     }
 }

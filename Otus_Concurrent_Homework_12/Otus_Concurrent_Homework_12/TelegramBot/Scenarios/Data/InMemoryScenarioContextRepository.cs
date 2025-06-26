@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,10 @@ namespace Otus_Concurrent_Homework_12
 {
     public class InMemoryScenarioContextRepository : IScenarioContextRepository
     {
-        private readonly Dictionary<long, ScenarioContext> scenarios;
+        private readonly ConcurrentDictionary<long, ScenarioContext> scenarios;
         public InMemoryScenarioContextRepository()
         {
-            scenarios = new Dictionary<long, ScenarioContext>();
+            scenarios = new ConcurrentDictionary<long, ScenarioContext>();
         }
         public async Task<ScenarioContext?> GetContext(long userId, CancellationToken ct)
         {
@@ -23,7 +24,7 @@ namespace Otus_Concurrent_Homework_12
         public Task SetContext(long userId, ScenarioContext context, CancellationToken ct)
         {
             if (!scenarios.ContainsKey(userId))
-                scenarios.Add(userId, context);
+                scenarios.TryAdd(userId, context);
             else
                 scenarios[userId] = context;
 
@@ -33,7 +34,7 @@ namespace Otus_Concurrent_Homework_12
         public Task ResetContext(long userId, CancellationToken ct)
         {
             if (scenarios.ContainsKey(userId))
-                scenarios.Remove(userId);
+                scenarios.TryRemove(userId, out ScenarioContext? context);
 
             return Task.CompletedTask;
         }

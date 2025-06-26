@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Otus_Concurrent_Homework_12
 {
     /// <summary>
-    /// РљР»Р°СЃСЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
+    /// Класс для взаимодействия с задачами.
     /// </summary>
     public class ToDoService : IToDoService
     {
@@ -38,7 +38,7 @@ namespace Otus_Concurrent_Homework_12
             return await toDoRep.GetAllByUserId(userId, ct);
         }
 
-        public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, CancellationToken ct)
+        public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, ToDoList? list, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
@@ -54,6 +54,7 @@ namespace Otus_Concurrent_Homework_12
 
             ToDoItem newItem = new ToDoItem(name, user);
             newItem.DeadLine = deadLine;
+            newItem.List = list;
             await toDoRep.Add(newItem, ct);
             return newItem; 
         }
@@ -87,6 +88,25 @@ namespace Otus_Concurrent_Homework_12
                 ct.ThrowIfCancellationRequested();
 
             return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
+        }
+
+        public async Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            IReadOnlyList<ToDoItem> activeTasks = await toDoRep.GetActiveByUserId(userId, ct);
+            List<ToDoItem> resultList;
+
+            if (listId == null)
+                resultList = activeTasks.Where(x => x.List == null).ToList();
+            else
+                resultList = activeTasks
+                             .Where(x => x.List != null)
+                             .Where(y => y.List.Id == (Guid)listId)
+                             .ToList();
+
+            return resultList;
         }
     }
 }
