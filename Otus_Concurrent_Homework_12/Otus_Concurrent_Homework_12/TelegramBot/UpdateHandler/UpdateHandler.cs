@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Security.Authentication;
 using System.Text;
 using Telegram.Bot;
@@ -10,7 +10,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Otus_Concurrent_Homework_12
 {
     /// <summary>
-    /// РљР»Р°СЃСЃ РѕР±СЂР°Р±РѕС‚РєРё РІРІРµРґРµРЅРЅС‹С… РєРѕРјР°РЅРґ.
+    /// Класс обработки введенных команд.
     /// </summary>
     public class UpdateHandler : IUpdateHandler
     {
@@ -25,42 +25,42 @@ namespace Otus_Concurrent_Homework_12
             keyboard = KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Start);
         }
 
-        public const string helpInfo = "Р”Р»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±РѕС‚РѕРј РЅСѓР¶РЅРѕ РІРІРµСЃС‚Рё РєРѕРјР°РЅРґСѓ. Р’ РїСЂРѕРіСЂР°РјРјРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‚ СЃР»РµРґСѓСЋС‰РёРµ РєРѕРјР°РЅРґС‹:\n\r" +
-                                       "/info - РїРѕР»СѓС‡РёС‚Рµ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРµСЂСЃРёРё Рё РґР°С‚Рµ СЃРѕР·РґР°РЅРёСЏ Рё РёР·РјРµРЅРµРЅРёСЏ РїСЂРѕРіСЂР°РјРјС‹.\n\r" +
-                                       "/help - РїРѕР»СѓС‡РёС‚Рµ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂР°Р±РѕС‚Рµ СЃ РїСЂРѕРіСЂР°РјРјРѕР№.\n\r" +
-                                       "/start - РєРѕРјР°РЅРґР° РґР»СЏ Р°РІС‚РѕСЂРёР·Р°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ Р±РѕС‚Рµ. РџРѕСЃР»Рµ Р°РІС‚РѕСЂРёР·Р°С†РёРё СЃС‚Р°РЅРѕРІСЏС‚СЃСЏ РґРѕСЃС‚СѓРїРЅС‹ СЃР»РµРґСѓСЋС‰РёРµ РєРѕРјР°РЅРґС‹:\n\r" +
-                                       "/show - РєРѕРјР°РЅРґР° РїРѕРєР°Р·С‹РІР°РµС‚ СЃРїРёСЃРєРё Р·Р°РґР°С‡ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РєРЅРѕРїРєРё РґРѕР±Р°РІР»РµРЅРёСЏ Рё СѓРґР°Р»РµРЅРёСЏ СЃРїРёСЃРєР°. " +
-                                                    "РџСЂРё РґРѕР±Р°РІР»РµРЅРёРё СЃРїРёСЃРєР° РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј РІРІРµСЃС‚Рё РёРјСЏ СЌС‚РѕРіРѕ СЃРїРёСЃРєР°, Р° РїСЂРё СѓРґР°Р»РµРЅРёРё РїРѕСЏРІСЏС‚СЃСЏ РєРЅРѕРїРєРё \"Р”Р°\" Рё \"РќРµС‚\" РґР»СЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РёР»Рё РѕС‚РјРµРЅС‹ СѓРґР°Р»РµРЅРёСЏ." +
-                                                    "РџСЂРё СѓРґР°Р»РµРЅРёРё СЃРїРёСЃРєР° СѓРґР°Р»СЏСЋС‚СЃСЏ С‚Р°РєР¶Рµ РІСЃРµ Р·Р°РґР°С‡Рё РІ СЌС‚РѕРј СЃРїРёСЃРєРµ." +
-                                                    "РџСЂРё РІС‹Р±РѕСЂРµ РѕРїСЂРµРґРµР»РµРЅРЅРѕРіРѕ СЃРїРёСЃРєР° Р±СѓРґСѓС‚ РІС‹РІРµРґРµРЅС‹ РІ С‡Р°С‚ РІСЃРµ Р°РєС‚РёРІРЅС‹Рµ Р·Р°РґР°С‡Рё РёР· СЌС‚РѕРіРѕ СЃРїРёСЃРєР°.\n\r" +
-                                       "/addtask - РєРѕРјР°РЅРґР° РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ Р·Р°РґР°С‡Рё. РџРѕСЃР»Рµ РІС‹Р±РѕСЂР° РєРѕРјР°РЅРґС‹ РїСЂРµРґР»Р°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј РІРІРµСЃС‚Рё РёРјСЏ Р·Р°РґР°С‡Рё, " +
-                                                    "РїРѕСЃР»Рµ СЌС‚РѕРіРѕ, СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј, РєСЂР°Р№РЅРёР№ СЃСЂРѕРє РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РґР°С‡Рё. РЎР»РµРґРѕРј РІ РІРёРґРµ РєРЅРѕРїРѕРє РїРѕСЏРІР»СЏСЋС‚СЃСЏ СЂР°Р·Р»РёС‡РЅС‹Рµ СЃРїРёСЃРєРё Р·Р°РґР°С‡, РІ РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ СЌС‚Сѓ Р·Р°РґР°С‡Сѓ. " +
-                                                    "Р’С‹Р±СЂР°С‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ 1 СЃРїРёСЃРѕРє, РїРѕСЃР»Рµ С‡РµРіРѕ Р·Р°С‡Р°РґР° Р±СѓРґРµС‚ СЃРѕС…СЂР°РЅРµРЅР°. \n\r" +
-                                       "/removetask - РєРѕРјР°РЅРґР°, РєРѕС‚РѕСЂРѕР°СЏ РѕС‚РјРµС‡Р°РµС‚ РІС‹Р±СЂР°РЅРЅСѓСЋ Р·Р°РґР°С‡Сѓ РІС‹РїРѕР»РЅРµРЅРЅРѕР№. РџРѕСЃР»Рµ РІС‹Р±РѕСЂР° РєРѕРјР°РЅРґС‹ РїСЂРµРґР»Р°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј РІРІРµСЃС‚Рё id Р·Р°РґР°С‡Рё РґР»СЏ СѓРґР°Р»РµРЅРёСЏ." +
-                                       "/completetask - РєРѕРјР°РЅРґР°, РєРѕС‚РѕСЂРѕР°СЏ РѕС‚РјРµС‡Р°РµС‚ РІС‹Р±СЂР°РЅРЅСѓСЋ Р·Р°РґР°С‡Сѓ РІС‹РїРѕР»РЅРµРЅРЅРѕР№. РџРѕСЃР»Рµ РІС‹Р±РѕСЂР° РєРѕРјР°РЅРґС‹ РїСЂРµРґР»Р°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј РІРІРµСЃС‚Рё id Р·Р°РґР°С‡Рё РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ." +
-                                       "/report - РєРѕРјР°РЅРґР° РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕ Р·Р°РґР°С‡Р°Рј С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.\n\r" +
-                                       "/find - РєРѕРјР°РЅРґР° РґР»СЏ РїРѕРёСЃРєР° Р·Р°РґР°С‡Рё. РџРѕСЃР»Рµ РІС‹Р±РѕСЂР° РєРѕРјР°РЅРґС‹ РїСЂРµРґР»Р°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёРј СЃРѕРѕР±С‰РµРЅРёРµРј РІРІРµСЃС‚Рё РїСЂРµС„РёРєСЃ РґР»СЏ РїРѕРёСЃРєР°.\n\r" +
-                                       "/cancel - РєРѕРјР°РЅРґР° Р·Р°РІРµСЂС€Р°РµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ СЃС†РµРЅР°СЂРёСЏ СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РІРІРѕРґРѕРј Р°СЂРіСѓРјРµРЅС‚РѕРІ" +
-                                       "Р”Р»СЏ РѕРєРѕРЅС‡Р°РЅРёСЏ СЂР°Р±РѕС‚С‹ СЃ Р±РѕС‚РѕРј РЅСѓР¶РЅРѕ РЅР°Р¶Р°С‚СЊ Р°РЅРіРёР№СЃРєСѓСЋ РєР»Р°РІРёС€Сѓ \"A\" РІ РєРѕРЅСЃРѕР»Рµ.";
-        public const string version = "Р’РµСЂСЃРёСЏ РїСЂРѕРіСЂР°РјРјС‹ 0.11, РґР°С‚Р° СЃРѕР·РґР°РЅРёСЏ 20.02.2025, РґР°С‚Р° РёР·РјРµРЅРµРЅРёСЏ 23.06.2025";
+        public const string helpInfo = "Для работы с ботом нужно ввести команду. В программе существуют следующие команды:\n\r" +
+                                       "/info - получите информацию о версии и дате создания и изменения программы.\n\r" +
+                                       "/help - получите информацию о работе с программой.\n\r" +
+                                       "/start - команда для авторизации пользователя в боте. После авторизации становятся доступны следующие команды:\n\r" +
+                                       "/show - команда показывает списки задач пользователя и кнопки добавления и удаления списка. " +
+                                                    "При добавлении списка нужно будет следующим сообщением ввести имя этого списка, а при удалении появятся кнопки \"Да\" и \"Нет\" для подтверждения или отмены удаления." +
+                                                    "При удалении списка удаляются также все задачи в этом списке." +
+                                                    "При выборе определенного списка будут выведены в чат все активные задачи из этого списка.\n\r" +
+                                       "/addtask - команда для добавления задачи. После выбора команды предлается следующим сообщением ввести имя задачи, " +
+                                                    "после этого, следующим сообщением, крайний срок выполнения задачи. Следом в виде кнопок появляются различные списки задач, в которые можно добавить эту задачу. " +
+                                                    "Выбрать можно только 1 список, после чего зачада будет сохранена. \n\r" +
+                                       "/removetask - команда, котороая отмечает выбранную задачу выполненной. После выбора команды предлается следующим сообщением ввести id задачи для удаления." +
+                                       "/completetask - команда, котороая отмечает выбранную задачу выполненной. После выбора команды предлается следующим сообщением ввести id задачи для выполнения." +
+                                       "/report - команда для отображение статистики по задачам текущего пользователя.\n\r" +
+                                       "/find - команда для поиска задачи. После выбора команды предлается следующим сообщением ввести префикс для поиска.\n\r" +
+                                       "/cancel - команда завершает обработку сценария с последовательным вводом аргументов" +
+                                       "Для окончания работы с ботом нужно нажать ангийскую клавишу \"A\" в консоле.";
+        public const string version = "Версия программы 0.11, дата создания 20.02.2025, дата изменения 23.06.2025";
 
-        private List<BotCommand> currentCommands;                           //РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РєРѕРјР°РЅРґ.
-        private readonly IUserService userService;                          //РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
-        private readonly IToDoService toDoService;                          //РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
-        private readonly IToDoListService toDoListService;                          //РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
-        private ReplyMarkup keyboard;                                       //Reply РєР»Р°РІРёР°С‚СѓСЂР° С‚РµР»РµРіСЂР°РјРј Р±РѕС‚Р°.
-        public delegate void MessageEventHandler(string message);           //Р”РµР»РµРіР°С‚ РґР»СЏ СЃРѕР±С‹С‚РёР№.
-        public event MessageEventHandler? OnHandleUpdateStarted;            //РЎРѕР±С‹С‚РёРµ РЅР°С‡Р°Р»Р° РѕР±СЂР°Р±РѕС‚РєРё РІРІРµРґРµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
-        public event MessageEventHandler? OnHandleUpdateCompleted;          //РЎРѕР±С‹С‚РёРµ РєРѕРЅС†Р° РѕР±СЂР°Р±РѕС‚РєРё РІРІРµРґРµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
+        private List<BotCommand> currentCommands;                           //Список доступных команд.
+        private readonly IUserService userService;                          //Интерфейс для регистрации пользователя.
+        private readonly IToDoService toDoService;                          //Интерфейс для взаимодействия с задачами.
+        private readonly IToDoListService toDoListService;                          //Интерфейс для взаимодействия с задачами.
+        private ReplyMarkup keyboard;                                       //Reply клавиатура телеграмм бота.
+        public delegate void MessageEventHandler(string message);           //Делегат для событий.
+        public event MessageEventHandler? OnHandleUpdateStarted;            //Событие начала обработки введенного сообщения.
+        public event MessageEventHandler? OnHandleUpdateCompleted;          //Событие конца обработки введенного сообщения.
 
         private readonly IEnumerable<IScenario> scenarios;
         private readonly IScenarioContextRepository contextRepository;
 
         /// <summary>
-        /// РњРµС‚РѕРґ РѕР±СЂР°Р±РѕС‚РєРё РѕР±РЅРѕРІР»РµРЅРёСЏ Р·Р°РґР°С‡.
+        /// Метод обработки обновления задач.
         /// </summary>
-        /// <param name="botClient">РўРµРєСѓС‰Р°СЏ СЃРµСЃСЃРёСЏ Р±РѕС‚Р°.</param>
-        /// <param name="update">РћР±СЉРµРєС‚ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РІРІРµРґРµРЅРЅРѕРј СЃРѕРѕР±С‰РµРЅРёРё (РєС‚Рѕ, РѕС‚РєСѓРґР° Рё С‡С‚Рѕ РІРІРµРґРµРЅРѕ).</param>
+        /// <param name="botClient">Текущая сессия бота.</param>
+        /// <param name="update">Объект с информацией о введенном сообщении (кто, откуда и что введено).</param>
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -138,11 +138,11 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// РњРµС‚РѕРґ РІС‹РІРѕРґР° РѕС€РёР±РєРё РІ РєРѕРЅСЃРѕР»СЊ.
+        /// Метод вывода ошибки в консоль.
         /// </summary>
-        /// <param name="botClient">РљР»РёРµРЅС‚ С‚РµР»РµРіСЂР°РјРј Р±РѕС‚Р°.</param>
-        /// <param name="exception">РСЃРєР»СЋС‡РµРЅРёРµ.</param>
-        /// <param name="ct">РћР±СЉРµРєС‚ РѕС‚РјРµРЅС‹ Р·Р°РґР°С‡Рё.</param>
+        /// <param name="botClient">Клиент телеграмм бота.</param>
+        /// <param name="exception">Исключение.</param>
+        /// <param name="ct">Объект отмены задачи.</param>
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -169,7 +169,7 @@ namespace Otus_Concurrent_Homework_12
                 if (update.Message.Text == "/cancel")
                 {
                     await contextRepository.ResetContext(update.Message.From.Id, ct);
-                    await botClient.SendMessage(update.Message.Chat, "РЎС†РµРЅР°СЂРёР№ РїСЂРµРєСЂР°С‚РёР» СЃРІРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ.",
+                    await botClient.SendMessage(update.Message.Chat, "Сценарий прекратил свое выполнение.",
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
                     currentCommands = KeyboardCommands.KeyboardBotCommands(EnumKeyboardsScenariosTypes.Default);
                 }
@@ -186,8 +186,16 @@ namespace Otus_Concurrent_Homework_12
 
             if (user == null)
             {
-                await botClient.SendMessage(update.CallbackQuery.Message.Chat, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ!",
+                await botClient.SendMessage(update.CallbackQuery.Message.Chat, "Пользователь не авторизован!",
                     replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
+                return;
+            }
+
+            ScenarioContext? context = await contextRepository.GetContext(user.TelegramUserId, ct);
+
+            if (context != null)
+            {
+                await ProcessScenario(botClient, context, update, ct);
                 return;
             }
 
@@ -202,65 +210,29 @@ namespace Otus_Concurrent_Homework_12
                 return;
             }
 
-            if (CbD.Action == "addtask")
-            {
-                ScenarioContext? context = await contextRepository.GetContext(user.TelegramUserId, ct);
-
-                if (context == null)
-                {
-                    await botClient.SendMessage(update.CallbackQuery.Message.Chat, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ!", parseMode: ParseMode.Html,
-                        replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
-                    return;
-                }
-
-                await ProcessScenario(botClient, context, update, ct);
-                return;
-            }
-
             if (CbD.Action == "addlist")
             {
-                ScenarioContext? context = await contextRepository.GetContext(user.TelegramUserId, ct);
-
-                if (context == null)
-                    await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddList, update.CallbackQuery.From.Id), update, ct);
-                else
-                    await ProcessScenario(botClient, context, update, ct);
-
+                await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddList, update.CallbackQuery.From.Id), update, ct);
                 return;
             }
 
             if (CbD.Action == "deletelist")
             {
-                ScenarioContext? context = await contextRepository.GetContext(user.TelegramUserId, ct);
-
-                if (context == null)
-                    await ProcessScenario(botClient, new ScenarioContext(ScenarioType.DeleteList, update.CallbackQuery.From.Id), update, ct);
-                else
-                    await ProcessScenario(botClient, context, update, ct);
+                await ProcessScenario(botClient, new ScenarioContext(ScenarioType.DeleteList, update.CallbackQuery.From.Id), update, ct);
                 return;
             }
 
-            if (CbD.Action == "yes" || CbD.Action == "no")
-            {
-                ScenarioContext? context = await contextRepository.GetContext(user.TelegramUserId, ct);
-
-                if (context == null)
-                {
-                    await botClient.SendMessage(update.CallbackQuery.Message.Chat, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ!", parseMode: ParseMode.Html,
+            await botClient.SendMessage(update.CallbackQuery.Message.Chat, "Неизвестная кнопка!", parseMode: ParseMode.Html,
                         replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
-                    return;
-                }
-
-                await ProcessScenario(botClient, context, update, ct);
-            }
         }
+        
 
         /// <summary>
-        /// Р›РѕРіРёРєР° РѕР±СЂР°Р±РѕС‚РєРё Рё РѕРіСЂР°РЅРёС‡РµРЅРёР№ РїРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ РєРѕРјР°РЅРґ.
+        /// Логика обработки и ограничений по использованию команд.
         /// </summary>
-        /// <param name="inputList">Р’С…РѕРґРЅРѕР№ РјР°СЃСЃРёРІ, СЃРѕСЃС‚РѕСЏС‰РёР№ РёР· РєРѕРјР°РЅРґС‹ Рё Р°СЂРіСѓРјРµРЅС‚РѕРІ.</param>
-        /// <param name="telegramUsere">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёР· telegram.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹.</returns>
+        /// <param name="inputList">Входной массив, состоящий из команды и аргументов.</param>
+        /// <param name="telegramUsere">Пользователь из telegram.</param>
+        /// <returns>Результат выполнения команды.</returns>
         private async Task<string> HandleCommand(Update update, ITelegramBotClient botClient, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -295,14 +267,14 @@ namespace Otus_Concurrent_Homework_12
             if (update.Message.Text == "/report")
                 return await ReportUserTasks(user, ct) + "\r\n";
 
-            throw new NotSupportedException("Р’РІРµРґРµРЅР° РЅРµРІРµСЂРЅР°СЏ РєРѕРјР°РЅРґР°!");
+            throw new NotSupportedException("Введена неверная команда!");
         }
 
         /// <summary>
-        /// РџСЂРѕРІРµСЂРєР° РЅР° Р°РІС‚РѕСЂРёР·Р°С†РёСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
+        /// Проверка на авторизацию пользователя.
         /// </summary>
-        /// <param name="telegramUser">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ telegram.</param>
-        /// <returns>Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕР±СЉРµРєС‚ ConsoleUser РµСЃР»Рё Р°РІС‚РѕСЂРёР·РёСЂРѕРІР°РЅ, null РµСЃР»Рё РЅРµС‚.</returns>
+        /// <param name="telegramUser">Пользователь telegram.</param>
+        /// <returns>Возвращает объект ConsoleUser если авторизирован, null если нет.</returns>
         private async Task<ToDoUser?> CheckAuthUser(User telegramUser, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -316,10 +288,10 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// РљРѕРјР°РЅРґР° РґРѕР±Р°РІР»РµРЅРёСЏ Р·Р°РґР°С‡Рё.
+        /// Команда добавления задачи.
         /// </summary>
-        /// <param name="taskName">РРјСЏ Р·Р°РґР°С‡Рё.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ РґРѕР±Р°РІР»РµРЅРёРµ Р·Р°РґР°С‡Рё.</returns>
+        /// <param name="taskName">Имя задачи.</param>
+        /// <returns>Результат добавление задачи.</returns>
         private async Task<string> AddTask(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -331,10 +303,10 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// РђРІС‚РѕСЂРёР·Р°С†РёСЏ Рё СЃС‚Р°СЂС‚ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹.
+        /// Авторизация и старт работы программы.
         /// </summary>
-        /// <param name="telegramUser">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёР· telegram.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ Р°РІС‚РѕСЂРёР·Р°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</returns>
+        /// <param name="telegramUser">Пользователь из telegram.</param>
+        /// <returns>Результат авторизации пользователя</returns>
         private async Task<string> StartCommand(User telegramUser, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -345,7 +317,7 @@ namespace Otus_Concurrent_Homework_12
             keyboard = new ReplyKeyboardRemove();
 
             if (user == null)
-                throw new AuthenticationException("РўРµРєСѓС‰РёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ СЃРјРѕРі Р°РІС‚РѕСЂРёР·РѕРІР°С‚СЊСЃСЏ!");
+                throw new AuthenticationException("Текущий пользователь не смог авторизоваться!");
 
             EnumKeyboardsScenariosTypes keyboardType;
             if (toDoService.GetAllByUserId(user.UserId, ct).Result.Count > 0)
@@ -356,14 +328,14 @@ namespace Otus_Concurrent_Homework_12
             currentCommands = KeyboardCommands.KeyboardBotCommands(keyboardType);
             keyboard = KeyboardCommands.CommandKeyboardMarkup(keyboardType);
 
-            return "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р°РІС‚РѕСЂРёР·РѕРІР°Р»СЃСЏ!";
+            return "Пользователь авторизовался!";
         }
 
         /// <summary>
-        /// Р’С‹РІРѕРґ РЅР° РєРѕРЅСЃРѕР»СЊ СЃРїРёСЃРєР° Р·Р°РґР°С‡. Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С„Р»Р°РіР° РІС‹РІРѕРґРёС‚СЃСЏ СЂР°Р·РЅС‹Р№ СЃРїРёСЃРѕРє Р·Р°РґР°С‡.
+        /// Вывод на консоль списка задач. В зависимости от флага выводится разный список задач.
         /// </summary>
-        /// <param name="user">true РґР»СЏ РІС‹РІРѕРґР° Р°РєС‚РёРІРЅС‹С… Р·Р°РґР°С‡, false РґР»СЏ РІС‹РІРѕРґР° РІСЃРµС… Р·Р°РґР°С‡.</param>
-        /// <returns>РЎРїРёСЃРѕРє Р·Р°РґР°С‡.</returns>
+        /// <param name="user">true для вывода активных задач, false для вывода всех задач.</param>
+        /// <returns>Список задач.</returns>
         private async Task<string> ShowTasks(ToDoUser user, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -373,23 +345,28 @@ namespace Otus_Concurrent_Homework_12
 
             keyboard = new InlineKeyboardMarkup();
 
-            ((InlineKeyboardMarkup)keyboard).AddNewRow(InlineKeyboardButton.WithCallbackData("Р‘РµР· СЃРїРёСЃРєР°", ToDoListCallbackDto.FromString("show").ToString()));
+            ToDoListCallbackDto listDto = new ToDoListCallbackDto("show", null);
+
+            ((InlineKeyboardMarkup)keyboard).AddNewRow(InlineKeyboardButton.WithCallbackData("Без списка", listDto.ToString()));
 
             if (toDoList.Count > 0)
                 foreach (ToDoList list in toDoList)
-                    ((InlineKeyboardMarkup)keyboard).AddNewRow(InlineKeyboardButton.WithCallbackData(list.Name, ToDoListCallbackDto.FromString($"show|{list.Id}").ToString()));
+                {
+                    listDto = new ToDoListCallbackDto("show", list.Id);
+                    ((InlineKeyboardMarkup)keyboard).AddNewRow(InlineKeyboardButton.WithCallbackData(list.Name, listDto.ToString()));
+                }
 
 
-            ((InlineKeyboardMarkup)keyboard).AddNewRow(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Р”РѕР±Р°РІРёС‚СЊ", "addlist"), InlineKeyboardButton.WithCallbackData("РЈРґР°Р»РёС‚СЊ", "deletelist") });
+            ((InlineKeyboardMarkup)keyboard).AddNewRow(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Добавить", "addlist"), InlineKeyboardButton.WithCallbackData("Удалить", "deletelist") });
 
-            return "Р’С‹Р±РµСЂРёС‚Рµ СЃРїРёСЃРѕРє";
+            return "Выберите список";
         }
 
         /// <summary>
-        /// РЈРґР°Р»РµРЅРёРµ Р·Р°РґР°С‡Рё.
+        /// Удаление задачи.
         /// </summary>
-        /// <param name="inputList">РњР°СЃСЃРёРІ СЃ РєРѕРјР°РЅРґРѕР№ Рё Р°СЂРіСѓРјРµРЅС‚Р°РјРё.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ Р·Р°РґР°С‡Рё.</returns>
+        /// <param name="inputList">Массив с командой и аргументами.</param>
+        /// <returns>Результат удаления задачи.</returns>
         private async Task<string> RemoveTask(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -401,10 +378,10 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// РћС‚РјРµС‚РєР° Рѕ РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РґР°С‡Рё.
+        /// Отметка о выполнении задачи.
         /// </summary>
-        /// <param name="inputList">РњР°СЃСЃРёРІ СЃ РєРѕРјР°РЅРґРѕР№ Рё Р°СЂРіСѓРјРµРЅС‚Р°РјРё.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ РѕС‚РјРµС‚РєРё РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РґР°С‡Рё.</returns>
+        /// <param name="inputList">Массив с командой и аргументами.</param>
+        /// <returns>Результат отметки выполнения задачи.</returns>
         private async Task<string> CompleteTask(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -416,10 +393,10 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// Р’С‹РІРѕРґ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ Р·Р°РґР°С‡Р°Рј.
+        /// Вывод статистики пользователя по задачам.
         /// </summary>
-        /// <param name="user">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ, С‡СЊРё Р·Р°РґР°С‡Рё РёС‰РµРј.</param>
-        /// <returns>РЎС‚Р°С‚РёСЃС‚РёРєР° Р·Р°РґР°С‡ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
+        /// <param name="user">Пользователь, чьи задачи ищем.</param>
+        /// <returns>Статистика задач пользователя.</returns>
         private async Task<string> ReportUserTasks(ToDoUser user, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -428,15 +405,15 @@ namespace Otus_Concurrent_Homework_12
             IToDoReportService reportService = new ToDoReportService(toDoService);
             var (total, completed, active, generatedAt) = await reportService.GetUserStats(user.UserId, ct);
 
-            return $"РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ Р·Р°РґР°С‡Р°Рј РЅР° {generatedAt}. Р’СЃРµРіРѕ: {total}; Р—Р°РІРµСЂС€РµРЅРѕ: {completed}; РђРєС‚РёРІРЅС‹С…: {active}";
+            return $"Статистика по задачам на {generatedAt}. Всего: {total}; Завершено: {completed}; Активных: {active}";
         }
 
         /// <summary>
-        /// РџРѕРёСЃРє Р·Р°РґР°С‡ РїРѕ Р°СЂРіСѓРјРµРЅС‚Сѓ.
+        /// Поиск задач по аргументу.
         /// </summary>
-        /// <param name="inputList">РљРѕРјР°РЅРґР° СЃ Р°СЂРіСѓРјРµРЅС‚РѕРј.</param>
-        /// <param name="user">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ, С‡СЊРё Р·Р°РґР°С‡Рё РёС‰РµРј.</param>
-        /// <returns>РЎРїРёСЃРѕРє Р·Р°РґР°С‡.</returns>
+        /// <param name="inputList">Команда с аргументом.</param>
+        /// <param name="user">Пользователь, чьи задачи ищем.</param>
+        /// <returns>Список задач.</returns>
         private async Task<string> FindTasks(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -448,10 +425,10 @@ namespace Otus_Concurrent_Homework_12
         }
 
         /// <summary>
-        /// РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РјР°СЃСЃРёРІР° Р·Р°РґР°С‡ РІ СЃС‚СЂРѕРєСѓ РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ РІС‹РІРѕРґР° РІ РєРѕРЅСЃРѕР»СЊ.
+        /// Преобразование массива задач в строку для последующего вывода в консоль.
         /// </summary>
-        /// <param name="toDoItems">РЎРїРёСЃРѕРє Р·Р°РґР°С‡.</param>
-        /// <returns>РЎС„РѕСЂРјРёСЂРѕРІР°РЅРЅР°СЏ СЃС‚СЂРѕРєР°.</returns>
+        /// <param name="toDoItems">Список задач.</param>
+        /// <returns>Сформированная строка.</returns>
         private Task<string> ToDoListInString(IReadOnlyList<ToDoItem> toDoItems, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -462,33 +439,33 @@ namespace Otus_Concurrent_Homework_12
             int itemsCount = toDoItems.Count;
 
             if (itemsCount == 0)
-                return Task.FromResult(sbResult.Append("Р—Р°РґР°С‡Рё, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёРµ СѓСЃР»РѕРІРёСЋ РїРѕРёСЃРєСѓ, РЅРµ РЅР°Р№РґРµРЅС‹!").ToString());
+                return Task.FromResult(sbResult.Append("Задачи, удовлетворяющие условию поиску, не найдены!").ToString());
 
             for (int i = 0; i < itemsCount; i++)
             {
-                sbResult.Append($"{i + 1}. {toDoItems[i].Name} - Р·Р°РґР°С‡Р° СЃРѕР·РґР°РЅР° {toDoItems[i].CreatedAt}, Р·Р°РґР°С‡Сѓ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РґРѕ {toDoItems[i].DeadLine} - <code>{toDoItems[i].Id}</code>\r\n");
+                sbResult.Append($"{i + 1}. {toDoItems[i].Name} - задача создана {toDoItems[i].CreatedAt}, задачу нужно выполнить до {toDoItems[i].DeadLine} - <code>{toDoItems[i].Id}</code>\r\n");
             }
 
             return Task.FromResult(sbResult.ToString().Trim());
         }
 
         /// <summary>
-        /// РњРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ РѕР±СЉРµРєС‚Р° СЃС†РµРЅР°СЂРёСЏ.
+        /// Метод получения объекта сценария.
         /// </summary>
-        /// <param name="scenario">РўРёРї СЃС†РµРЅР°СЂРёСЏ.</param>
-        /// <returns>РћР±СЉРµРєС‚ СЃС†РµРЅР°СЂРёСЏ.</returns>
+        /// <param name="scenario">Тип сценария.</param>
+        /// <returns>Объект сценария.</returns>
         private IScenario GetScenario(ScenarioType scenario)
         {
-            return scenarios.Where(x => x.CanHandle(scenario)).FirstOrDefault() ?? throw new ArgumentException("РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ!");
+            return scenarios.Where(x => x.CanHandle(scenario)).FirstOrDefault() ?? throw new ArgumentException("Сценарий не найден!");
         }
 
         /// <summary>
-        /// РњРµС‚РѕРґ РѕР±СЂР°Р±РѕС‚РєРё СЃС†РµРЅР°СЂРёРµРІ.
+        /// Метод обработки сценариев.
         /// </summary>
-        /// <param name="botClient">РЎРµСЃСЃРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· Telegram.</param>
-        /// <param name="context">Р”Р°РЅРЅС‹Рµ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ СЃС†РµРЅР°СЂРёРё.</param>
-        /// <param name="update">РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРѕРѕР±С‰РµРЅРёРё РёР· telegram.</param>
-        /// <param name="ct">РўРѕРєРµРЅ РѕС‚РјРµРЅС‹.</param>
+        /// <param name="botClient">Сессия пользователя из Telegram.</param>
+        /// <param name="context">Данные с информацией о сценарии.</param>
+        /// <param name="update">Информация о сообщении из telegram.</param>
+        /// <param name="ct">Токен отмены.</param>
         private async Task ProcessScenario(ITelegramBotClient botClient, ScenarioContext context, Update update, CancellationToken ct)
         {
             IScenario scenario = GetScenario(context.CurrentScenario);

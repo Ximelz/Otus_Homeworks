@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Otus_Concurrent_Homework_12
 {
     /// <summary>
-    /// РљР»Р°СЃСЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
+    /// Класс для взаимодействия с задачами.
     /// </summary>
     public class ToDoService : IToDoService
     {
@@ -90,17 +90,23 @@ namespace Otus_Concurrent_Homework_12
             return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
         }
 
-        public Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct)
+        public async Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            Func<ToDoItem, bool> predicate;
+            IReadOnlyList<ToDoItem> activeTasks = await toDoRep.GetActiveByUserId(userId, ct);
+            List<ToDoItem> resultList;
 
             if (listId == null)
-                return Task.FromResult((IReadOnlyList<ToDoItem>)toDoRep.GetActiveByUserId(userId, ct).Result.Where(x => x.List == null).ToList());
+                resultList = activeTasks.Where(x => x.List == null).ToList();
             else
-                return Task.FromResult((IReadOnlyList<ToDoItem>)toDoRep.GetActiveByUserId(userId, ct).Result.Where(x => x.List != null).Where(y => y.List.Id == (Guid)listId).ToList());
+            {
+                resultList = activeTasks.Where(x => x.List != null).ToList();
+                resultList = resultList.Where(y => y.List.Id == (Guid)listId).ToList();
+            }
+
+            return resultList;
         }
     }
 }
