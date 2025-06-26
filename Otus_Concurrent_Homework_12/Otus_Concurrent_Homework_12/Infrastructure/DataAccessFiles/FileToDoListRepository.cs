@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,12 +28,12 @@ namespace Otus_Concurrent_Homework_12
             string listFile = $"{path}{id}.json";
 
             if (!File.Exists(listFile))
-                throw new FileNotFoundException($"Список \"{id}\" не найден!");
+                throw new FileNotFoundException($"РЎРїРёСЃРѕРє \"{id}\" РЅРµ РЅР°Р№РґРµРЅ!");
 
             ToDoList? list = JsonSerializer.Deserialize<ToDoList>(File.ReadAllText(listFile));
 
             if (list == null)
-                throw new FileLoadException($"Ошибка с чтением файла хранения данных пользователя\"{id}\"! Файл расположен по следующему пути {listFile}.");
+                throw new FileLoadException($"РћС€РёР±РєР° СЃ С‡С‚РµРЅРёРµРј С„Р°Р№Р»Р° С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ\"{id}\"! Р¤Р°Р№Р» СЂР°СЃРїРѕР»РѕР¶РµРЅ РїРѕ СЃР»РµРґСѓСЋС‰РµРјСѓ РїСѓС‚Рё: {listFile}.");
 
             return Task.FromResult(list);
         }
