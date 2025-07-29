@@ -1,4 +1,4 @@
-п»їusing System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -31,15 +31,14 @@ namespace Otus_Linq_Homework_13
                 {
                     new AddTaskScenario(toDoService, userService, toDoListService),
                     new FindTaskScenario(toDoService, userService),
-                    new CompleteTaskScenario(toDoService, userService),
                     new RemoveTaskScenario(toDoService, userService),
+                    new DeleteListScenario(userService,toDoListService, toDoService),
                     new AddListScenario(userService, toDoListService),
-                    new DeleteListScenario(userService, toDoListService, toDoService)
                 };
                 IScenarioContextRepository contextRepository = new InMemoryScenarioContextRepository();
                 IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService, scenarios, contextRepository, toDoListService);
-                void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nРќР°С‡Р°Р»Р°СЃСЊ РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ {message}\r\n");
-                void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Р—Р°РєРѕРЅС‡РёР»Р°СЃСЊ РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ {message}\r\n");
+                void DisplayStartEventMessage(string message) => Console.WriteLine($"\r\nНачалась обработка сообщения {message}\r\n");
+                void DisplayCompleteEventMessage(string message) => Console.WriteLine($"Закончилась обработка сообщения {message}\r\n");
 
                 var receiverOptions = new ReceiverOptions
                 {
@@ -58,16 +57,16 @@ namespace Otus_Linq_Homework_13
 
                         bot.StartReceiving(updateHandler, receiverOptions, ct.Token);
 
-                        Console.WriteLine("РќР°Р¶РјРёС‚Рµ Р°РЅРіР»РёР№СЃРєСѓСЋ \"A\" РёР»Рё СЂСѓСЃСЃРєСѓСЋ \"Р¤\" РґР»СЏ РѕСЃС‚Р°РЅРѕРІРєРё Р±РѕС‚Р°.");
+                        Console.WriteLine("Нажмите английскую \"A\" или русскую \"Ф\" для остановки бота.");
                         var inputKey = Console.ReadKey();
 
                         if (inputKey.Key == ConsoleKey.A)
                         {
                             ct.Cancel();
-                            throw new Exception($"\r\n{me.FirstName} РѕСЃС‚Р°РЅРѕРІР»РµРЅ!");
+                            throw new Exception($"\r\n{me.FirstName} остановлен!");
                         }
                         else
-                            Console.WriteLine($"\r\n{me.FirstName} Р·Р°РїСѓС‰РµРЅ!");
+                            Console.WriteLine($"\r\n{me.FirstName} запущен!");
 
                         await Task.Delay(-1);
                     }
@@ -92,7 +91,7 @@ namespace Otus_Linq_Homework_13
             }
             catch (Exception ex)
             {
-                Console.WriteLine(@"РџСЂРѕРёР·РѕС€Р»Р° РЅРµРїСЂРµРґРІРёРґРµРЅРЅР°СЏ РѕС€РёР±РєР°: {0} {1} {2} {3}", ex.GetType(), ex.Message,
+                Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message,
                     ex.StackTrace, ex.InnerException);
             }
         }
@@ -100,43 +99,43 @@ namespace Otus_Linq_Homework_13
 
 
         /// <summary>
-        /// РЈСЃС‚Р°РЅРѕРІРєР° РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° Р·Р°РґР°С‡.
+        /// Установка максимального количества задач.
         /// </summary>
-        /// <param name="maxTasksStr">Р’РІРµРґРµРЅРЅРѕРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡ РІ РІРёРґРµ СЃС‚СЂРѕРєРё.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓСЃС‚Р°РЅРѕРІРєРё РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° Р·Р°РґР°С‡.</returns>
+        /// <param name="maxTasksStr">Введенное максимальное количество задач в виде строки.</param>
+        /// <returns>Результат установки ограничения максимального количества задач.</returns>
         private static int SetMaxTasks()
         {
-            Console.WriteLine("Р’РІРµРґРёС‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡, РјРёРЅРёРјСѓРј 1, РјР°РєСЃРёРјСѓРј 100:");
+            Console.WriteLine("Введите максимально допустимое количество задач, минимум 1, максимум 100:");
             string? inputString = Console.ReadLine();
             ValidateString(inputString);
             int maxTasks = ParseAndValidateInt(inputString, 1, 100);
-            Console.WriteLine($"РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡ С‚РµРїРµСЂСЊ {maxTasks}.");
+            Console.WriteLine($"Максимальное количество задач теперь {maxTasks}.");
             return maxTasks;
         }
 
         /// <summary>
-        /// РЈСЃС‚Р°РЅРѕРІРєР° РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РґР»РёРЅС‹ Р·Р°РґР°С‡Рё.
+        /// Установка максимальной длины задачи.
         /// </summary>
-        /// <param name="maxLenghtNameTasksStr">Р’РІРµРґРµРЅРЅР°СЏ РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° Р·Р°РґР°С‡Рё РІ РІРёРґРµ СЃС‚СЂРѕРєРё.</param>
-        /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓСЃС‚Р°РЅРѕРІРєРё РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РґР»РёРЅС‹ Р·Р°РґР°С‡Рё.</returns>
+        /// <param name="maxLenghtNameTasksStr">Введенная максимальная длина задачи в виде строки.</param>
+        /// <returns>Результат установки ограничения максимальной длины задачи.</returns>
         private static int SetMaxLengthNameTasks()
         {
-            Console.WriteLine("Р’РІРµРґРёС‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјСѓСЋ РґР»РёРЅСѓ Р·Р°РґР°С‡Рё, РјРёРЅРёРјСѓРј 1, РјР°РєСЃРёРјСѓРј 100:");
+            Console.WriteLine("Введите максимально допустимую длину задачи, минимум 1, максимум 100:");
             string? inputString = Console.ReadLine();
             ValidateString(inputString);
             int maxLengthNameTask = ParseAndValidateInt(inputString, 1, 100);
-            Console.WriteLine($"РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РёРјРµРЅРё Р·Р°РґР°С‡Рё С‚РµРїРµСЂСЊ {maxLengthNameTask}.");
+            Console.WriteLine($"Максимальная длина имени задачи теперь {maxLengthNameTask}.");
 
             return maxLengthNameTask;
         }
 
         /// <summary>
-        /// РњРµС‚РѕРґ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ СЃС‚СЂРѕРєРё РІ С‡РёСЃР»Рѕ РёР· СѓРєР°Р·Р°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°.
+        /// Метод для преобразования строки в число из указанного диапазона.
         /// </summary>
-        /// <param name="str">Р’С…РѕРґСЏС‰Р°СЏ СЃС‚СЂРѕРєР°.</param>
-        /// <param name="min">РќРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р° РґРёР°РїР°Р·РѕРЅР°.</param>
-        /// <param name="max">Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р° РґРёР°РїР°Р·РѕРЅР°.</param>
-        /// <returns>РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅРѕРµ С‡РёСЃР»Рѕ РёР· РІРІРµРґРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°.</returns>
+        /// <param name="str">Входящая строка.</param>
+        /// <param name="min">Нижняя граница диапазона.</param>
+        /// <param name="max">Верхняя граница диапазона.</param>
+        /// <returns>Преобразованное число из введенного диапазона.</returns>
         private static int ParseAndValidateInt(string? str, uint min, uint max)
         {
             int parseInt;
@@ -145,22 +144,22 @@ namespace Otus_Linq_Homework_13
                 if (parseInt <= max && parseInt >= min)
                     return parseInt;
                 else
-                    throw new ArgumentOutOfRangeException($"Р’С‹ РІРІРµР»Рё \"{parseInt}\", С‡РёСЃР»Рѕ РІС‹С…РѕРґРёС‚ Р·Р° РїСЂРµРґРµР»С‹ СѓРєР°Р·Р°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° [{min}:{max}]!");
-            throw new ArgumentException($"Р’С‹ РІРІРµР»Рё \"{str}\", СЌС‚Рѕ РЅРµ С‡РёСЃР»Рѕ!");
+                    throw new ArgumentOutOfRangeException($"Вы ввели \"{parseInt}\", число выходит за пределы указанного диапазона [{min}:{max}]!");
+            throw new ArgumentException($"Вы ввели \"{str}\", это не число!");
         }
 
         /// <summary>
-        /// РњРµС‚РѕРґ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃС‚СЂРѕРєРё РЅР° РїСѓСЃС‚РѕС‚Сѓ РёР»Рё null.
+        /// Метод для проверки строки на пустоту или null.
         /// </summary>
-        /// <param name="str">Р’С…РѕРґСЏС‰Р°СЏ СЃС‚СЂРѕРєР°.</param>
-        /// <exception cref="ArgumentException">Р•СЃР»Рё СЃС‚СЂРѕРєР° null РёР»Рё РїСѓСЃС‚Р°СЏ, С‚Рѕ РІС‹Р·С‹РІР°РµС‚СЃСЏ РёСЃРєР»СЋС‡РµРЅРёРµ.</exception>
+        /// <param name="str">Входящая строка.</param>
+        /// <exception cref="ArgumentException">Если строка null или пустая, то вызывается исключение.</exception>
         private static void ValidateString(string? str)
         {
             if (str == null)
-                throw new ArgumentException("Р’РІРµРґРµРЅР°СЏ СЃС‚СЂРѕРєР° РёРјРµРµС‚ Р·РЅР°С‡РµРЅРёРµ \"null\"");
+                throw new ArgumentException("Введеная строка имеет значение \"null\"");
 
             if (str.Trim() == "")
-                throw new ArgumentException("Р’РІРµРґРµРЅР°СЏ СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°СЏ");
+                throw new ArgumentException("Введеная строка пустая");
         }
     }
 }

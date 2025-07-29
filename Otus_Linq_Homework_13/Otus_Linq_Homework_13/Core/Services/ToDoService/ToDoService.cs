@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Otus_Linq_Homework_13
 {
     /// <summary>
-    /// РљР»Р°СЃСЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
+    /// Класс для взаимодействия с задачами.
     /// </summary>
     public class ToDoService : IToDoService
     {
@@ -107,6 +107,22 @@ namespace Otus_Linq_Homework_13
                              .ToList();
 
             return resultList;
+        }
+
+        public async Task<ToDoItem>? Get(Guid usertId, Guid toDoItemId, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            IReadOnlyList<ToDoItem>? toDoItems = await toDoRep.Find(usertId, x => x.Id == toDoItemId, ct);
+
+            if (toDoItems is null || !toDoItems.Any())
+                throw new Exception($"Задача с id {toDoItemId} не найдена!");
+
+            if (toDoItems.Count > 1)
+                throw new Exception($"Количество задач с id {toDoItemId} больше одного!");
+                        
+            return toDoItems[0];
         }
     }
 }
