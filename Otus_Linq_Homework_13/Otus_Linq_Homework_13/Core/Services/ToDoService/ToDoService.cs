@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Otus_Linq_Homework_13
 {
     /// <summary>
-    /// Класс для взаимодействия с задачами.
+    /// РљР»Р°СЃСЃ РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ Р·Р°РґР°С‡Р°РјРё.
     /// </summary>
     public class ToDoService : IToDoService
     {
@@ -56,6 +56,7 @@ namespace Otus_Linq_Homework_13
             newItem.DeadLine = deadLine;
             newItem.List = list;
             await toDoRep.Add(newItem, ct);
+
             return newItem; 
         }
 
@@ -117,10 +118,10 @@ namespace Otus_Linq_Homework_13
             IReadOnlyList<ToDoItem>? toDoItems = await toDoRep.Find(usertId, x => x.Id == toDoItemId, ct);
 
             if (toDoItems is null || !toDoItems.Any())
-                throw new Exception($"Задача с id {toDoItemId} не найдена!");
+                throw new Exception($"Р—Р°РґР°С‡Р° СЃ id {toDoItemId} РЅРµ РЅР°Р№РґРµРЅР°!");
 
             if (toDoItems.Count > 1)
-                throw new Exception($"Количество задач с id {toDoItemId} больше одного!");
+                throw new Exception($"РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡ СЃ id {toDoItemId} Р±РѕР»СЊС€Рµ РѕРґРЅРѕРіРѕ!");
                         
             return toDoItems[0];
         }

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,39 +12,39 @@ namespace Otus_Linq_Homework_13
     public static class KeyboardCommands
     {
         /// <summary>
-        /// Метод получения команд для меню telegram.
+        /// РњРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ РєРѕРјР°РЅРґ РґР»СЏ РјРµРЅСЋ Telegram.
         /// </summary>
-        /// <param name="maxTasks">true если достигнут лимит по количеству задач, false если добавить задачи еще возможно.</param>
-        /// <returns>Список команд для меню telegram.</returns>
+        /// <param name="maxTasks">true РµСЃР»Рё РґРѕСЃС‚РёРіРЅСѓС‚ Р»РёРјРёС‚ РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ Р·Р°РґР°С‡, false РµСЃР»Рё РґРѕР±Р°РІРёС‚СЊ Р·Р°РґР°С‡Рё РµС‰Рµ РІРѕР·РјРѕР¶РЅРѕ.</param>
+        /// <returns>РЎРїРёСЃРѕРє РєРѕРјР°РЅРґ РґР»СЏ РјРµРЅСЋ telegram.</returns>
         public static List<BotCommand> KeyboardBotCommands(EnumKeyboardsScenariosTypes type)
         {
             List<BotCommand> currentCommands = new List<BotCommand>();
 
             if (type == EnumKeyboardsScenariosTypes.CancelContext)
-                currentCommands.Add(new BotCommand("/cancel", "Отмена выполнения сценария."));
+                currentCommands.Add(new BotCommand("/cancel", "РћС‚РјРµРЅР° РІС‹РїРѕР»РЅРµРЅРёСЏ СЃС†РµРЅР°СЂРёСЏ."));
 
             if (type == EnumKeyboardsScenariosTypes.Start)
-                currentCommands.Add(new BotCommand("/start", "Авторизация и запуск бота."));
+                currentCommands.Add(new BotCommand("/start", "РђРІС‚РѕСЂРёР·Р°С†РёСЏ Рё Р·Р°РїСѓСЃРє Р±РѕС‚Р°."));
             
             if (type == EnumKeyboardsScenariosTypes.NoneTasks || type == EnumKeyboardsScenariosTypes.Default)
-                currentCommands.Add(new BotCommand("/addtask", "Добавление задачи."));
+                currentCommands.Add(new BotCommand("/addtask", "Р”РѕР±Р°РІР»РµРЅРёРµ Р·Р°РґР°С‡Рё."));
 
             if (type == EnumKeyboardsScenariosTypes.Default || type == EnumKeyboardsScenariosTypes.MaxTasks)
             {
-                currentCommands.Add(new BotCommand("/show", "Вывод задач пользователя."));
-                currentCommands.Add(new BotCommand("/find", "Поиск задач."));
-                currentCommands.Add(new BotCommand("/report", "Вывод статистики пользователя."));
+                currentCommands.Add(new BotCommand("/show", "Р’С‹РІРѕРґ Р·Р°РґР°С‡ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ."));
+                currentCommands.Add(new BotCommand("/find", "РџРѕРёСЃРє Р·Р°РґР°С‡."));
+                currentCommands.Add(new BotCommand("/report", "Р’С‹РІРѕРґ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ."));
             }
             
-            currentCommands.Add(new BotCommand("/info", "Информация о версии бота."));
-            currentCommands.Add(new BotCommand("/help", "Информация о работе с ботом."));
+            currentCommands.Add(new BotCommand("/info", "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІРµСЂСЃРёРё Р±РѕС‚Р°."));
+            currentCommands.Add(new BotCommand("/help", "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЂР°Р±РѕС‚Рµ СЃ Р±РѕС‚РѕРј."));
             return currentCommands;
         }
 
         /// <summary>
-        /// Метод получения команд для кнопок под строкой сообщения telegram.
+        /// РњРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ РєРѕРјР°РЅРґ РґР»СЏ РєРЅРѕРїРѕРє РїРѕРґ СЃС‚СЂРѕРєРѕР№ СЃРѕРѕР±С‰РµРЅРёСЏ telegram.
         /// </summary>
-        /// <returns>Кнопки команд.</returns>
+        /// <returns>РљРЅРѕРїРєРё РєРѕРјР°РЅРґ.</returns>
         public static ReplyKeyboardMarkup CommandKeyboardMarkup(EnumKeyboardsScenariosTypes type)
         {
             if (type == EnumKeyboardsScenariosTypes.CancelContext)

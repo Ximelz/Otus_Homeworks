@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Otus_Linq_Homework_13
         private readonly string _path;
         public FileToDoRepository(string path)
         {
-            this._path = path;
+            _path = path;
 
             if (!Directory.Exists(_path))
                 Directory.CreateDirectory(this._path);
@@ -74,10 +74,10 @@ namespace Otus_Linq_Homework_13
                 }
             }
             if (userId == Guid.Empty)
-                throw new ArgumentException($"У пользователя {userId} еще нет задач!");
+                throw new ArgumentException($"РЈ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ {userId} РµС‰Рµ РЅРµС‚ Р·Р°РґР°С‡!");
 
             if (!items[userId].Remove(id))
-                throw new ArgumentException($"Задача \'{id}\' не найдена!");
+                throw new ArgumentException($"Р—Р°РґР°С‡Р° \'{id}\' РЅРµ РЅР°Р№РґРµРЅР°!");
 
             SaveIndexFile(items);
 
@@ -132,10 +132,10 @@ namespace Otus_Linq_Homework_13
         }
 
         /// <summary>
-        /// Метод получения списка всех задач всех пользователей из файла индекса.
+        /// РњРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РІСЃРµС… Р·Р°РґР°С‡ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёР· С„Р°Р№Р»Р° РёРЅРґРµРєСЃР°.
         /// </summary>
-        /// <param name="path">Путь к файлу индексу.</param>
-        /// <returns>Список всех задач в виде словаря, где ключ это id пользователя, а value это список id его задач.</returns>
+        /// <param name="path">РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ РёРЅРґРµРєСЃСѓ.</param>
+        /// <returns>РЎРїРёСЃРѕРє РІСЃРµС… Р·Р°РґР°С‡ РІ РІРёРґРµ СЃР»РѕРІР°СЂСЏ, РіРґРµ РєР»СЋС‡ СЌС‚Рѕ id РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, Р° value СЌС‚Рѕ СЃРїРёСЃРѕРє id РµРіРѕ Р·Р°РґР°С‡.</returns>
         private Dictionary<Guid,List<Guid>> ReadIndexFile()
         {
             string indexPath = $"{_path}\\Index.json";
@@ -166,10 +166,10 @@ namespace Otus_Linq_Homework_13
         }
 
         /// <summary>
-        /// Метод сохранения всех задач всех пользователей в файл индекс.
+        /// РњРµС‚РѕРґ СЃРѕС…СЂР°РЅРµРЅРёСЏ РІСЃРµС… Р·Р°РґР°С‡ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РІ С„Р°Р№Р» РёРЅРґРµРєСЃ.
         /// </summary>
-        /// <param name="path">Путь к файлу индекса.</param>
-        /// <param name="toDoItems">Список всех задач.</param>
+        /// <param name="path">РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ РёРЅРґРµРєСЃР°.</param>
+        /// <param name="toDoItems">РЎРїРёСЃРѕРє РІСЃРµС… Р·Р°РґР°С‡.</param>
         private void SaveIndexFile(Dictionary<Guid, List<Guid>> toDoItems)
         {
             string indexPath = $"{_path}\\Index.json";
@@ -185,10 +185,10 @@ namespace Otus_Linq_Homework_13
 
 
         /// <summary>
-        /// Метод получения списка всех задач пользователя.
+        /// РњРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РІСЃРµС… Р·Р°РґР°С‡ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
         /// </summary>
-        /// <param name="userId">Id пользователя.</param>
-        /// <returns>Список задач пользователя.</returns>
+        /// <param name="userId">Id РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+        /// <returns>РЎРїРёСЃРѕРє Р·Р°РґР°С‡ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
         private List<ToDoItem> GetTasksByUserId(Guid userId)
         {
             Dictionary<Guid, List<Guid>> items = ReadIndexFile();

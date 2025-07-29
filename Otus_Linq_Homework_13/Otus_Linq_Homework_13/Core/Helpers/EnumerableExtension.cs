@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +10,21 @@ namespace Otus_Linq_Homework_13
     public static class EnumerableExtension
     {
         /// <summary>
-        /// Метод расширения LINQ для пагинации.
+        /// РњРµС‚РѕРґ СЂР°СЃС€РёСЂРµРЅРёСЏ LINQ РґР»СЏ РїР°РіРёРЅР°С†РёРё.
         /// </summary>
-        /// <param name="inputEnumerable">Полный список задач.</param>
-        /// <param name="batchSize">Размер пачки.</param>
-        /// <param name="batchNumber">Номер возвращаемой пачки, нумерация с 0.</param>
-        /// <returns>Список задач из искомой пачки.</returns>
-        /// <exception cref="InvalidOperationException">Ошибка, если спиок пустой.</exception>
+        /// <param name="inputEnumerable">РџРѕР»РЅС‹Р№ СЃРїРёСЃРѕРє Р·Р°РґР°С‡.</param>
+        /// <param name="batchSize">Р Р°Р·РјРµСЂ РїР°С‡РєРё.</param>
+        /// <param name="batchNumber">РќРѕРјРµСЂ РІРѕР·РІСЂР°С‰Р°РµРјРѕР№ РїР°С‡РєРё, РЅСѓРјРµСЂР°С†РёСЏ СЃ 0.</param>
+        /// <returns>РЎРїРёСЃРѕРє Р·Р°РґР°С‡ РёР· РёСЃРєРѕРјРѕР№ РїР°С‡РєРё.</returns>
+        /// <exception cref="InvalidOperationException">РћС€РёР±РєР°, РµСЃР»Рё СЃРїРёРѕРє РїСѓСЃС‚РѕР№.</exception>
         public static List<T> GetBatchByNumber<T>(this IEnumerable<T>? inputEnumerable, int batchSize, int batchNumber)
         {
-            var inputList = inputEnumerable.ToList();
             List<T> resultList = new List<T>();
+
+            if (inputEnumerable == null)
+                return resultList;
+
+            var inputList = inputEnumerable.ToList();
 
             int index = batchSize * batchNumber;
             int lastIndex = index + batchSize;
