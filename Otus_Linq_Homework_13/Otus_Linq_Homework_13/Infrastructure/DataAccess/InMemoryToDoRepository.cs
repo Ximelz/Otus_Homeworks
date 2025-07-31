@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace Otus_Linq_Homework_13
 {
@@ -139,6 +140,14 @@ namespace Otus_Linq_Homework_13
                 ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId).Where(predicate).ToList());
+        }
+
+        public async Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            return tasks.Where(x => x.Id == toDoItemId).FirstOrDefault();
         }
     }
 }

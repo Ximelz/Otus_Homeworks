@@ -209,5 +209,34 @@ namespace Otus_Linq_Homework_13
 
             return activeItems;
         }
+
+        public async Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+
+            string indexPath = $"{_path}\\Index.json";
+
+            if (!File.Exists(indexPath))
+                return null;
+
+            string[] indexArray = File.ReadAllLines(indexPath);
+
+            foreach (string item in indexArray)
+            {
+                string[] toDoItem = item.Split(';');
+
+                if (!Guid.TryParse(toDoItem[0], out Guid todoId))
+                    continue;
+
+                if (todoId == toDoItemId)
+                {
+                    string itemPath = $"{_path}\\{toDoItem[1]}\\{toDoItem[0]}.json";
+                    return JsonSerializer.Deserialize<ToDoItem>(File.ReadAllText(itemPath));
+                }
+            }
+
+            return null;
+        }
     }
 }

@@ -17,25 +17,26 @@ namespace Otus_Linq_Homework_13
         /// <param name="batchNumber">Номер возвращаемой пачки, нумерация с 0.</param>
         /// <returns>Список задач из искомой пачки.</returns>
         /// <exception cref="InvalidOperationException">Ошибка, если спиок пустой.</exception>
-        public static List<T> GetBatchByNumber<T>(this IEnumerable<T>? inputEnumerable, int batchSize, int batchNumber)
+        public static IEnumerable<T>? GetBatchByNumber<T>(this IEnumerable<T>? inputEnumerable, int batchSize, int batchNumber)
         {
-            List<T> resultList = new List<T>();
-
             if (inputEnumerable == null)
-                return resultList;
+                throw new ArgumentNullException("Входной перечислитель не может быть null!");
 
-            var inputList = inputEnumerable.ToList();
+            if (batchSize < 1)
+                throw new ArgumentOutOfRangeException("Размер пачки не может быть меньше 1!");
 
-            int index = batchSize * batchNumber;
-            int lastIndex = index + batchSize;
+            if (batchNumber < 0)
+                throw new ArgumentOutOfRangeException("Номер пачти не может быть отридцательным!");
+            
+            int totalBatchs = inputEnumerable.Count() / batchSize;
 
-            if (lastIndex > inputList.Count - 1)
-                lastIndex = inputList.Count;
+            if (inputEnumerable.Count() % batchSize != 0)
+                totalBatchs++;
 
-            for (; index < lastIndex; index++)
-                resultList.Add(inputList[index]);
+            if (totalBatchs <= batchNumber && batchNumber != 0)
+                throw new ArgumentOutOfRangeException("Номер пачти превышает размер списка!");
 
-            return resultList;
+            return inputEnumerable.Skip(batchSize * batchNumber).Take(batchSize);
         }
     }
 }

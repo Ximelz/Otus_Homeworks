@@ -110,20 +110,12 @@ namespace Otus_Linq_Homework_13
             return resultList;
         }
 
-        public async Task<ToDoItem>? Get(Guid usertId, Guid toDoItemId, CancellationToken ct)
+        public async Task<ToDoItem>? Get(Guid toDoItemId, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 ct.ThrowIfCancellationRequested();
 
-            IReadOnlyList<ToDoItem>? toDoItems = await toDoRep.Find(usertId, x => x.Id == toDoItemId, ct);
-
-            if (toDoItems is null || !toDoItems.Any())
-                throw new Exception($"Задача с id {toDoItemId} не найдена!");
-
-            if (toDoItems.Count > 1)
-                throw new Exception($"Количество задач с id {toDoItemId} больше одного!");
-                        
-            return toDoItems[0];
+            return await toDoRep.Get(toDoItemId, ct);
         }
     }
 }

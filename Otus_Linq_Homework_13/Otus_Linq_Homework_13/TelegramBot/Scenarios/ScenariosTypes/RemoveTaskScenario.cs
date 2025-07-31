@@ -44,9 +44,15 @@ namespace Otus_Linq_Homework_13
                 case null:
                     context.CurrentStep = "Delete";
 
-                    ToDoItemCallbackDto itemDto = ToDoItemCallbackDto.FromString(update.CallbackQuery.Data);
-                    ToDoItem item = await toDoService.Get(user.UserId, (Guid)itemDto.ToDoItemId, ct);
-                    context.Data.Add("ToDoItemId", itemDto.ToDoItemId);
+                    ToDoItem item = await toDoService.Get((Guid)ToDoItemCallbackDto.FromString(update.CallbackQuery.Data).ToDoItemId, ct);
+
+                    if (item == null)
+                    {
+                        await bot.SendMessage(chat, $"Задача не найдена!?", cancellationToken: ct);
+                        return ScenarioResult.Completed;
+                    }
+
+                    context.Data.Add("ToDoItemId", item.Id);
 
                     keyboard.AddNewRow(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("✅Да", "yes"), InlineKeyboardButton.WithCallbackData("❌Нет", "no") });
 
