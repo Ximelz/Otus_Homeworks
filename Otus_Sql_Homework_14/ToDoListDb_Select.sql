@@ -47,14 +47,16 @@ DELETE FROM public."ToDoItem"
 			   	   ORDER BY random()
 			   	   LIMIT 1);
 
+
 -- Метод ExistsByName()
-SELECT "Id", "UserId", "Name"
-	FROM public."ToDoItem"
-	WHERE "Name" = 'Task_96'
-	AND "UserId" IN (SELECT "UserId"
+SELECT EXISTS(
+		SELECT 1
+		FROM public."ToDoItem"
+		WHERE "Name" = 'Task_96'
+		AND "UserId" IN (SELECT "UserId"
 		 	   	   	 FROM public."ToDoUser"
 			   	   	 ORDER BY random()
-			   	   	 LIMIT 1);
+			   	   	 LIMIT 1));
 
 -- Метод CountActive()
 SELECT COUNT(*)

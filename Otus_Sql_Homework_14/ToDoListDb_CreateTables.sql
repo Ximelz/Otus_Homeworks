@@ -19,7 +19,6 @@ CREATE TABLE "ToDoList"
 	CONSTRAINT "List_UserId"
         FOREIGN KEY ("UserId") 
         REFERENCES "ToDoUser"("UserId")
-        ON DELETE CASCADE
 );
 CREATE INDEX idx_list_id ON public."ToDoList" ("Id");
 
@@ -43,6 +42,5 @@ CREATE TABLE "ToDoItem"
 	CONSTRAINT "ToDoItem_ListId"
         FOREIGN KEY ("ListId") 
         REFERENCES "ToDoList"("Id")
-        ON DELETE CASCADE	
 );
 CREATE INDEX idx_item_id ON public."ToDoItem" ("Id");
