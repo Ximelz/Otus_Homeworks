@@ -5,8 +5,8 @@ CREATE TABLE "ToDoUser"
 	"TelegramUserName" varchar(100) NOT NULL,
 	"RegisteredAt" date DEFAULT CURRENT_DATE
 );
-CREATE INDEX idx_users_id ON public."ToDoUser" USING btree ("UserId");
-CREATE INDEX idx_telegram_users_id ON public."ToDoUser" USING btree ("TelegramUserId");
+CREATE INDEX idx_users_id ON public."ToDoUser" ("UserId");
+CREATE UNIQUE INDEX idx_telegram_users_id ON public."ToDoUser" ("TelegramUserId");
 
 
 CREATE TABLE "ToDoList"
@@ -21,7 +21,7 @@ CREATE TABLE "ToDoList"
         REFERENCES "ToDoUser"("UserId")
         ON DELETE CASCADE
 );
-CREATE INDEX idx_list_id ON public."ToDoList" USING btree ("Id");
+CREATE INDEX idx_list_id ON public."ToDoList" ("Id");
 
 CREATE TABLE "ToDoItem"
 (
@@ -45,4 +45,4 @@ CREATE TABLE "ToDoItem"
         REFERENCES "ToDoList"("Id")
         ON DELETE CASCADE	
 );
-CREATE INDEX idx_item_id ON public."ToDoItem" USING btree ("Id");
+CREATE INDEX idx_item_id ON public."ToDoItem" ("Id");
