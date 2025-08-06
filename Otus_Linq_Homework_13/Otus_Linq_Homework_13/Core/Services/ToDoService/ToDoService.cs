@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Otus_Linq_Homework_13
+﻿namespace Otus_Linq_Homework_13
 {
     /// <summary>
     /// Класс для взаимодействия с задачами.
@@ -24,24 +18,22 @@ namespace Otus_Linq_Homework_13
 
         public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoRep.GetActiveByUserId(userId, ct);
         }
 
         public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoRep.GetAllByUserId(userId, ct);
         }
 
         public async Task<ToDoItem> Add(ToDoUser user, string name, DateTime deadLine, ToDoList? list, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+
+            ct.ThrowIfCancellationRequested();
 
             if (await toDoRep.CountActive(user.UserId, ct) >= maxTasks)
                 throw new TaskCountLimitException(maxTasks);
@@ -57,13 +49,12 @@ namespace Otus_Linq_Homework_13
             newItem.List = list;
             await toDoRep.Add(newItem, ct);
 
-            return newItem; 
+            return newItem;
         }
 
         public async Task MarkCompleted(Guid id, ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoItem task = (await GetAllByUserId(user.UserId, ct)).Single(x => x.Id == id);
 
@@ -77,24 +68,21 @@ namespace Otus_Linq_Homework_13
 
         public async Task Delete(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await toDoRep.Delete(id, ct);
         }
 
         public async Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoRep.Find(user.UserId, x => x.Name.StartsWith(namePrefix), ct);
         }
 
         public async Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             IReadOnlyList<ToDoItem> activeTasks = await toDoRep.GetActiveByUserId(userId, ct);
             List<ToDoItem> resultList;
@@ -112,8 +100,7 @@ namespace Otus_Linq_Homework_13
 
         public async Task<ToDoItem>? Get(Guid toDoItemId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoRep.Get(toDoItemId, ct);
         }

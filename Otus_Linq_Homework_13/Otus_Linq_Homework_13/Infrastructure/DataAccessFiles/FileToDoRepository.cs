@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 using System.Text.Json;
-using System.Security.Cryptography.X509Certificates;
-using Telegram.Bot.Types;
 
 namespace Otus_Linq_Homework_13
 {
@@ -26,8 +19,7 @@ namespace Otus_Linq_Homework_13
 
         public Task Add(ToDoItem item, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var json = JsonSerializer.Serialize(item);
             string userPath = $"{_path}\\{item.User.UserId}\\";
@@ -36,13 +28,13 @@ namespace Otus_Linq_Homework_13
                 Directory.CreateDirectory(userPath);
 
             File.WriteAllText($"{userPath}\\{item.Id}.json", json);
-            
+
             Dictionary<Guid, List<Guid>> items = ReadIndexFile();
 
             if (items.ContainsKey(item.User.UserId))
                 items[item.User.UserId].Add(item.Id);
             else
-                items.Add(item.User.UserId, new List<Guid>{item.Id});
+                items.Add(item.User.UserId, new List<Guid> { item.Id });
 
             SaveIndexFile(items);
 
@@ -51,16 +43,14 @@ namespace Otus_Linq_Homework_13
 
         public Task<int> CountActive(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult(GetActiveByUserId(userId, ct).Result.Count);
         }
 
         public Task Delete(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             Dictionary<Guid, List<Guid>> items = ReadIndexFile();
             Guid userId = Guid.Empty;
@@ -88,8 +78,7 @@ namespace Otus_Linq_Homework_13
 
         public Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoItem? item = GetTasksByUserId(userId).Where(x => x.Name == name).FirstOrDefault();
 
@@ -98,32 +87,28 @@ namespace Otus_Linq_Homework_13
 
         public Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)GetTasksByUserId(userId).Where(predicate).ToList());
         }
 
         public Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)GetTasksByUserId(userId).Where(x => x.State == ToDoItemState.Active).ToList());
         }
 
         public Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)GetTasksByUserId(userId));
         }
 
         public Task Update(ToDoItem item, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var json = JsonSerializer.Serialize(item);
             File.WriteAllText($"{_path}\\{item.User.UserId}\\{item.Id}.json", json);
@@ -136,7 +121,7 @@ namespace Otus_Linq_Homework_13
         /// </summary>
         /// <param name="path">Путь к файлу индексу.</param>
         /// <returns>Список всех задач в виде словаря, где ключ это id пользователя, а value это список id его задач.</returns>
-        private Dictionary<Guid,List<Guid>> ReadIndexFile()
+        private Dictionary<Guid, List<Guid>> ReadIndexFile()
         {
             string indexPath = $"{_path}\\Index.json";
             Dictionary<Guid, List<Guid>> toDoItems = new Dictionary<Guid, List<Guid>>();
@@ -145,7 +130,7 @@ namespace Otus_Linq_Homework_13
                 return toDoItems;
 
             string[] indexArray = File.ReadAllLines(indexPath);
-            
+
             foreach (string item in indexArray)
             {
                 string[] toDoItem = item.Split(';');
@@ -159,7 +144,7 @@ namespace Otus_Linq_Homework_13
                 if (toDoItems.ContainsKey(userId))
                     toDoItems[userId].Add(todoId);
                 else
-                    toDoItems.Add(userId, new List<Guid>{ todoId });
+                    toDoItems.Add(userId, new List<Guid> { todoId });
             }
 
             return toDoItems;
@@ -212,8 +197,7 @@ namespace Otus_Linq_Homework_13
 
         public async Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             string indexPath = $"{_path}\\Index.json";
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Security.Authentication;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Authentication;
 
 namespace Otus_Linq_Homework_13
 {
@@ -28,9 +22,8 @@ namespace Otus_Linq_Homework_13
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
         public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
-            
+            ct.ThrowIfCancellationRequested();
+
             foreach (var user in users)
                 if (user.UserId == userId)
                     return Task.FromResult(user);
@@ -46,8 +39,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Возвращает пользователя если он найден, null если нет.</returns>
         public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             foreach (var user in users)
                 if (user.TelegramUserId == telegramUserId)
@@ -63,8 +55,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         public Task Add(ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             users.Add(user);
 

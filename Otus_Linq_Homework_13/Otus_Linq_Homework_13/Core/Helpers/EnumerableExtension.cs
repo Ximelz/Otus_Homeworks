@@ -27,10 +27,11 @@ namespace Otus_Linq_Homework_13
 
             if (batchNumber < 0)
                 throw new ArgumentOutOfRangeException("Номер пачти не может быть отридцательным!");
-            
-            int totalBatchs = inputEnumerable.Count() / batchSize;
 
-            if (inputEnumerable.Count() % batchSize != 0)
+            int enumCount = inputEnumerable.Count();
+            int totalBatchs = enumCount / batchSize;
+
+            if (enumCount % batchSize != 0)
                 totalBatchs++;
 
             if (totalBatchs <= batchNumber && batchNumber != 0)

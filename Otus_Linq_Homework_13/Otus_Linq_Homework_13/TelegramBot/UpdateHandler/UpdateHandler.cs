@@ -62,8 +62,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="update">Объект с информацией о введенном сообщении (кто, откуда и что введено).</param>
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             Chat chat = update.Type == UpdateType.CallbackQuery ? update.CallbackQuery.Message.Chat : update.Message.Chat;
 
@@ -144,8 +143,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             Console.WriteLine(exception.ToString());
             return Task.CompletedTask;
@@ -254,8 +252,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Результат выполнения команды.</returns>
         private async Task<string> HandleCommand(Update update, ITelegramBotClient botClient, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             if (update.Message.Text == "/start")
                 return await StartCommand(update.Message.From, ct) + "\r\n";
@@ -293,8 +290,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Возвращает объект ConsoleUser если авторизирован, null если нет.</returns>
         private async Task<ToDoUser?> CheckAuthUser(User telegramUser, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoUser? user = await userService.GetUser(telegramUser.Id, ct);
             if (user != null)
@@ -310,8 +306,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Результат добавление задачи.</returns>
         private async Task<string> AddTask(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddTask, update.Message.From.Id), update, ct);
 
@@ -325,8 +320,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Результат авторизации пользователя</returns>
         private async Task<string> StartCommand(User telegramUser, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoUser user = await userService.RegisterUser(telegramUser.Id, telegramUser.Username, ct);
 
@@ -354,8 +348,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Список задач.</returns>
         private async Task<string> ShowTasks(ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             IReadOnlyList<ToDoList> toDoList = await toDoListService.GetUserLists(user.UserId, ct);
 
@@ -387,8 +380,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task ShowList(ITelegramBotClient botClient, Update update, ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoListCallbackDto TDListDto = ToDoListCallbackDto.FromString(update.CallbackQuery.Data);
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
@@ -428,8 +420,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task ShowCompletedList(ITelegramBotClient botClient, Update update, ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoListCallbackDto TDListDto = ToDoListCallbackDto.FromString(update.CallbackQuery.Data);
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
@@ -453,7 +444,7 @@ namespace Otus_Linq_Homework_13
 
             foreach (var userTask in userTasksCompleteItems)
             {
-                TDUserTaskDto = ToDoItemCallbackDto.FromString($"showtask|{userTask.Id}");
+                TDUserTaskDto = new ToDoItemCallbackDto("showtask", userTask.Id);
                 keyboardMarkup.AddNewRow(InlineKeyboardButton.WithCallbackData(userTask.Name, TDUserTaskDto.ToString()));
             }
             keyboardMarkup = await BuildPagedButtons(tasksList, pagesDto);
@@ -471,14 +462,13 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task ShowTask(ITelegramBotClient botClient, Update update, ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             keyboard = new InlineKeyboardMarkup();
             ToDoItemCallbackDto TDItemDto = ToDoItemCallbackDto.FromString(update.CallbackQuery.Data);
 
-            ToDoItemCallbackDto TDItemCompleteDto = ToDoItemCallbackDto.FromString($"completetask|{TDItemDto.ToDoItemId}");
-            ToDoItemCallbackDto TDItemDeleteDto = ToDoItemCallbackDto.FromString($"deletetask|{TDItemDto.ToDoItemId}");
+            ToDoItemCallbackDto TDItemCompleteDto = new ToDoItemCallbackDto("completetask", TDItemDto.ToDoItemId);
+            ToDoItemCallbackDto TDItemDeleteDto = new ToDoItemCallbackDto("deletetask", TDItemDto.ToDoItemId);
 
             ToDoItem userTask = await toDoService.Get((Guid)TDItemDto.ToDoItemId, ct);
 
@@ -504,8 +494,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task CompleteTask(ITelegramBotClient botClient, Update update, ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoItemCallbackDto TDItemDto = ToDoItemCallbackDto.FromString(update.CallbackQuery.Data);
 
@@ -521,8 +510,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task DeleteTask(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await ProcessScenario(botClient, new ScenarioContext(ScenarioType.RemoveTask, update.CallbackQuery.From.Id), update, ct);
         }
@@ -535,8 +523,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task AddList(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await ProcessScenario(botClient, new ScenarioContext(ScenarioType.AddList, update.CallbackQuery.From.Id), update, ct);
         }
@@ -549,8 +536,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены</param>
         private async Task DeleteList(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await ProcessScenario(botClient, new ScenarioContext(ScenarioType.DeleteList, update.CallbackQuery.From.Id), update, ct);
         }
@@ -562,8 +548,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Статистика задач пользователя.</returns>
         private async Task<string> ReportUserTasks(ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             IToDoReportService reportService = new ToDoReportService(toDoService);
             var (total, completed, active, generatedAt) = await reportService.GetUserStats(user.UserId, ct);
@@ -579,8 +564,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Список задач.</returns>
         private async Task<string> FindTasks(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             await ProcessScenario(botClient, new ScenarioContext(ScenarioType.FindTask, update.Message.From.Id), update, ct);
 

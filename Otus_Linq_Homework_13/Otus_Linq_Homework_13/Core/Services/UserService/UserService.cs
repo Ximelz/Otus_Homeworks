@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Otus_Linq_Homework_13
+﻿namespace Otus_Linq_Homework_13
 {
     /// <summary>
     /// Класс для взаимодействия с пользователями.
@@ -27,8 +21,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Объект нового пользователя.</returns>
         public async Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             ToDoUser? user = await userRep.GetUserByTelegramUserId(telegramUserId, ct);
 
@@ -49,8 +42,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Объект пользователя.</returns>
         public async Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await userRep.GetUserByTelegramUserId(telegramUserId, ct);
         }
