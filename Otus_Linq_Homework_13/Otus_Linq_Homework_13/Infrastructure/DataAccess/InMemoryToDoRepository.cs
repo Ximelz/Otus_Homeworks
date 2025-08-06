@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Otus_Linq_Homework_13
+﻿namespace Otus_Linq_Homework_13
 {
     public class InMemoryToDoRepository : IToDoRepository
     {
@@ -23,8 +17,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Список всех задач.</returns>
         public Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId).ToList());
         }
@@ -37,8 +30,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Список задач.</returns>
         public Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId && x.State == ToDoItemState.Active).ToList());
         }
@@ -50,8 +42,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         public Task Add(ToDoItem item, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             tasks.Add(item);
 
@@ -65,8 +56,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         public Task Update(ToDoItem item, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             int index = tasks.FindIndex(x => x.Id == item.Id);
             tasks[index] = item;
@@ -82,8 +72,7 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         public Task Delete(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             int index = tasks.FindIndex(x => x.Id == id);
 
@@ -101,8 +90,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>true если задача есть у текущего пользователя, false если нет.</returns>
         public Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             int items = tasks.Where(x => x.User.UserId == userId && x.Name == name).ToList().Count();
 
@@ -120,8 +108,7 @@ namespace Otus_Linq_Homework_13
         /// <returns>Количество задач.</returns>
         public Task<int> CountActive(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult(tasks.Where(x => x.User.UserId == userId).ToList().Count);
         }
@@ -135,10 +122,16 @@ namespace Otus_Linq_Homework_13
         /// <returns>Найденный список.</returns>
         public Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult((IReadOnlyList<ToDoItem>)tasks.Where(x => x.User.UserId == userId).Where(predicate).ToList());
+        }
+
+        public async Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return tasks.Where(x => x.Id == toDoItemId).FirstOrDefault();
         }
     }
 }

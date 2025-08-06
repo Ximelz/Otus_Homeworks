@@ -67,5 +67,13 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Токен отмены.</param>
         /// <returns>Список задач из списка.</returns>
         Task<IReadOnlyList<ToDoItem>> GetByUserIdAndList(Guid userId, Guid? listId, CancellationToken ct);
+
+        /// <summary>
+        /// Метод получения задачи.
+        /// </summary>
+        /// <param name="toDoItemId">ID задачи.</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Искомая задача.</returns>
+        Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct);
     }
 }

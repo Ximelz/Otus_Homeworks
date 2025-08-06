@@ -70,5 +70,13 @@ namespace Otus_Linq_Homework_13
         /// <param name="ct">Объект отмены задачи.</param>
         /// <returns>Список найденных задач, удовлетворяющих заданному фильтру.</returns>
         Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct);
+
+        /// <summary>
+        /// Метод получения задачи.
+        /// </summary>
+        /// <param name="toDoItemId">ID задачи.</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Искомая задача.</returns>
+        Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct);
     }
 }

@@ -69,7 +69,7 @@ namespace Otus_Linq_Homework_13
                     listToDel = await iToDoListService.Get((Guid)listDto.ToDoListId, ct);
                     context.Data.Add("ToDoList", listToDel);
 
-                    keyboard.AddNewRow(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Да", "yes"), InlineKeyboardButton.WithCallbackData("Нет", "no") });
+                    keyboard.AddNewRow(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("✅Да", "yes"), InlineKeyboardButton.WithCallbackData("❌Нет", "no") });
 
                     await bot.SendMessage(chat, $"Подтверждаете удаление списка {listToDel.Name} и всех его задач", replyMarkup: keyboard, cancellationToken: ct);
 

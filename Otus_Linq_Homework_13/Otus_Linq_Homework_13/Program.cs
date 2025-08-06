@@ -31,10 +31,9 @@ namespace Otus_Linq_Homework_13
                 {
                     new AddTaskScenario(toDoService, userService, toDoListService),
                     new FindTaskScenario(toDoService, userService),
-                    new CompleteTaskScenario(toDoService, userService),
                     new RemoveTaskScenario(toDoService, userService),
+                    new DeleteListScenario(userService,toDoListService, toDoService),
                     new AddListScenario(userService, toDoListService),
-                    new DeleteListScenario(userService, toDoListService, toDoService)
                 };
                 IScenarioContextRepository contextRepository = new InMemoryScenarioContextRepository();
                 IUpdateHandler updateHandler = new UpdateHandler(userService, toDoService, scenarios, contextRepository, toDoListService);
@@ -92,8 +91,7 @@ namespace Otus_Linq_Homework_13
             }
             catch (Exception ex)
             {
-                Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message,
-                    ex.StackTrace, ex.InnerException);
+                Console.WriteLine(@"Произошла непредвиденная ошибка: {0} {1} {2} {3}", ex.GetType(), ex.Message, ex.StackTrace, ex.InnerException);
             }
         }
 

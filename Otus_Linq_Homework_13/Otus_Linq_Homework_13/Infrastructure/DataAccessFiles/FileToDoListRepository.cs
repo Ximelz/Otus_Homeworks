@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Telegram.Bot.Types;
+﻿using System.Text.Json;
 
 namespace Otus_Linq_Homework_13
 {
@@ -22,8 +14,7 @@ namespace Otus_Linq_Homework_13
         }
         public Task<ToDoList?> Get(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             string listFile = $"{path}{id}.json";
 
@@ -40,8 +31,7 @@ namespace Otus_Linq_Homework_13
 
         public Task<IReadOnlyList<ToDoList>> GetByUserId(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             string[] files = Directory.GetFiles(path);
             List<ToDoList> toDoLists = new List<ToDoList>();
@@ -57,8 +47,7 @@ namespace Otus_Linq_Homework_13
 
         public Task Add(ToDoList list, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var json = JsonSerializer.Serialize(list);
             File.WriteAllText($"{path}{list.Id}.json", json);
@@ -68,8 +57,7 @@ namespace Otus_Linq_Homework_13
 
         public Task Delete(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             File.Delete(path + $"{id}.json");
             return Task.CompletedTask;
@@ -77,8 +65,7 @@ namespace Otus_Linq_Homework_13
 
         public Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return Task.FromResult(GetByUserId(userId, ct).Result.Where(x => x.Name == name).Any());
         }

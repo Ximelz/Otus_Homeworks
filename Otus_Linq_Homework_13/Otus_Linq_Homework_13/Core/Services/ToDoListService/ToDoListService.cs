@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Otus_Linq_Homework_13
+﻿namespace Otus_Linq_Homework_13
 {
     public class ToDoListService : IToDoListService
     {
@@ -15,8 +9,7 @@ namespace Otus_Linq_Homework_13
         }
         public async Task<ToDoList> Add(ToDoUser user, string name, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             if (name.Length > 10)
                 throw new ArgumentException("Имя списка не может быть больше 10 символов!");
@@ -32,16 +25,14 @@ namespace Otus_Linq_Homework_13
 
         public async Task<ToDoList?> Get(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoListRepository.Get(id, ct);
         }
 
         public Task Delete(Guid id, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             toDoListRepository.Delete(id, ct);
             return Task.CompletedTask;
@@ -49,8 +40,7 @@ namespace Otus_Linq_Homework_13
 
         public async Task<IReadOnlyList<ToDoList>> GetUserLists(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             return await toDoListRepository.GetByUserId(userId, ct);
         }

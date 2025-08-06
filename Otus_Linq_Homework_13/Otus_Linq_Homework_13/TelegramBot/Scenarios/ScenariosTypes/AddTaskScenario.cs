@@ -63,7 +63,7 @@ namespace Otus_Linq_Homework_13
 
                         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
 
-                        keyboard.AddNewRow(InlineKeyboardButton.WithCallbackData("Без списка", ToDoListCallbackDto.FromString("addtask").ToString()));
+                        keyboard.AddNewRow(InlineKeyboardButton.WithCallbackData("📌Без списка", ToDoListCallbackDto.FromString("addtask").ToString()));
 
                         if (toDoList.Count > 0)
                             foreach (ToDoList currentlist in toDoList)
@@ -82,11 +82,17 @@ namespace Otus_Linq_Homework_13
                     
                     IReadOnlyList<ToDoList> lists = await iToDoListService.GetUserLists(user.UserId, ct);
                     ToDoList? list = lists.Where(x => x.Id == listDto.ToDoListId).FirstOrDefault();
-
-                    ToDoItem item = await iToDoService.Add(user, context.Data["Name"].ToString(), Convert.ToDateTime(context.Data["DeadLine"]), list, ct);
-                    
-                    await bot.SendMessage(update.CallbackQuery.Message.Chat, $"Задача {item.Name} добавлена!",
-                        replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
+                    try
+                    {
+                        ToDoItem item = await iToDoService.Add(user, context.Data["Name"].ToString(), Convert.ToDateTime(context.Data["DeadLine"]), list, ct);
+                        await bot.SendMessage(update.CallbackQuery.Message.Chat, $"Задача {item.Name} добавлена!",
+                            replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        await bot.SendMessage(update.CallbackQuery.Message.Chat, ex.Message,
+                            replyMarkup: KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default), cancellationToken: ct);
+                    }
 
                     return ScenarioResult.Completed;           
             }

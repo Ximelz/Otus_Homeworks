@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Authentication;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
 namespace Otus_Linq_Homework_13
 {
@@ -20,8 +14,7 @@ namespace Otus_Linq_Homework_13
         private readonly string _path;
         public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             string userFile = $"{_path}\\{userId}.json";
 
@@ -38,8 +31,7 @@ namespace Otus_Linq_Homework_13
 
         public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             DirectoryInfo userDirectory = new DirectoryInfo(_path);
             var files = userDirectory.EnumerateFiles();
@@ -59,8 +51,7 @@ namespace Otus_Linq_Homework_13
 
         public Task Add(ToDoUser user, CancellationToken ct)
         {
-            if (ct.IsCancellationRequested)
-                ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var json = JsonSerializer.Serialize(user);
             File.WriteAllText($"{_path}\\{user.UserId}.json", json);

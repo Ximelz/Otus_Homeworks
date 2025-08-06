@@ -12,7 +12,7 @@ namespace Otus_Linq_Homework_13
     public static class KeyboardCommands
     {
         /// <summary>
-        /// Метод получения команд для меню telegram.
+        /// Метод получения команд для меню Telegram.
         /// </summary>
         /// <param name="maxTasks">true если достигнут лимит по количеству задач, false если добавить задачи еще возможно.</param>
         /// <returns>Список команд для меню telegram.</returns>
@@ -32,8 +32,6 @@ namespace Otus_Linq_Homework_13
             if (type == EnumKeyboardsScenariosTypes.Default || type == EnumKeyboardsScenariosTypes.MaxTasks)
             {
                 currentCommands.Add(new BotCommand("/show", "Вывод задач пользователя."));
-                currentCommands.Add(new BotCommand("/removetask", "Удаление задачи."));
-                currentCommands.Add(new BotCommand("/completetask", "Выполнить задачу."));
                 currentCommands.Add(new BotCommand("/find", "Поиск задач."));
                 currentCommands.Add(new BotCommand("/report", "Вывод статистики пользователя."));
             }
