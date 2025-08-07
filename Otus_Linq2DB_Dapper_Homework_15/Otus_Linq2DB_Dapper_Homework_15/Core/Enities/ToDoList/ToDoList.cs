@@ -11,6 +11,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
     /// </summary>
     public class ToDoList
     {
+        public ToDoList() { }
         /// <summary>
         /// Конструктор списка задач.
         /// </summary>
@@ -24,8 +25,8 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             CreatedAt = DateTime.Now;
         }
         public Guid Id { get; set; }                //Id списка.
-        public string Name { get; private set; }            //Наименование списка.
-        public ToDoUser User { get; private set; }          //Пользователь, которому принадлежит список.
-        public DateTime CreatedAt { get; private set; }     //Время создания списка.
+        public string Name { get; set; }            //Наименование списка.
+        public ToDoUser User { get; set; }          //Пользователь, которому принадлежит список.
+        public DateTime CreatedAt { get; set; }     //Время создания списка.
     }
 }

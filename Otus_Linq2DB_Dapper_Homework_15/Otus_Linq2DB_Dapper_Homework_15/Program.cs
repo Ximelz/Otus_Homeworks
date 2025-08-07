@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using LinqToDB;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -13,18 +14,46 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             try
             {
+                string SqlConnectionString = "Host=localhost;Database=ToDoListDb;Username=postgres;Password=54862927;Port=5432";
+
                 int maxTasks = SetMaxTasks();
                 int maxLengthNameTask = SetMaxLengthNameTasks();
 
                 string _botKey = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN", EnvironmentVariableTarget.User);
-                var bot = new TelegramBotClient(_botKey);
+                //var bot = new TelegramBotClient(_botKey);
+                var bot = new TelegramBotClient("7823145160:AAHvPTYlLp33vaovGy46rjfGGx83oIQ3qVY");
 
                 string path = "E:\\Otus homeworks\\ToDoItems";
 
-                IUserRepository userRepository = new FileUsersRepository(path);
+                IDataContextFactory<ToDoDataContext> factory = new DataContextFactory(SqlConnectionString);
+
+                //List<ToDoItemModel> items = new List<ToDoItemModel>();
+                //List<ToDoListModel> lists = new List<ToDoListModel>();
+                //List<ToDoUserModel> users = new List<ToDoUserModel>();
+
+                //using (var dbConn = factory.CreateDataContext())
+                //{
+                //    users = dbConn.UserTable
+                //                  .ToList();
+
+                //    lists = dbConn.ListTable
+                //                  .LoadWith(i => i.User)
+                //                  .ToList();
+
+                //    items = dbConn.ItemTable
+                //                  .LoadWith(i => i.User)
+                //                  .LoadWith(i => i.List)
+                //                  .LoadWith(i => i.List!.User)
+                //                  .ToList();
+                //}
+
+                //IUserRepository userRepository = new FileUsersRepository(path);
+                IUserRepository userRepository = new SqlUserRepository(factory);
                 IUserService userService = new UserService(userRepository);
-                IToDoRepository toDoRepository = new FileToDoRepository(path);
-                IToDoListRepository toDoListRepository = new FileToDoListRepository(path);
+                //IToDoRepository toDoRepository = new FileToDoRepository(path);
+                IToDoRepository toDoRepository = new SqlToDoRepository(factory);
+                //IToDoListRepository toDoListRepository = new FileToDoListRepository(path);
+                IToDoListRepository toDoListRepository = new SqlToDoListRepository(factory);
                 IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                 IToDoListService toDoListService = new ToDoListService(toDoListRepository);
                 IEnumerable<IScenario> scenarios = new List<IScenario>
