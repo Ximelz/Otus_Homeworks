@@ -26,7 +26,7 @@ namespace Otus_Notification_Homework_17
             foreach (var notification in notifications)
             {
                 await botClient.SendMessage(chatId: notification.User.TelegramUserId, notification.Text, cancellationToken: ct);
-                notificationService.MarkNotified(notification.Id, ct);
+                await notificationService.MarkNotified(notification.Id, ct);
             }
         }
     }

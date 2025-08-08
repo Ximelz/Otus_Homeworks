@@ -23,20 +23,15 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            string message;
-            string listName;
-
             var users = await userRepository.GetUsers(ct);
 
             foreach (var user in users)
             {
                 var tasks = await toDoRepository.GetActiveWithDeadline(user.UserId, DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddDays(1).Date, ct);
-                foreach (var task in tasks)
-                {
-                    listName = task.List != null ? $" из списка \"{task.List.Name}\"" : "";
-                    message = $"Ваша активная задача {task.Name}{listName}.";
-                    await notificationService.ScheduleNotification(user.UserId, $"Today_{DateOnly.FromDateTime(DateTime.UtcNow.Date)}", message, DateTime.UtcNow.Date, ct);
-                }
+                await notificationService.ScheduleNotification(user.UserId,
+                                                               $"Today_{DateOnly.FromDateTime(DateTime.UtcNow.Date)}",
+                                                               $"Ваши активная задачи {string.Join("\r\n", tasks.Select(x => x.Name))}.",
+                                                               DateTime.UtcNow.Date, ct);
             }
         }
     }
