@@ -26,7 +26,7 @@ CREATE TABLE "ToDoItem"
 (
 	"Id" uuid PRIMARY KEY,
 	"UserId" uuid NOT NULL,
-	"ListId" uuid NOT NULL,
+	"ListId" uuid,
 	"Name" varchar(100) NOT NULL,
 	"CreatedAt" date DEFAULT CURRENT_DATE,
 	"State" int NOT NULL,

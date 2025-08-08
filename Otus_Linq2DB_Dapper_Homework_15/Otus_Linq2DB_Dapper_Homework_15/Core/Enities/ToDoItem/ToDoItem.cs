@@ -11,6 +11,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
     /// </summary>
     public class ToDoItem
     {
+        public ToDoItem() { }
         /// <summary>
         /// Конструктор объекта задачи.
         /// </summary>
@@ -24,10 +25,10 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             this.Name = Name;
             this.User = User;
         }
-        public Guid Id { get; init; }                           //Сгенерированный id задачи. Значение вычисляется 1 раз при создании объекта.
-        public ToDoUser User { get; init; }                     //Пользователь, создавший задачу. Значение присваивается 1 раз при создании объекта.
-        public string Name { get; init; }                       //Наименование задачи. Значение присваивается 1 раз при создании объекта.
-        public DateTime CreatedAt { get; init; }                //Дата создания задачи. Значение вычисляется 1 раз при создании объекта.
+        public Guid Id { get; set; }                           //Сгенерированный id задачи. Значение вычисляется 1 раз при создании объекта.
+        public ToDoUser User { get; set; }                     //Пользователь, создавший задачу. Значение присваивается 1 раз при создании объекта.
+        public string Name { get; set; }                       //Наименование задачи. Значение присваивается 1 раз при создании объекта.
+        public DateTime CreatedAt { get; set; }                //Дата создания задачи. Значение вычисляется 1 раз при создании объекта.
         public ToDoItemState State { get; set; }                //Свойство, при котором меняется статус задачи и дата его изменения.
         public DateTime? StateChangedAt { get; set; }           //Дата изменения статуса задачи.
         public DateTime? DeadLine { get; set; }                 //Крайняя дата выполнений задачи.

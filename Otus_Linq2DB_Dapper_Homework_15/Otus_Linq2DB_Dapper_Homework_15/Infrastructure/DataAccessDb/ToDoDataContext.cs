@@ -1,0 +1,33 @@
+﻿using LinqToDB;
+using LinqToDB.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Otus_Linq2DB_Dapper_Homework_15
+{
+    /// <summary>
+    /// Класс для подключения и выгрузки данных из таблиц БД.
+    /// </summary>
+    public class ToDoDataContext : DataConnection
+    {
+        public ToDoDataContext(string connectionString) : base(ProviderName.PostgreSQL, connectionString) { }
+
+        /// <summary>
+        /// Выгруженная таблица пользователей.
+        /// </summary>
+        public ITable<ToDoUserModel> UserTable => this.GetTable<ToDoUserModel>();
+
+        /// <summary>
+        /// Выгруженная таблица списков задач.
+        /// </summary>
+        public ITable<ToDoListModel> ListTable => this.GetTable<ToDoListModel>();
+
+        /// <summary>
+        /// Выгруженная таблица задач.
+        /// </summary>
+        public ITable<ToDoItemModel> ItemTable => this.GetTable<ToDoItemModel>();
+    }
+}
