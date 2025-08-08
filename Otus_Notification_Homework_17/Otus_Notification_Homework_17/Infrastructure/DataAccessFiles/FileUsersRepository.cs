@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Telegram.Bot.Types;
 
 namespace Otus_Notification_Homework_17
 {
@@ -57,6 +58,27 @@ namespace Otus_Notification_Homework_17
             File.WriteAllText($"{_path}\\{user.UserId}.json", json);
 
             return Task.CompletedTask;
+        }
+
+        public async Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+
+            DirectoryInfo userDirectory = new DirectoryInfo(_path);
+            var files = userDirectory.EnumerateFiles();
+            List<ToDoUser> users = new List<ToDoUser>();
+
+            foreach (FileInfo userFile in files)
+            {
+                ToDoUser? user = JsonSerializer.Deserialize<ToDoUser>(File.ReadAllText(userFile.ToString()));
+                if (user == null)
+                    continue;
+
+                users.Add(user);
+            }
+
+            return users;
         }
     }
 }
