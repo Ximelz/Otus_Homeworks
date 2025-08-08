@@ -54,5 +54,15 @@ namespace Otus_Notification_Homework_17
                 dbConn.Insert(userModel);
             }
         }
+
+        public async Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            using (var dbConn = factory.CreateDataContext())
+            {
+                return dbConn.UserTable.ToList().MapListUsers().ToList();
+            }
+        }
     }
 }
