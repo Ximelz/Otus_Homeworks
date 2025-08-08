@@ -30,5 +30,12 @@ namespace Otus_BackgroundTask_Homework_16
         /// <param name="userId">Id telegram пользователя.</param>
         /// <param name="ct">Токен отмены.</param>
         Task ResetContext(long userId, CancellationToken ct);
+
+        /// <summary>
+        /// Получение списка всех активных сценариев пользователей.
+        /// </summary>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Список сценариев.</returns>
+        Task<IReadOnlyList<ScenarioContext>> GetContexts(CancellationToken ct);
     }
 }

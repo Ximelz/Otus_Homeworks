@@ -14,7 +14,9 @@ namespace Otus_BackgroundTask_Homework_16
         {
             try
             {
-                string SqlConnectionString = "Host=localhost;Database=ToDoListDb;Username=postgres;Password=\'Введите свой пароль\';Port=5432";
+                Console.WriteLine("Введите пароль от БД:");
+                string inputStr = Console.ReadLine();
+                string SqlConnectionString = $"Host=localhost;Database=ToDoListDb;Username=postgres;Password={inputStr};Port=5432";
 
                 int maxTasks = SetMaxTasks();
                 int maxLengthNameTask = SetMaxLengthNameTasks();
@@ -52,6 +54,11 @@ namespace Otus_BackgroundTask_Homework_16
                 {
                     using (CancellationTokenSource ct = new CancellationTokenSource())
                     {
+
+                        BackgroundTaskRunner backgroundTask = new BackgroundTaskRunner();
+                        backgroundTask.AddTask(new ResetScenarioBackgroundTask(TimeSpan.FromHours(1), contextRepository, bot));
+                        backgroundTask.StartTasks(ct.Token);
+
                         var me = await bot.GetMe();
 
                         ((UpdateHandler)updateHandler).OnHandleUpdateStarted += DisplayStartEventMessage;
@@ -64,6 +71,7 @@ namespace Otus_BackgroundTask_Homework_16
 
                         if (inputKey.Key == ConsoleKey.A)
                         {
+                            backgroundTask.StartTasks(ct.Token);
                             ct.Cancel();
                             throw new Exception($"\r\n{me.FirstName} остановлен!");
                         }

@@ -38,5 +38,10 @@ namespace Otus_BackgroundTask_Homework_16
 
             return Task.CompletedTask;
         }
+
+        public async Task<IReadOnlyList<ScenarioContext>> GetContexts(CancellationToken ct)
+        {
+            return scenarios.Values.ToList();
+        }
     }
 }

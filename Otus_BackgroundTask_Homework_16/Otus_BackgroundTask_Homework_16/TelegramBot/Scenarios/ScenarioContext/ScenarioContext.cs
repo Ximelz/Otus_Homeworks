@@ -16,6 +16,7 @@ namespace Otus_BackgroundTask_Homework_16
             CurrentScenario = scenario;
             Data = new Dictionary<string, object>();
             this.UserId = UserId;
+            CreatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -37,5 +38,10 @@ namespace Otus_BackgroundTask_Homework_16
         /// Данные, необходимые для выполнения сценария.
         /// </summary>
         public Dictionary<string, object> Data { get; private set; }
+
+        /// <summary>
+        /// Дата создания сценария.
+        /// </summary>
+        public DateTime CreatedAt { get; }
     }
 }
