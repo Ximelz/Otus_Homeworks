@@ -1,4 +1,5 @@
 ﻿using LinqToDB;
+using Otus_Notification_Homework_17;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Telegram.Bot;
@@ -56,7 +57,11 @@ namespace Otus_Notification_Homework_17
                     {
 
                         BackgroundTaskRunner backgroundTask = new BackgroundTaskRunner();
+                        INotificationService notificationService = new NotificationService(factory);
                         backgroundTask.AddTask(new ResetScenarioBackgroundTask(TimeSpan.FromHours(1), contextRepository, bot));
+                        backgroundTask.AddTask(new NotificationBackgroundTask(notificationService, bot));
+                        backgroundTask.AddTask(new DeadlineBackgroundTask(notificationService, userRepository, toDoRepository));
+                        backgroundTask.AddTask(new TodayBackgroundTask(notificationService, userRepository, toDoRepository));
                         backgroundTask.StartTasks(ct.Token);
 
                         var me = await bot.GetMe();

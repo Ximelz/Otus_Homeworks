@@ -151,5 +151,24 @@ namespace Otus_Notification_Homework_17
                              .ToList();
             }
         }
+
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveWithDeadline(Guid userId, DateTime from, DateTime to, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            using (var dbConn = factory.CreateDataContext())
+            {
+                return dbConn.ItemTable
+                             .LoadWith(i => i.User)
+                             .LoadWith(i => i.List)
+                             .LoadWith(i => i.List!.User)
+                             .Where(x => x.UserId == userId)
+                             .Where(y => y.State == ToDoItemState.Active)
+                             .Where(x => x.DeadLine >= from && x.DeadLine < to)
+                             .ToList()
+                             .MapListItems()
+                             .ToList();
+            }
+        }
     }
 }

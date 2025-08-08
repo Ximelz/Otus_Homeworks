@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Otus_Notification_Homework_17;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,17 @@ namespace Otus_Notification_Homework_17
         public static List<ToDoUser> MapListUsers(this List<ToDoUserModel> toDoItemModels)
         {
             List<ToDoUser> items = new List<ToDoUser>();
+            foreach (var item in toDoItemModels)
+            {
+                items.Add(ModelMapper.MapFromModel(item));
+            }
+            return items;
+        }
+
+
+        public static List<Notification> MapListNotifications(this List<NotificationModel> toDoItemModels)
+        {
+            List<Notification> items = new List<Notification>();
             foreach (var item in toDoItemModels)
             {
                 items.Add(ModelMapper.MapFromModel(item));

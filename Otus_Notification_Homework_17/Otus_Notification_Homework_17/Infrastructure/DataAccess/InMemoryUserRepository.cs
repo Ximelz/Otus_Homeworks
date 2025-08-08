@@ -61,5 +61,12 @@ namespace Otus_Notification_Homework_17
 
             return Task.CompletedTask;
         }
+
+        public async Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return users;
+        }
     }
 }
