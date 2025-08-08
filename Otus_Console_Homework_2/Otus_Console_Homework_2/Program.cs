@@ -39,12 +39,18 @@
                 case ("/start"):
                     if (!startFlag)
                     {
-                        name = GetArgs(command);
-                        if (name.Length == 0)
+                        while (true)
                         {
-                            Console.WriteLine("\r\nВы не ввели ваше имя!\r\n");
+                            Console.WriteLine("Введите ваше имя:");
+                            name = Console.ReadLine().Trim();
+                            if (name == "")
+                            {
+                                Console.WriteLine("\r\nВы не ввели ваше имя!\r\n");
+                                continue;
+                            }
                             break;
                         }
+
                         startFlag = true;
                         commandList = "Список доступных команд /echo, /help, /info, /exit";
                         Console.WriteLine($"\r\nПриветствую {name}\r\n");
@@ -59,9 +65,15 @@
                     Console.WriteLine(version);
                     break;
                 case ("/echo"):
+                    string inputArg = GetArgs(command).Trim();
+                    if (inputArg == "")
+                    {
+                        Console.WriteLine("Вы ничего не ввели!");
+                        break;
+                    }
                     if (!startFlag)
                         Console.WriteLine("\r\nПрограмма не запущена. Используейте сначала команду /start и введите ваше имя!\r\n");
-                    Console.WriteLine($"\r\n{name},с помощтю команды /echo вы ввели {GetArgs(command)}\r\n");
+                    Console.WriteLine($"\r\n{name},с помощтю команды /echo вы ввели {inputArg}\r\n");
                     break;
                 default:
                     Console.WriteLine("\r\nВведена неверная команда!\r\n");
