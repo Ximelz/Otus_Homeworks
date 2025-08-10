@@ -12,7 +12,7 @@ namespace Otus_BackgroundTask_Homework_16
         {
             SqlConnectionString = SqlConnStr;
         }
-        private string SqlConnectionString;
+        private readonly string SqlConnectionString;
         public ToDoDataContext CreateDataContext() => new ToDoDataContext(SqlConnectionString);
     }
 }
