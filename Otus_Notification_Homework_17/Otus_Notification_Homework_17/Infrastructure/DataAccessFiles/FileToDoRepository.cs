@@ -228,9 +228,8 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            return GetActiveByUserId(userId, ct).Result
-                                                .Where(x => x.DeadLine >= from && x.DeadLine < to)
-                                                .ToList();
+            var activeItems = await GetActiveByUserId(userId, ct);
+            return activeItems.Where(x => x.DeadLine >= from && x.DeadLine < to).ToList();
         }
     }
 }

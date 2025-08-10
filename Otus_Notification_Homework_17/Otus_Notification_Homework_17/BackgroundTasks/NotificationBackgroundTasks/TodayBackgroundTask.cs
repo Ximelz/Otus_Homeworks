@@ -15,9 +15,9 @@ namespace Otus_Notification_Homework_17
             this.toDoRepository = toDoRepository;
         }
 
-        private INotificationService notificationService;
-        private IUserRepository userRepository;
-        private IToDoRepository toDoRepository;
+        private readonly INotificationService notificationService;
+        private readonly IUserRepository userRepository;
+        private readonly IToDoRepository toDoRepository;
 
         protected async override Task Execute(CancellationToken ct)
         {

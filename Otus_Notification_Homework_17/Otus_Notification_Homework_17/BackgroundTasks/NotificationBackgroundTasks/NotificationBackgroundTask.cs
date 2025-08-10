@@ -18,8 +18,8 @@ namespace Otus_Notification_Homework_17
             this.notificationService = notificationService;
         }
 
-        private INotificationService notificationService;
-        private ITelegramBotClient botClient;
+        private readonly INotificationService notificationService;
+        private readonly ITelegramBotClient botClient;
         protected override async Task Execute(CancellationToken ct)
         {
             var notifications = await notificationService.GetScheduledNotification(DateTime.UtcNow, ct);

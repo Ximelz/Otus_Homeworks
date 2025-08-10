@@ -15,17 +15,17 @@ namespace Otus_Notification_Homework_17
         {
             this.factory = factory;
         }
-        private IDataContextFactory<ToDoDataContext> factory;
+        private readonly IDataContextFactory<ToDoDataContext> factory;
         public async Task<bool> ScheduleNotification(Guid userId, string type, string text, DateTime scheduledAt, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                bool presentInDb = dbConn.NotificationTable
-                                         .Where(x => x.UserId == userId)
-                                         .Where(x => x.Type == type)
-                                         .Any();
+                bool presentInDb = await dbConn.Notifications
+                                               .Where(x => x.UserId == userId)
+                                               .Where(x => x.Type == type)
+                                               .AnyAsync();
                 if (presentInDb) 
                     return false;
 
@@ -38,7 +38,7 @@ namespace Otus_Notification_Homework_17
                     UserId = userId
                 };
 
-                dbConn.Insert(notification);
+                await dbConn.InsertAsync(notification);
                 return true;
             }
         }
@@ -47,15 +47,15 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.NotificationTable
-                             .LoadWith(u => u.User)
-                             .Where(x => x.ScheduledAt <= scheduledBefore)
-                             .Where(x => x.IsNotified == false)
-                             .ToList()
-                             .MapListNotifications()
-                             .ToList();
+                var notifications = await dbConn.Notifications
+                                                .LoadWith(u => u.User)
+                                                .Where(x => x.ScheduledAt <= scheduledBefore)
+                                                .Where(x => x.IsNotified == false)
+                                                .ToListAsync();
+                
+                return notifications.MapListNotifications().ToList();
             }
         }
 
@@ -63,9 +63,9 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.NotificationTable.Where(x => x.Id == notificationId).Set(x => x.IsNotified, true).Update();
+                await dbConn.Notifications.Where(x => x.Id == notificationId).Set(x => x.IsNotified, true).UpdateAsync();
             }
         }
     }

@@ -29,5 +29,9 @@ namespace Otus_Notification_Homework_17
         /// Выгруженная таблица задач.
         /// </summary>
         public ITable<ToDoItemModel> ToDoItems => this.GetTable<ToDoItemModel>();
+        /// <summary>
+        /// Выгруженная таблица задач.
+        /// </summary>
+        public ITable<NotificationModel> Notifications => this.GetTable<NotificationModel>();
     }
 }

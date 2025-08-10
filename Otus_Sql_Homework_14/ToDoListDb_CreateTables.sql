@@ -60,3 +60,4 @@ CREATE TABLE "Notification"
         REFERENCES "ToDoUser"("UserId"),
 );
 CREATE INDEX idx_notification_id ON public."Notification" ("Id");
+CREATE INDEX idx_userInNotification_id ON public."Notification" ("UserId");
