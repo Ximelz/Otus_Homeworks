@@ -12,7 +12,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             SqlConnectionString = SqlConnStr;
         }
-        private string SqlConnectionString;
+        private readonly string SqlConnectionString;
         public ToDoDataContext CreateDataContext() => new ToDoDataContext(SqlConnectionString);
     }
 }

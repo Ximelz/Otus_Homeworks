@@ -20,9 +20,12 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             ct.ThrowIfCancellationRequested();
 
             ToDoUserModel? toDoUserModel;
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                toDoUserModel = dbConn.UserTable.Where(x => x.UserId == userId).FirstOrDefault();
+                toDoUserModel = await dbConn.ToDoUsers
+                                            .Where(x => x.UserId == userId)
+                                            .FirstOrDefaultAsync();
+
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
                 return null;
@@ -34,9 +37,12 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             ct.ThrowIfCancellationRequested();
 
             ToDoUserModel? toDoUserModel;
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                toDoUserModel = dbConn.UserTable.Where(x => x.TelegramUserId == telegramUserId).FirstOrDefault();
+                toDoUserModel = await dbConn.ToDoUsers
+                                            .Where(x => x.TelegramUserId == telegramUserId)
+                                            .FirstOrDefaultAsync();
+
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
                 return null;
@@ -49,9 +55,9 @@ namespace Otus_Linq2DB_Dapper_Homework_15
 
             ToDoUserModel userModel = ModelMapper.MapToModel(user);
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.Insert(userModel);
+                await dbConn.InsertAsync(userModel);
             }
         }
     }

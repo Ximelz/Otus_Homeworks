@@ -20,12 +20,12 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             ct.ThrowIfCancellationRequested();
 
             ToDoListModel? toDoListModel;
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                toDoListModel = dbConn.ListTable
-                                      .LoadWith(i => i.User)
-                                      .Where(x => x.Id == id)
-                                      .FirstOrDefault();
+                toDoListModel = await dbConn.ToDoLists
+                                            .LoadWith(i => i.User)
+                                            .Where(x => x.Id == id)
+                                            .FirstOrDefaultAsync();
 
                 if (toDoListModel != null)
                     return ModelMapper.MapFromModel(toDoListModel);
@@ -37,13 +37,14 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ListTable
-                             .LoadWith(i => i.User)
-                             .Where(x => x.UserId == userId)
-                             .ToList()
-                             .MapListLists();
+                var lists = await dbConn.ToDoLists
+                                    .LoadWith(i => i.User)
+                                    .Where(x => x.UserId == userId)
+                                    .ToListAsync();
+
+                return lists.MapListLists();
             }
         }
 
@@ -51,9 +52,9 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.Insert(ModelMapper.MapToModel(list));
+                await dbConn.InsertAsync(ModelMapper.MapToModel(list));
             }
         }
 
@@ -61,9 +62,9 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.ListTable.Where(x => x.Id == id).Delete();
+                await dbConn.ToDoLists.Where(x => x.Id == id).DeleteAsync();
             }
         }
 
@@ -71,12 +72,12 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ListTable
+                return await dbConn.ToDoLists
                              .Where(x => x.UserId == userId)
                              .Where(y => y.Name == name)
-                             .Any();
+                             .AnyAsync();
             }
         }
     }

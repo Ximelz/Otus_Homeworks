@@ -18,16 +18,16 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         /// <summary>
         /// Выгруженная таблица пользователей.
         /// </summary>
-        public ITable<ToDoUserModel> UserTable => this.GetTable<ToDoUserModel>();
+        public ITable<ToDoUserModel> ToDoUsers => this.GetTable<ToDoUserModel>();
 
         /// <summary>
         /// Выгруженная таблица списков задач.
         /// </summary>
-        public ITable<ToDoListModel> ListTable => this.GetTable<ToDoListModel>();
+        public ITable<ToDoListModel> ToDoLists => this.GetTable<ToDoListModel>();
 
         /// <summary>
         /// Выгруженная таблица задач.
         /// </summary>
-        public ITable<ToDoItemModel> ItemTable => this.GetTable<ToDoItemModel>();
+        public ITable<ToDoItemModel> ToDoItems => this.GetTable<ToDoItemModel>();
     }
 }
