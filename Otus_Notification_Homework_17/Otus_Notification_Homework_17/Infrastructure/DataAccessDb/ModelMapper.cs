@@ -1,5 +1,4 @@
-﻿using Otus_Notification_Homework_17;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -44,37 +43,16 @@ namespace Otus_Notification_Homework_17
                                                                    ListId = entity.List != null ? entity.List.Id : null,
                                                                    List = entity.List != null ? MapToModel(entity.List) : null,
                                                                    User = MapToModel(entity.User) };
-
         public static ToDoList MapFromModel(ToDoListModel model) => new ToDoList() {
                                                                     Id = model.Id,
                                                                     Name = model.Name,
                                                                     CreatedAt = model.CreatedAt,
                                                                     User = MapFromModel(model.User) };
-
         public static ToDoListModel MapToModel(ToDoList entity) => new ToDoListModel() {
                                                                    Id = entity.Id,
                                                                    Name = entity.Name,
                                                                    CreatedAt = entity.CreatedAt,
                                                                    UserId = entity.User.UserId,
                                                                    User = MapToModel(entity.User) };
-        
-        public static Notification MapFromModel(NotificationModel model) => new Notification() {
-                                                                            Id = model.Id,
-                                                                            Type = model.Type,
-                                                                            Text = model.Text,
-                                                                            ScheduledAt = model.ScheduledAt,
-                                                                            IsNotified = model.IsNotified,
-                                                                            NotifiedAt = model.NotifiedAt,
-                                                                            User = MapFromModel(model.User) };
-
-        public static NotificationModel MapToModel(Notification entity) => new NotificationModel() {
-                                                                           Id = entity.Id,
-                                                                           Type = entity.Type,
-                                                                           Text = entity.Text,
-                                                                           ScheduledAt = entity.ScheduledAt,
-                                                                           IsNotified = entity.IsNotified,
-                                                                           NotifiedAt = entity.NotifiedAt,
-                                                                           UserId= entity.User.UserId,
-                                                                           User = MapToModel(entity.User) };
     }
 }

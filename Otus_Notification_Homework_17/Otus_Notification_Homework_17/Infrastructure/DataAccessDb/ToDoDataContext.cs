@@ -1,6 +1,5 @@
 ﻿using LinqToDB;
 using LinqToDB.Data;
-using Otus_Notification_Homework_17;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,22 +18,16 @@ namespace Otus_Notification_Homework_17
         /// <summary>
         /// Выгруженная таблица пользователей.
         /// </summary>
-        public ITable<ToDoUserModel> UserTable => this.GetTable<ToDoUserModel>();
+        public ITable<ToDoUserModel> ToDoUsers => this.GetTable<ToDoUserModel>();
 
         /// <summary>
         /// Выгруженная таблица списков задач.
         /// </summary>
-        public ITable<ToDoListModel> ListTable => this.GetTable<ToDoListModel>();
+        public ITable<ToDoListModel> ToDoLists => this.GetTable<ToDoListModel>();
 
         /// <summary>
         /// Выгруженная таблица задач.
         /// </summary>
-        public ITable<ToDoItemModel> ItemTable => this.GetTable<ToDoItemModel>();
-
-
-        /// <summary>
-        /// Выгруженная таблица нотификаций.
-        /// </summary>
-        public ITable<NotificationModel> NotificationTable => this.GetTable<NotificationModel>();
+        public ITable<ToDoItemModel> ToDoItems => this.GetTable<ToDoItemModel>();
     }
 }

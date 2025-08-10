@@ -17,18 +17,18 @@ namespace Otus_Notification_Homework_17
             this.contextRep = contextRep;
         }
 
-        private TimeSpan resetScenarioTimeout;
-        private IScenarioContextRepository contextRep;
-        private ITelegramBotClient botClient;
+        private readonly TimeSpan resetScenarioTimeout;
+        private readonly IScenarioContextRepository contextRep;
+        private readonly ITelegramBotClient botClient;
         protected override async Task Execute(CancellationToken ct)
         {
             DateTime now = DateTime.UtcNow;
-            List<ScenarioContext> scenaries = contextRep.GetContexts(ct).Result.Where(x => x.CreatedAt + resetScenarioTimeout > now).ToList();
+            var scenaries = (await contextRep.GetContexts(ct)).Where(x => x.CreatedAt + resetScenarioTimeout > now);
             ReplyMarkup keyboard = KeyboardCommands.CommandKeyboardMarkup(EnumKeyboardsScenariosTypes.Default);
             string message = $"Сценарий отменен, так как не поступил ответ в течение {resetScenarioTimeout}";
             foreach (ScenarioContext scenario in scenaries)
             {
-                contextRep.ResetContext(scenario.UserId, ct);
+                await contextRep.ResetContext(scenario.UserId, ct);
                 await botClient.SendMessage(chatId: scenario.UserId, message, replyMarkup: keyboard, cancellationToken: ct);
             }
         }

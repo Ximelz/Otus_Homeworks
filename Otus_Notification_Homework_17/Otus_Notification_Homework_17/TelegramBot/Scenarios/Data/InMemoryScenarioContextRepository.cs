@@ -14,11 +14,11 @@ namespace Otus_Notification_Homework_17
         {
             scenarios = new ConcurrentDictionary<long, ScenarioContext>();
         }
-        public async Task<ScenarioContext?> GetContext(long userId, CancellationToken ct)
+        public Task<ScenarioContext?> GetContext(long userId, CancellationToken ct)
         {
             if (scenarios.ContainsKey(userId))
-                return scenarios[userId];
-            return null;
+                return Task.FromResult(scenarios[userId]);
+            return Task.FromResult((ScenarioContext)null);
         }
 
         public Task SetContext(long userId, ScenarioContext context, CancellationToken ct)
@@ -39,9 +39,9 @@ namespace Otus_Notification_Homework_17
             return Task.CompletedTask;
         }
 
-        public async Task<IReadOnlyList<ScenarioContext>> GetContexts(CancellationToken ct)
+        public Task<IReadOnlyList<ScenarioContext>> GetContexts(CancellationToken ct)
         {
-            return scenarios.Values.ToList();
+            return Task.FromResult((IReadOnlyList<ScenarioContext>)scenarios.Values.ToList());
         }
     }
 }

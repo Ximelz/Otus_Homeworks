@@ -1,5 +1,4 @@
 ﻿using LinqToDB;
-using Otus_Notification_Homework_17;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Telegram.Bot;
