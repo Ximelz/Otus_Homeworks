@@ -12,7 +12,7 @@ namespace Otus_Notification_Homework_17
         {
             SqlConnectionString = SqlConnStr;
         }
-        private string SqlConnectionString;
+        private readonly string SqlConnectionString;
         public ToDoDataContext CreateDataContext() => new ToDoDataContext(SqlConnectionString);
     }
 }

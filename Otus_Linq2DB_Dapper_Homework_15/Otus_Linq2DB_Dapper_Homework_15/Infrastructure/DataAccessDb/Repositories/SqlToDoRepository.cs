@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace Otus_BackgroundTask_Homework_16
+namespace Otus_Linq2DB_Dapper_Homework_15
 {
     public class SqlToDoRepository : IToDoRepository
     {
@@ -148,11 +148,11 @@ namespace Otus_BackgroundTask_Homework_16
             await using (var dbConn = factory.CreateDataContext())
             {
                 var items = await dbConn.ToDoItems
-                             .LoadWith(i => i.User)
-                             .LoadWith(i => i.List)
-                             .LoadWith(i => i.List!.User)
-                             .Where(x => x.UserId == userId)
-                             .ToListAsync(ct);
+                                        .LoadWith(i => i.User)
+                                        .LoadWith(i => i.List)
+                                        .LoadWith(i => i.List!.User)
+                                        .Where(x => x.UserId == userId)
+                                        .ToListAsync(ct);
 
                 return items.MapListItems()
                             .Where(y => y.State == ToDoItemState.Active)

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace Otus_Notification_Homework_17
+namespace Otus_Linq2DB_Dapper_Homework_15
 {
     public class SqlUserRepository : IUserRepository
     {
@@ -58,17 +58,6 @@ namespace Otus_Notification_Homework_17
             await using (var dbConn = factory.CreateDataContext())
             {
                 await dbConn.InsertAsync(userModel, token: ct);
-            }
-        }
-
-        public async Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            await using (var dbConn = factory.CreateDataContext())
-            {
-                var users = await dbConn.ToDoUsers.ToListAsync(ct);
-                return users.MapListUsers();
             }
         }
     }

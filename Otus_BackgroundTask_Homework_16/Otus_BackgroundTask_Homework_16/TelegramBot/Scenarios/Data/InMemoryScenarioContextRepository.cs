@@ -14,11 +14,11 @@ namespace Otus_BackgroundTask_Homework_16
         {
             scenarios = new ConcurrentDictionary<long, ScenarioContext>();
         }
-        public async Task<ScenarioContext?> GetContext(long userId, CancellationToken ct)
+        public Task<ScenarioContext?> GetContext(long userId, CancellationToken ct)
         {
             if (scenarios.ContainsKey(userId))
-                return scenarios[userId];
-            return null;
+                return Task.FromResult(scenarios[userId]);
+            return Task.FromResult((ScenarioContext)null);
         }
 
         public Task SetContext(long userId, ScenarioContext context, CancellationToken ct)
@@ -37,6 +37,11 @@ namespace Otus_BackgroundTask_Homework_16
                 scenarios.TryRemove(userId, out ScenarioContext? context);
 
             return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyList<ScenarioContext>> GetContexts(CancellationToken ct)
+        {
+            return Task.FromResult((IReadOnlyList<ScenarioContext>)scenarios.Values.ToList());
         }
     }
 }

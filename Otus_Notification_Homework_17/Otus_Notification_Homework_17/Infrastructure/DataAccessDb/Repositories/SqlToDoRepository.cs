@@ -20,9 +20,9 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.Insert(ModelMapper.MapToModel(item));
+                await dbConn.InsertAsync(ModelMapper.MapToModel(item), token: ct);
             }
         }
 
@@ -32,9 +32,9 @@ namespace Otus_Notification_Homework_17
 
             ToDoItemModel itemModel = ModelMapper.MapToModel(item);
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.Update(itemModel);
+                await dbConn.UpdateAsync(itemModel, token: ct);
             }
         }
 
@@ -42,14 +42,14 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.ItemTable
-                      .LoadWith(i => i.User)
-                      .LoadWith(i => i.List)
-                      .LoadWith(i => i.List!.User)
-                      .Where(x => x.Id == id)
-                      .Delete();
+                await dbConn.ToDoItems
+                            .LoadWith(i => i.User)
+                            .LoadWith(i => i.List)
+                            .LoadWith(i => i.List!.User)
+                            .Where(x => x.Id == id)
+                            .DeleteAsync(ct);
             }
         }
 
@@ -57,15 +57,15 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ItemTable
-                             .LoadWith(i => i.User)
-                             .LoadWith(i => i.List)
-                             .LoadWith(i => i.List!.User)
-                             .Where(x => x.UserId == userId)
-                             .Where(y => y.Name == name)
-                             .Any();
+                return await dbConn.ToDoItems
+                                .LoadWith(i => i.User)
+                                .LoadWith(i => i.List)
+                                .LoadWith(i => i.List!.User)
+                                .Where(x => x.UserId == userId)
+                                .Where(y => y.Name == name)
+                                .AnyAsync(ct);
             }
         }
 
@@ -73,9 +73,14 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
             
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ItemTable.Where(x => x.UserId == userId).Where(y => y.State == ToDoItemState.Active).ToList().Count();
+                var items = await dbConn.ToDoItems
+                                        .Where(x => x.UserId == userId)
+                                        .Where(y => y.State == ToDoItemState.Active)
+                                        .ToListAsync(ct);
+
+                return items.Count();
             }
         }
 
@@ -83,17 +88,18 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ItemTable
-                             .LoadWith(i => i.User)
-                             .LoadWith(i => i.List)
-                             .LoadWith(i => i.List!.User)
-                             .Where(x => x.UserId == userId)
-                             .ToList()
-                             .MapListItems()
-                             .Where(predicate)
-                             .ToList();
+                var items = await dbConn.ToDoItems
+                                   .LoadWith(i => i.User)
+                                   .LoadWith(i => i.List)
+                                   .LoadWith(i => i.List!.User)
+                                   .Where(x => x.UserId == userId)
+                                   .ToListAsync(ct);
+
+                return items.MapListItems()
+                            .Where(predicate)
+                            .ToList();
             }
         }
 
@@ -103,14 +109,14 @@ namespace Otus_Notification_Homework_17
 
             ToDoItemModel? modelItem;
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                modelItem = dbConn.ItemTable
-                                  .LoadWith(i => i.User)
-                                  .LoadWith(i => i.List)
-                                  .LoadWith(i => i.List!.User)
-                                  .Where(x => x.Id == toDoItemId)
-                                  .FirstOrDefault();
+                modelItem = await dbConn.ToDoItems
+                                        .LoadWith(i => i.User)
+                                        .LoadWith(i => i.List)
+                                        .LoadWith(i => i.List!.User)
+                                        .Where(x => x.Id == toDoItemId)
+                                        .FirstOrDefaultAsync(ct);
 
                 if (modelItem != null)
                     return ModelMapper.MapFromModel(modelItem);
@@ -122,15 +128,16 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ItemTable
-                             .LoadWith(i => i.User)
-                             .LoadWith(i => i.List)
-                             .LoadWith(i => i.List!.User)
-                             .Where(x => x.UserId == userId)
-                             .ToList()
-                             .MapListItems();
+                var items = await dbConn.ToDoItems
+                                   .LoadWith(i => i.User)
+                                   .LoadWith(i => i.List)
+                                   .LoadWith(i => i.List!.User)
+                                   .Where(x => x.UserId == userId)
+                                   .ToListAsync(ct);
+
+                return items.MapListItems();
             }
         }
 
@@ -138,18 +145,37 @@ namespace Otus_Notification_Homework_17
         {
             ct.ThrowIfCancellationRequested();
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                return dbConn.ItemTable
-                             .LoadWith(i => i.User)
-                             .LoadWith(i => i.List)
-                             .LoadWith(i => i.List!.User)
-                             .Where(x => x.UserId == userId)
-                             .ToList()
-                             .MapListItems()
-                             .Where(y => y.State == ToDoItemState.Active)
-                             .ToList();
+                var items = await dbConn.ToDoItems
+                                        .LoadWith(i => i.User)
+                                        .LoadWith(i => i.List)
+                                        .LoadWith(i => i.List!.User)
+                                        .Where(x => x.UserId == userId)
+                                        .ToListAsync(ct);
+
+                return items.MapListItems()
+                            .Where(y => y.State == ToDoItemState.Active)
+                            .ToList();
             }
         }
-    }
+
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveWithDeadline(Guid userId, DateTime from, DateTime to, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            await using (var dbConn = factory.CreateDataContext())
+            {
+                var items = await dbConn.ToDoItems
+                                        .LoadWith(i => i.User)
+                                        .LoadWith(i => i.List)
+                                        .LoadWith(i => i.List!.User)
+                                        .Where(x => x.UserId == userId)
+                                        .Where(y => y.State == ToDoItemState.Active)
+                                        .Where(x => x.DeadLine >= from && x.DeadLine < to)
+                                        .ToListAsync(ct);
+
+                return items.MapListItems();
+            }
+        }
 }

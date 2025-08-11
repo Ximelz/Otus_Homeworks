@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using LinqToDB;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -13,6 +14,8 @@ namespace Otus_Linq2DB_Dapper_Homework_15
         {
             try
             {
+                string SqlConnectionString = "Host=localhost;Database=ToDoListDb;Username=postgres;Password=\'Вставь свой пароль\';Port=5432";
+
                 int maxTasks = SetMaxTasks();
                 int maxLengthNameTask = SetMaxLengthNameTasks();
 
@@ -21,10 +24,11 @@ namespace Otus_Linq2DB_Dapper_Homework_15
 
                 string path = "E:\\Otus homeworks\\ToDoItems";
 
-                IUserRepository userRepository = new FileUsersRepository(path);
+                IDataContextFactory<ToDoDataContext> factory = new DataContextFactory(SqlConnectionString);
+                IUserRepository userRepository = new SqlUserRepository(factory);
                 IUserService userService = new UserService(userRepository);
-                IToDoRepository toDoRepository = new FileToDoRepository(path);
-                IToDoListRepository toDoListRepository = new FileToDoListRepository(path);
+                IToDoRepository toDoRepository = new SqlToDoRepository(factory);
+                IToDoListRepository toDoListRepository = new SqlToDoListRepository(factory);
                 IToDoService toDoService = new ToDoService(maxTasks, maxLengthNameTask, toDoRepository);
                 IToDoListService toDoListService = new ToDoListService(toDoListRepository);
                 IEnumerable<IScenario> scenarios = new List<IScenario>

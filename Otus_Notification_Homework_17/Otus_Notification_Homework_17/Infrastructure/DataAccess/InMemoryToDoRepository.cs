@@ -1,4 +1,6 @@
-﻿namespace Otus_Notification_Homework_17
+﻿using System.Collections.Generic;
+
+namespace Otus_Notification_Homework_17
 {
     public class InMemoryToDoRepository : IToDoRepository
     {
@@ -132,6 +134,17 @@
             ct.ThrowIfCancellationRequested();
 
             return tasks.Where(x => x.Id == toDoItemId).FirstOrDefault();
+        }
+
+
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveWithDeadline(Guid userId, DateTime from, DateTime to, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return tasks.Where(x => x.User.UserId == userId)
+                        .Where(y => y.State == ToDoItemState.Active)
+                        .Where(x => x.DeadLine >= from && x.DeadLine < to)
+                        .ToList();
         }
     }
 }

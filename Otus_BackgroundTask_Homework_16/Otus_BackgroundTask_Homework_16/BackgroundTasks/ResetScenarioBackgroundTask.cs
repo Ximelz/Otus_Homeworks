@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Otus_Notification_Homework_17
+namespace Otus_BackgroundTask_Homework_16
 {
     public class ResetScenarioBackgroundTask : BackgroundTask
     {

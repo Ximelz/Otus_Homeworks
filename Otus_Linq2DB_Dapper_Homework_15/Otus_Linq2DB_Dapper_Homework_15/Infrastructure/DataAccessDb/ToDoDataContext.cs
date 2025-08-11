@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Otus_Notification_Homework_17
+namespace Otus_Linq2DB_Dapper_Homework_15
 {
     /// <summary>
     /// Класс для подключения и выгрузки данных из таблиц БД.
@@ -29,9 +29,5 @@ namespace Otus_Notification_Homework_17
         /// Выгруженная таблица задач.
         /// </summary>
         public ITable<ToDoItemModel> ToDoItems => this.GetTable<ToDoItemModel>();
-        /// <summary>
-        /// Выгруженная таблица задач.
-        /// </summary>
-        public ITable<NotificationModel> Notifications => this.GetTable<NotificationModel>();
     }
 }

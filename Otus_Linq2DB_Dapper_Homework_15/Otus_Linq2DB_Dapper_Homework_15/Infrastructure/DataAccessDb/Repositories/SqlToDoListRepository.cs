@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Otus_BackgroundTask_Homework_16
+namespace Otus_Linq2DB_Dapper_Homework_15
 {
     public class SqlToDoListRepository : IToDoListRepository
     {

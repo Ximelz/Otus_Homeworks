@@ -78,5 +78,15 @@ namespace Otus_Notification_Homework_17
         /// <param name="ct">Токен отмены.</param>
         /// <returns>Искомая задача.</returns>
         Task<ToDoItem?> Get(Guid toDoItemId, CancellationToken ct);
+
+        /// <summary>
+        /// Список активных задач со сроком сдачи в указанном диапазоне.
+        /// </summary>
+        /// <param name="userId">Id пользователя.</param>
+        /// <param name="from">Левая граница временого отрезка.</param>
+        /// <param name="to">Правая граница временого отрезкаю</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Список залач пользователя со сроком сдачи в указанном диапазоне.</returns>
+        Task<IReadOnlyList<ToDoItem>> GetActiveWithDeadline(Guid userId, DateTime from, DateTime to, CancellationToken ct);
     }
 }
