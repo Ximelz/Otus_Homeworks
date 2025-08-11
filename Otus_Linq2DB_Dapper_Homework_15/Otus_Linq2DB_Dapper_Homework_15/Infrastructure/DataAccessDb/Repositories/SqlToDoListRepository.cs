@@ -25,7 +25,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
                 toDoListModel = await dbConn.ToDoLists
                                             .LoadWith(i => i.User)
                                             .Where(x => x.Id == id)
-                                            .FirstOrDefaultAsync();
+                                            .FirstOrDefaultAsync(ct);
 
                 if (toDoListModel != null)
                     return ModelMapper.MapFromModel(toDoListModel);
@@ -42,7 +42,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
                 var lists = await dbConn.ToDoLists
                                     .LoadWith(i => i.User)
                                     .Where(x => x.UserId == userId)
-                                    .ToListAsync();
+                                    .ToListAsync(ct);
 
                 return lists.MapListLists();
             }
@@ -54,7 +54,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.InsertAsync(ModelMapper.MapToModel(list));
+                await dbConn.InsertAsync(ModelMapper.MapToModel(list), token: ct);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.ToDoLists.Where(x => x.Id == id).DeleteAsync();
+                await dbConn.ToDoLists.Where(x => x.Id == id).DeleteAsync(ct);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
                 return await dbConn.ToDoLists
                              .Where(x => x.UserId == userId)
                              .Where(y => y.Name == name)
-                             .AnyAsync();
+                             .AnyAsync(ct);
             }
         }
     }

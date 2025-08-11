@@ -24,7 +24,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             {
                 toDoUserModel = await dbConn.ToDoUsers
                                             .Where(x => x.UserId == userId)
-                                            .FirstOrDefaultAsync();
+                                            .FirstOrDefaultAsync(ct);
 
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
@@ -41,7 +41,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
             {
                 toDoUserModel = await dbConn.ToDoUsers
                                             .Where(x => x.TelegramUserId == telegramUserId)
-                                            .FirstOrDefaultAsync();
+                                            .FirstOrDefaultAsync(ct);
 
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
@@ -57,7 +57,7 @@ namespace Otus_Linq2DB_Dapper_Homework_15
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.InsertAsync(userModel);
+                await dbConn.InsertAsync(userModel, token: ct);
             }
         }
     }
