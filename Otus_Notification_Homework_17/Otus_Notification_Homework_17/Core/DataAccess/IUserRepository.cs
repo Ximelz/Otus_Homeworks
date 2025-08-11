@@ -30,5 +30,12 @@ namespace Otus_Notification_Homework_17
         /// <param name="user"></param>
         /// <param name="ct">Объект отмены задачи.</param>
         Task Add(ToDoUser user, CancellationToken ct);
+
+        /// <summary>
+        /// Получение всех пользователей.
+        /// </summary>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Список пользователей.</returns>
+        Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct);
     }
 }

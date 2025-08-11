@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Otus_Notification_Homework_17
 {
@@ -221,6 +222,14 @@ namespace Otus_Notification_Homework_17
             }
 
             return null;
+        }
+
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveWithDeadline(Guid userId, DateTime from, DateTime to, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var activeItems = await GetActiveByUserId(userId, ct);
+            return activeItems.Where(x => x.DeadLine >= from && x.DeadLine < to).ToList();
         }
     }
 }

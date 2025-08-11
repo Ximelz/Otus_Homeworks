@@ -20,9 +20,12 @@ namespace Otus_Notification_Homework_17
             ct.ThrowIfCancellationRequested();
 
             ToDoUserModel? toDoUserModel;
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                toDoUserModel = dbConn.UserTable.Where(x => x.UserId == userId).FirstOrDefault();
+                toDoUserModel = await dbConn.ToDoUsers
+                                            .Where(x => x.UserId == userId)
+                                            .FirstOrDefaultAsync(ct);
+
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
                 return null;
@@ -34,9 +37,12 @@ namespace Otus_Notification_Homework_17
             ct.ThrowIfCancellationRequested();
 
             ToDoUserModel? toDoUserModel;
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                toDoUserModel = dbConn.UserTable.Where(x => x.TelegramUserId == telegramUserId).FirstOrDefault();
+                toDoUserModel = await dbConn.ToDoUsers
+                                            .Where(x => x.TelegramUserId == telegramUserId)
+                                            .FirstOrDefaultAsync(ct);
+
                 if (toDoUserModel != null)
                     return ModelMapper.MapFromModel(toDoUserModel);
                 return null;
@@ -49,9 +55,20 @@ namespace Otus_Notification_Homework_17
 
             ToDoUserModel userModel = ModelMapper.MapToModel(user);
 
-            using (var dbConn = factory.CreateDataContext())
+            await using (var dbConn = factory.CreateDataContext())
             {
-                dbConn.Insert(userModel);
+                await dbConn.InsertAsync(userModel, token: ct);
+            }
+        }
+
+        public async Task<IReadOnlyList<ToDoUser>> GetUsers(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            await using (var dbConn = factory.CreateDataContext())
+            {
+                var users = await dbConn.ToDoUsers.ToListAsync(ct);
+                return users.MapListUsers();
             }
         }
     }

@@ -36,11 +36,28 @@ CREATE TABLE "ToDoItem"
 	
 	CONSTRAINT "ToDoItem_UserId"
         FOREIGN KEY ("UserId") 
-        REFERENCES "ToDoUser"("UserId")
-        ON DELETE CASCADE,
+        REFERENCES "ToDoUser"("UserId"),
 		
 	CONSTRAINT "ToDoItem_ListId"
         FOREIGN KEY ("ListId") 
         REFERENCES "ToDoList"("Id")
 );
 CREATE INDEX idx_item_id ON public."ToDoItem" ("Id");
+
+CREATE TABLE "Notification"
+(
+	"Id" uuid PRIMARY KEY,
+	"UserId" uuid NOT NULL,
+	"Type" varchar(100) NOT NULL,
+	"Text" varchar(1000) NOT NULL,
+	"ScheduledAt" date NOT NULL DEFAULT CURRENT_DATE,
+	"IsNotified" bool DEFAULT FALSE,
+	"NotifiedAt" date NULL,
+
+	
+	CONSTRAINT "Notification_UserId"
+        FOREIGN KEY ("UserId") 
+        REFERENCES "ToDoUser"("UserId"),
+);
+CREATE INDEX idx_notification_id ON public."Notification" ("Id");
+CREATE INDEX idx_userInNotification_id ON public."Notification" ("UserId");
