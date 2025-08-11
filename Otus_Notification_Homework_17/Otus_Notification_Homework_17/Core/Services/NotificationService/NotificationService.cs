@@ -25,7 +25,7 @@ namespace Otus_Notification_Homework_17
                 bool presentInDb = await dbConn.Notifications
                                                .Where(x => x.UserId == userId)
                                                .Where(x => x.Type == type)
-                                               .AnyAsync();
+                                               .AnyAsync(ct);
                 if (presentInDb) 
                     return false;
 
@@ -38,7 +38,7 @@ namespace Otus_Notification_Homework_17
                     UserId = userId
                 };
 
-                await dbConn.InsertAsync(notification);
+                await dbConn.InsertAsync(notification, token: ct);
                 return true;
             }
         }
@@ -53,9 +53,9 @@ namespace Otus_Notification_Homework_17
                                                 .LoadWith(u => u.User)
                                                 .Where(x => x.ScheduledAt <= scheduledBefore)
                                                 .Where(x => x.IsNotified == false)
-                                                .ToListAsync();
+                                                .ToListAsync(ct);
                 
-                return notifications.MapListNotifications().ToList();
+                return notifications.MapListNotifications();
             }
         }
 
@@ -65,7 +65,7 @@ namespace Otus_Notification_Homework_17
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.Notifications.Where(x => x.Id == notificationId).Set(x => x.IsNotified, true).UpdateAsync();
+                await dbConn.Notifications.Where(x => x.Id == notificationId).Set(x => x.IsNotified, true).UpdateAsync(ct);
             }
         }
     }
