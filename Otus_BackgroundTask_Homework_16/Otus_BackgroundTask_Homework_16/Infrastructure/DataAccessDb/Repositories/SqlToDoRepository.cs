@@ -22,7 +22,7 @@ namespace Otus_BackgroundTask_Homework_16
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.InsertAsync(ModelMapper.MapToModel(item));
+                await dbConn.InsertAsync(ModelMapper.MapToModel(item), token: ct);
             }
         }
 
@@ -34,7 +34,7 @@ namespace Otus_BackgroundTask_Homework_16
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                await dbConn.UpdateAsync(itemModel);
+                await dbConn.UpdateAsync(itemModel, token: ct);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Otus_BackgroundTask_Homework_16
                             .LoadWith(i => i.List)
                             .LoadWith(i => i.List!.User)
                             .Where(x => x.Id == id)
-                            .DeleteAsync();
+                            .DeleteAsync(ct);
             }
         }
 
@@ -65,7 +65,7 @@ namespace Otus_BackgroundTask_Homework_16
                                 .LoadWith(i => i.List!.User)
                                 .Where(x => x.UserId == userId)
                                 .Where(y => y.Name == name)
-                                .AnyAsync();
+                                .AnyAsync(ct);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Otus_BackgroundTask_Homework_16
                 var items = await dbConn.ToDoItems
                                         .Where(x => x.UserId == userId)
                                         .Where(y => y.State == ToDoItemState.Active)
-                                        .ToListAsync();
+                                        .ToListAsync(ct);
 
                 return items.Count();
             }
@@ -95,7 +95,7 @@ namespace Otus_BackgroundTask_Homework_16
                                    .LoadWith(i => i.List)
                                    .LoadWith(i => i.List!.User)
                                    .Where(x => x.UserId == userId)
-                                   .ToListAsync();
+                                   .ToListAsync(ct);
 
                 return items.MapListItems()
                             .Where(predicate)
@@ -116,7 +116,7 @@ namespace Otus_BackgroundTask_Homework_16
                                         .LoadWith(i => i.List)
                                         .LoadWith(i => i.List!.User)
                                         .Where(x => x.Id == toDoItemId)
-                                        .FirstOrDefaultAsync();
+                                        .FirstOrDefaultAsync(ct);
 
                 if (modelItem != null)
                     return ModelMapper.MapFromModel(modelItem);
@@ -135,7 +135,7 @@ namespace Otus_BackgroundTask_Homework_16
                                    .LoadWith(i => i.List)
                                    .LoadWith(i => i.List!.User)
                                    .Where(x => x.UserId == userId)
-                                   .ToListAsync();
+                                   .ToListAsync(ct);
 
                 return items.MapListItems();
             }
@@ -147,12 +147,12 @@ namespace Otus_BackgroundTask_Homework_16
 
             await using (var dbConn = factory.CreateDataContext())
             {
-                var items = dbConn.ToDoItems
+                var items = await dbConn.ToDoItems
                              .LoadWith(i => i.User)
                              .LoadWith(i => i.List)
                              .LoadWith(i => i.List!.User)
                              .Where(x => x.UserId == userId)
-                             .ToList();
+                             .ToListAsync(ct);
 
                 return items.MapListItems()
                             .Where(y => y.State == ToDoItemState.Active)
